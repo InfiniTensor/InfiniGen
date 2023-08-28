@@ -22,8 +22,8 @@ class Binary : public Operator {
   bool checkValid() override;
   std::string generatorBoneOnCUDA(std::string name);
   std::string generatorBoneOnBANG(std::string name);
-  virtual std::string generatorCoreOnCUDA(int64_t id) = 0;
-  virtual std::string generatorCoreOnBANG(int64_t id) = 0;
+  std::string generatorCoreOnCUDA(int64_t id);
+  std::string generatorCoreOnBANG(int64_t id);
 };
 
 #define DEFINE_BINARY(OP_NAME)                                             \
@@ -40,13 +40,10 @@ class Binary : public Operator {
       kernel = new R2G##Kernel();                                          \
       this->pushKernel(kernel);                                            \
     }                                                                      \
-                                                                           \
-   private:                                                                \
-    std::string generatorCoreOnCUDA(int64_t id) override;                  \
-    std::string generatorCoreOnBANG(int64_t id) override;                  \
   };
 
 DEFINE_BINARY(ADD)
+DEFINE_BINARY(SUB)
 #undef DEFINE_BINARY_OBJ
 
 }  // namespace infini

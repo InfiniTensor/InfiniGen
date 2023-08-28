@@ -23,14 +23,14 @@ int main() {
   right.flatten();
   output.flatten();
   // Define Operator
-  infini::ADD add(&left, &right, &output);
+  infini::SUB sub(&left, &right, &output);
   // Get Worker
-  add.getWorker(workers);
+  sub.getWorker(workers);
   // Declare split, operator and apply split
   infini::Split split({16});
-  add.setSplit(split);
-  add.applySplit();
-  LOG(PURE) << add.generatorBone(infini::PlatformType::CUDA);
+  sub.setSplit(split);
+  sub.applySplit();
+  LOG(PURE) << sub.generatorBone(infini::PlatformType::BANG);
   for (infini::Worker* ptr : workers) {
     delete ptr;
   }

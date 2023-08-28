@@ -20,5 +20,6 @@ class BinaryKernel : public Kernel {
   };
 
 BINARY_KERNEL(ADD)
+BINARY_KERNEL(SUB)
 #undef BINARY_KERNEL
 }  // namespace infini

@@ -114,7 +114,7 @@ std::string Binary::generatorBoneOnBANG(std::string name) {
   return temp;
 }
 
-std::string ADD::generatorCoreOnCUDA(int64_t id) {
+std::string Binary::generatorCoreOnCUDA(int64_t id) {
   std::string temp = "";
   temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* " +
           inputs[0]->tensor_name + "_start = " + inputs[0]->tensor_name +
@@ -175,7 +175,7 @@ std::string ADD::generatorCoreOnCUDA(int64_t id) {
   return temp;
 }
 
-std::string ADD::generatorCoreOnBANG(int64_t id) {
+std::string Binary::generatorCoreOnBANG(int64_t id) {
   std::string temp = "";
   temp += worker_list[id]->generatorBoneOnBANG("__nram__", 3);
   temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* " +
