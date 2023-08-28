@@ -44,6 +44,7 @@ class Binary : public Operator {
 
 DEFINE_BINARY(ADD)
 DEFINE_BINARY(SUB)
+DEFINE_BINARY(MUL)
 #undef DEFINE_BINARY_OBJ
 
 }  // namespace infini

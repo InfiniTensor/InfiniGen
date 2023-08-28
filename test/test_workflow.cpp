@@ -23,7 +23,7 @@ int main() {
   right.flatten();
   output.flatten();
   // Define Operator
-  infini::SUB sub(&left, &right, &output);
+  infini::MUL sub(&left, &right, &output);
   // Get Worker
   sub.getWorker(workers);
   // Declare split, operator and apply split
