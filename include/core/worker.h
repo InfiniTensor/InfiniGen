@@ -31,21 +31,24 @@ class Worker {
   // Reset cache dispatch algorithm
   void resetDispatch(MemoryDispatch dispatch);
   // Load data
-  void loadData(std::string datainfo);
+  std::string loadData(std::string datainfo);
   // Add subordinate
   void addSubordinate(Worker* worker);
   void addSubordinates(std::vector<Worker*>& workers);
   // Information
   void printInformation(int64_t level = 0);
   void printSummary(int64_t level = 0);
+  // Generator
+  std::string generatorBoneOnBANG(std::string cache_name, int64_t num);
+  std::string generatorBoneOnCUDA(std::string cache_name, int64_t num);
 
  private:
   // FIFO algorithm
-  void loadDataFIFO(std::string type, int64_t offset, int64_t size);
+  std::string loadDataFIFO(std::string type, int64_t offset, int64_t size);
   // LRU algorithm
-  void loadDataLRU(std::string type, int64_t offset, int64_t size);
+  std::string loadDataLRU(std::string type, int64_t offset, int64_t size);
   // LFU algorithm
-  void loadDataLFU(std::string type, int64_t offset, int64_t size);
+  std::string loadDataLFU(std::string type, int64_t offset, int64_t size);
 };
 
 }  // namespace infini

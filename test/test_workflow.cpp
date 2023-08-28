@@ -30,7 +30,7 @@ int main() {
   infini::Split split({16});
   add.setSplit(split);
   add.applySplit();
-  LOG(PURE) << add.generatorBone(infini::PlatformType::CUDA);
+  LOG(PURE) << add.generatorBone(infini::PlatformType::BANG);
   for (infini::Worker* ptr : workers) {
     delete ptr;
   }

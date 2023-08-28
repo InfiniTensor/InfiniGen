@@ -116,13 +116,6 @@ std::string Binary::generatorBoneOnBANG(std::string name) {
 
 std::string ADD::generatorCoreOnCUDA(int64_t id) {
   std::string temp = "";
-  temp += indentation(3) + "cuda" + ";\n";
-  return temp;
-  // TODO(wanghailu)
-}
-
-std::string ADD::generatorCoreOnBANG(int64_t id) {
-  std::string temp = "";
   temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* " +
           inputs[0]->tensor_name + "_start = " + inputs[0]->tensor_name +
           " + " + std::to_string(inputs_tiles[0][id].start_offset) + ";\n";
@@ -142,7 +135,7 @@ std::string ADD::generatorCoreOnBANG(int64_t id) {
   for (auto i = 0; i < kernel_list.size(); ++i) {
     temp +=
         indentation(4) +
-        kernel_list[i]->generatorCodeOnBANG(
+        kernel_list[i]->generatorCodeOnCUDA(
             {"placeholder0", "placeholder1", "placeholder2", "placeholder3"}) +
         "\n";
   }
@@ -160,10 +153,89 @@ std::string ADD::generatorCoreOnBANG(int64_t id) {
   for (auto i = 0; i < kernel_list.size(); ++i) {
     temp +=
         indentation(4) +
-        kernel_list[i]->generatorCodeOnBANG(
+        kernel_list[i]->generatorCodeOnCUDA(
             {"placeholder0", "placeholder1", "placeholder2", "placeholder3"}) +
         "\n";
   }
+  temp += indentation(3) + "}\n";
+  return temp;
+}
+
+std::string ADD::generatorCoreOnBANG(int64_t id) {
+  std::string temp = "";
+  temp += worker_list[id]->generatorBoneOnBANG("__nram__", 3);
+  temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* " +
+          inputs[0]->tensor_name + "_start = " + inputs[0]->tensor_name +
+          " + " + std::to_string(inputs_tiles[0][id].start_offset) + ";\n";
+  temp += indentation(3) + datatype_string(inputs[1]->tensor_datatype) + "* " +
+          inputs[1]->tensor_name + "_start = " + inputs[1]->tensor_name +
+          " + " + std::to_string(inputs_tiles[1][id].start_offset) + ";\n";
+  temp += indentation(3) + datatype_string(outputs[0]->tensor_datatype) + "* " +
+          outputs[0]->tensor_name + "_start = " + outputs[0]->tensor_name +
+          " + " + std::to_string(outputs_tiles[0][id].start_offset) + ";\n";
+  temp += indentation(3) + "int64_t repeat = " +
+          std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension)) +
+          " / " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
+  temp += indentation(3) + "int64_t rem = " +
+          std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension)) +
+          " % " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
+  temp += indentation(3) + "for (int64_t i = 0; i < repeat; ++i) {\n";
+  temp +=
+      indentation(4) +
+      kernel_list[0]->generatorCodeOnBANG(
+          {inputs[0]->tensor_name + "_start", "buffer_slice_0",
+           std::to_string(worker_list[id]->cache_line_size), "GDRAM2NRAM"}) +
+      "\n";
+  temp +=
+      indentation(4) +
+      kernel_list[1]->generatorCodeOnBANG(
+          {inputs[1]->tensor_name + "_start", "buffer_slice_1",
+           std::to_string(worker_list[id]->cache_line_size), "GDRAM2NRAM"}) +
+      "\n";
+  temp += indentation(4) +
+          kernel_list[2]->generatorCodeOnBANG(
+              {"buffer_slice_0", "buffer_slice_1", "buffer_slice_2",
+               std::to_string(worker_list[id]->cache_line_size) + " / sizeof(" +
+                   datatype_string(inputs[0]->tensor_datatype) + ")"}) +
+          "\n";
+  temp +=
+      indentation(4) +
+      kernel_list[3]->generatorCodeOnBANG(
+          {"buffer_slice_2", outputs[0]->tensor_name + "_start",
+           std::to_string(worker_list[id]->cache_line_size), "NRAM2GDRAM"}) +
+      "\n";
+  temp += indentation(4) + inputs[0]->tensor_name +
+          "_start += " + std::to_string(worker_list[id]->cache_line_size) +
+          ";\n";
+  temp += indentation(4) + inputs[1]->tensor_name +
+          "_start += " + std::to_string(worker_list[id]->cache_line_size) +
+          ";\n";
+  temp += indentation(4) + outputs[0]->tensor_name +
+          "_start += " + std::to_string(worker_list[id]->cache_line_size) +
+          ";\n";
+  temp += indentation(3) + "}\n";
+  temp += indentation(3) + "if (rem) {\n";
+  temp += indentation(4) +
+          kernel_list[0]->generatorCodeOnBANG(
+              {inputs[0]->tensor_name + "_start", "buffer_slice_0", "rem",
+               "GDRAM2NRAM"}) +
+          "\n";
+  temp += indentation(4) +
+          kernel_list[1]->generatorCodeOnBANG(
+              {inputs[1]->tensor_name + "_start", "buffer_slice_1", "rem",
+               "GDRAM2NRAM"}) +
+          "\n";
+  temp += indentation(4) +
+          kernel_list[2]->generatorCodeOnBANG(
+              {"buffer_slice_0", "buffer_slice_1", "buffer_slice_2",
+               std::to_string(worker_list[id]->cache_line_size) + " / sizeof(" +
+                   datatype_string(inputs[0]->tensor_datatype) + ")"}) +
+          "\n";
+  temp += indentation(4) +
+          kernel_list[3]->generatorCodeOnBANG(
+              {"buffer_slice_2", outputs[0]->tensor_name + "_start", "rem",
+               "NRAM2GDRAM"}) +
+          "\n";
   temp += indentation(3) + "}\n";
   return temp;
 }

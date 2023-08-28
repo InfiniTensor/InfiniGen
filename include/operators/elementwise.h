@@ -33,6 +33,8 @@ class Binary : public Operator {
         : Binary(OperatorType::OP_NAME, input_left, input_right, output) { \
       Kernel* kernel = new G2R##Kernel();                                  \
       this->pushKernel(kernel);                                            \
+      kernel = new G2R##Kernel();                                          \
+      this->pushKernel(kernel);                                            \
       kernel = new OP_NAME##Kernel();                                      \
       this->pushKernel(kernel);                                            \
       kernel = new R2G##Kernel();                                          \
