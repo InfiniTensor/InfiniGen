@@ -5,7 +5,7 @@ namespace infini {
 BinaryKernel::BinaryKernel() : Kernel(KernelType::BINARY) {}
 
 std::string ADDKernel::generatorCodeOnCUDA(std::vector<std::string> args) {
-  return "cuda add";
+  return " + ";
 }
 
 std::string ADDKernel::generatorCodeOnBANG(std::vector<std::string> args) {

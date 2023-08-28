@@ -5,11 +5,15 @@ namespace infini {
 MemoryKernel::MemoryKernel() : Kernel(KernelType::MEMORY) {}
 
 std::string G2RKernel::generatorCodeOnCUDA(std::vector<std::string> args) {
-  return "cuda memcpy dram 2 register";
+  std::string temp = "";
+  temp += args[0] + "[threadIdx.y]";
+  return temp;
 }
 
 std::string R2GKernel::generatorCodeOnCUDA(std::vector<std::string> args) {
-  return "cuda memcpy register 2 dram";
+  std::string temp = "";
+  temp += args[0] + "[threadIdx.y]";
+  return temp;
 }
 
 std::string G2RKernel::generatorCodeOnBANG(std::vector<std::string> args) {

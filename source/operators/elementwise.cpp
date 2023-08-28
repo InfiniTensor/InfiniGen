@@ -132,13 +132,19 @@ std::string ADD::generatorCoreOnCUDA(int64_t id) {
           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension)) +
           " % " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
   temp += indentation(3) + "for (int64_t i = 0; i < repeat; ++i) {\n";
-  for (auto i = 0; i < kernel_list.size(); ++i) {
-    temp +=
-        indentation(4) +
-        kernel_list[i]->generatorCodeOnCUDA(
-            {"placeholder0", "placeholder1", "placeholder2", "placeholder3"}) +
-        "\n";
-  }
+  temp +=
+      indentation(4) + kernel_list[3]->generatorCodeOnCUDA(
+                           {outputs[0]->tensor_name + "_start",
+                            std::to_string(worker_list[id]->cache_line_size)});
+  temp += " = ";
+  temp += kernel_list[0]->generatorCodeOnCUDA(
+      {inputs[0]->tensor_name + "_start",
+       std::to_string(worker_list[id]->cache_line_size)});
+  temp += kernel_list[2]->generatorCodeOnCUDA({});
+  temp += kernel_list[1]->generatorCodeOnCUDA(
+              {inputs[1]->tensor_name + "_start",
+               std::to_string(worker_list[id]->cache_line_size)}) +
+          ";\n";
   temp += indentation(4) + inputs[0]->tensor_name +
           "_start += " + std::to_string(worker_list[id]->cache_line_size) +
           ";\n";
@@ -150,13 +156,21 @@ std::string ADD::generatorCoreOnCUDA(int64_t id) {
           ";\n";
   temp += indentation(3) + "}\n";
   temp += indentation(3) + "if (rem) {\n";
-  for (auto i = 0; i < kernel_list.size(); ++i) {
-    temp +=
-        indentation(4) +
-        kernel_list[i]->generatorCodeOnCUDA(
-            {"placeholder0", "placeholder1", "placeholder2", "placeholder3"}) +
-        "\n";
-  }
+  temp += indentation(4) + "if (threadIdx.y < rem) {\n";
+  temp +=
+      indentation(5) + kernel_list[3]->generatorCodeOnCUDA(
+                           {outputs[0]->tensor_name + "_start",
+                            std::to_string(worker_list[id]->cache_line_size)});
+  temp += " = ";
+  temp += kernel_list[0]->generatorCodeOnCUDA(
+      {inputs[0]->tensor_name + "_start",
+       std::to_string(worker_list[id]->cache_line_size)});
+  temp += kernel_list[2]->generatorCodeOnCUDA({});
+  temp += kernel_list[1]->generatorCodeOnCUDA(
+              {inputs[1]->tensor_name + "_start",
+               std::to_string(worker_list[id]->cache_line_size)}) +
+          ";\n";
+  temp += indentation(4) + "}\n";
   temp += indentation(3) + "}\n";
   return temp;
 }
