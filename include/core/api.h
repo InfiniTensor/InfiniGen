@@ -8,4 +8,5 @@
 #include "core/split.h"
 #include "core/operator.h"
 #include "core/attribute.h"
+#include "core/graph.h"
 #include "operators/elementwise.h"

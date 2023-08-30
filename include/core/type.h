@@ -13,7 +13,21 @@ enum class TensorType { CONST, VARIABLE };
 // OperatorType
 enum class OperatorType { ADD, SUB, MUL, SIGMOID, RELU };
 // KernelType
-enum class KernelType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY, FMA };
+enum class KernelType {
+  BINARY,
+  UNARY,
+  REDUCE,
+  BROADCAST,
+  MEMORY,
+  FMA,
+  LOAD,
+  CACHE,
+  ADD,
+  SUB,
+  MUL,
+  SIN,
+  COS
+};
 // PlatformType
 enum class PlatformType { CUDA, BANG };
 }  // namespace infini
