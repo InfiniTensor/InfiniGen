@@ -17,6 +17,8 @@ class Node {
   int64_t outputs_num;
   std::vector<Data*> inputs;
   std::vector<Data*> outputs;
+  std::vector<Node*> predecessors;
+  std::vector<Node*> successors;
 
  public:
   // Constructor

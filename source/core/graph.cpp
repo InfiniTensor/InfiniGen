@@ -28,6 +28,10 @@ Node::Node(std::vector<Data*> inputs_list, std::vector<Data*> outputs_list,
   }
   for (auto it : inputs) {
     it->addConsumer(this);
+    if (it->producer != NULL) {
+      predecessors.push_back(it->producer);
+      it->producer->successors.push_back(this);
+    }
   }
   for (auto it : outputs) {
     it->setProducer(this);
@@ -60,6 +64,18 @@ void Node::printInformation() {
   for (auto i = 0; i < outputs.size(); ++i) {
     info_string += outputs[i]->name;
     info_string += (i == (outputs.size() - 1) ? "" : ", ");
+  }
+  info_string += "] ";
+  info_string += "Predecessors: [";
+  for (auto i = 0; i < predecessors.size(); ++i) {
+    info_string += predecessors[i]->name;
+    info_string += (i == (predecessors.size() - 1) ? "" : ", ");
+  }
+  info_string += "] ";
+  info_string += "Successors: [";
+  for (auto i = 0; i < successors.size(); ++i) {
+    info_string += successors[i]->name;
+    info_string += (i == (successors.size() - 1) ? "" : ", ");
   }
   info_string += "] ";
   LOG(INFO) << info_string;
