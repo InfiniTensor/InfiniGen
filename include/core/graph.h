@@ -13,13 +13,16 @@ class Node {
  public:
   std::string name;
   const int64_t index;
+  int64_t indegree;
+  int64_t outputs_num;
   std::vector<Data*> inputs;
   std::vector<Data*> outputs;
 
  public:
   // Constructor
   Node(std::vector<Data*> inputs_list = {},
-       std::vector<Data*> outputs_list = {}, std::string name_value = "");
+       std::vector<Data*> outputs_list = {}, std::string name_value = "",
+       int64_t outputs_num_value = 1);
   // Destructor
   ~Node() = default;
   // Function
@@ -61,6 +64,7 @@ class Graph {
   std::vector<Node*> operators;
   std::vector<Data*> inputs;
   std::vector<Data*> outputs;
+  std::vector<Data*> temps;
 
  public:
   // Constructor
@@ -70,7 +74,7 @@ class Graph {
   // Destructor
   ~Graph() = default;
   // Function
-  void topoSort();
+  std::vector<Node*> topoSort();
   // Information
   void printInformation();
 };
