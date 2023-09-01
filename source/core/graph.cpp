@@ -28,6 +28,7 @@ Node::Node(std::vector<Data*> inputs_list, std::vector<Data*> outputs_list,
   }
   for (auto it : inputs) {
     it->addConsumer(this);
+    it->remaining += 1;
     if (it->producer != NULL) {
       predecessors.push_back(it->producer);
       it->producer->successors.push_back(this);
@@ -84,7 +85,7 @@ void Node::printInformation() {
 //////////////////////////////////////////////////////////////////////
 
 Data::Data(std::string name_value)
-    : name(name_value), index(count++), producer(NULL) {
+    : name(name_value), index(count++), producer(NULL), remaining(0) {
   if (name == "") {
     name = "Data_" + std::to_string(index);
   }
@@ -101,6 +102,9 @@ void Data::printInformation() {
   info_string += "Data ";
   info_string += "Name: [";
   info_string += name;
+  info_string += "] ";
+  info_string += "Remaining: [";
+  info_string += std::to_string(remaining);
   info_string += "] ";
   info_string += "Producer: [";
   info_string += (producer == NULL ? "Null" : producer->name);
@@ -127,11 +131,41 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
     name = "Graph_" + std::to_string(index);
   }
   for (auto op : operators) {
+    for (auto data : op->inputs) {
+      remainingData.insert(data); //不确定是否应该check是否存在
+    }
     for (auto data : op->outputs) {
-      // auto inputs_iter = std::find(inputs.begin(), inputs.end(), data);
       auto outputs_iter = std::find(outputs.begin(), outputs.end(), data);
       if (outputs_iter == outputs.end()) {
         temps.push_back(data);
+      }
+    }
+  }
+}
+
+void Graph::gen() {
+  std::vector<Node *> sorted_op = topoSort();
+  // Forward pass of graph
+  for (auto op : operators){
+    //TODO: codegen
+    
+    
+    for (auto t: op->inputs) {
+      if (t->remaining > 0){ // t still has reference in remaining ops
+        t->remaining -= 1;
+      }
+      else {
+        // t will not used 
+        t->remaining = 0;
+        auto remainingIter = remainingData.find(t);
+        if (remainingIter != remainingData.end()){
+          // If t in remainingData
+          remainingData.erase(t);
+        }
+        else {
+          // Not in remainingData
+          printf(std::string(t->name +  " is not FOUND in remainingData").c_str());
+        }
       }
     }
   }
