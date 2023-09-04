@@ -256,7 +256,6 @@ CacheHit Cache::loadData(CacheData *target_data) {
     std::string result = "";
     Block *ptr = cache_head->next;
     std::string target_data_info = TO_STRING(*target_data);
-    Block *first_allocated_block = nullptr;
 
     LOG(INFO) << "Looking for " + target_data_info + " in cache...";
 
@@ -270,9 +269,6 @@ CacheHit Cache::loadData(CacheData *target_data) {
         if (!ptr->allocated) {
             ptr = ptr->next;
             continue;
-        }
-        if (first_allocated_block == nullptr) {
-            first_allocated_block = ptr;
         }
         if (ptr->data->equalsTo(*target_data)) {
             // OUTCOME 0: found in cache
@@ -293,38 +289,13 @@ CacheHit Cache::loadData(CacheData *target_data) {
         LOG(INFO) << indentation(1) + "Could not find " + target_data_info +
                          " in cache.";
         int64_t data_size = PAD_UP(target_data->size, cache_align_size);
-        // Find an empty cache block first
-        Block *cmp = new Block(true, 0, data_size, nullptr, nullptr, "",
-                               CacheType::CACHE, target_data, -1);
-        auto cache_block_it = free_cache_blocks.lower_bound(cmp);
-        if (cache_block_it != free_cache_blocks.end()) {
-            // found an empty cache block
-            target_cache_block = *cache_block_it;
-            LOG(INFO) << indentation(2) + "Find an empty block " +
-                             TO_STRING(*target_cache_block) + " to cache " +
-                             target_data_info + ".";
-        } else {
-            // 3. Cache full, find one cache block to swap
-            ptr = cache_head->next;
-            target_cache_block = first_allocated_block;
-            while (ptr->next != nullptr) {
-                if (ptr->allocated &&
-                    cacheReplaceable(ptr, target_cache_block) &&
-                    cache_size - ptr->block_offset >= target_data->size) {
-                    target_cache_block = ptr;
-                }
-                ptr = ptr->next;
-            }
-            if (target_cache_block == nullptr) {
-                target_cache_block = cache_head->next;
-            }
-            // try best to minimize fragments
-            if (!target_cache_block->prev->allocated) {
-                target_cache_block = target_cache_block->prev;
-            }
-            LOG(INFO) << indentation(2) + "Cache Full. Find cache block " +
-                             TO_STRING(*target_cache_block) + " to replace.";
+        // allocate memory in cache
+        // either find an empty cache block or find one to replace
+        target_cache_block = cacheAlloc(target_data, 2);
+        if (target_cache_block == nullptr) {
+            return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
         }
+
         // Then check ldram
         if (storedInLdram.count(*target_data) > 0) {
             Block *ldram_ptr = ldram_head->next;
@@ -420,6 +391,76 @@ CacheHit Cache::loadData(CacheData *target_data) {
                                 target_cache_block->block_offset, -1, -1, -1);
             }
         }
+    }
+}
+
+Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
+    Block *target_cache_block = nullptr;
+    int64_t data_size = PAD_UP(target_data->size, cache_align_size);
+    // Find an empty cache block first
+    Block *cmp = new Block(true, 0, data_size, nullptr, nullptr, "",
+                           CacheType::CACHE, target_data, -1);
+    auto cache_block_it = free_cache_blocks.lower_bound(cmp);
+    if (cache_block_it != free_cache_blocks.end()) {
+        // found an empty cache block
+        target_cache_block = *cache_block_it;
+        LOG(INFO) << indentation(indent) + "Find an empty block " +
+                         TO_STRING(*target_cache_block) + " to cache " +
+                         TO_STRING(*target_data) + ".";
+    } else {
+        // Cache full, find one cache block to swap
+        Block *ptr = cache_head->next;
+        while (ptr->next != nullptr) {
+            if (!ptr->allocated) {
+                ptr = ptr->next;
+                continue;
+            }
+            if (target_cache_block == nullptr) {
+                target_cache_block = ptr;
+                break;
+            }
+            ptr = ptr->next;
+        }
+        while (ptr->next != nullptr) {
+            if (ptr->allocated && cacheReplaceable(ptr, target_cache_block) &&
+                cache_size - ptr->block_offset >= target_data->size) {
+                target_cache_block = ptr;
+            }
+            ptr = ptr->next;
+        }
+        if (target_cache_block == nullptr) {
+            LOG(ERROR) << "Cache has no more space for " +
+                              TO_STRING(*target_data) + ".";
+            return nullptr;
+        }
+        // try best to minimize fragments
+        if (!target_cache_block->prev->allocated) {
+            target_cache_block = target_cache_block->prev;
+        }
+        LOG(INFO) << indentation(indent) + "Cache Full. Find cache block " +
+                         TO_STRING(*target_cache_block) + " to replace.";
+    }
+    return target_cache_block;
+}
+
+CacheHit Cache::allocate(CacheData *target_data) {
+    int64_t size = target_data->size;
+    if (size > cache_size) {
+        LOG(ERROR) << "Cache size is less than data size.";
+        return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
+    }
+
+    LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) +
+                     "...";
+
+    // Cache block to return
+    Block *target_cache_block = cacheAlloc(target_data, 1);
+
+    if (target_cache_block == nullptr) {
+        return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
+    } else {
+        return CacheHit(CacheHitLocation::NOT_FOUND,
+                        target_cache_block->block_offset, -1, -1, -1);
     }
 }
 

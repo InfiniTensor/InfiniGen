@@ -110,6 +110,8 @@ class Cache {
     void resetDispatch(MemoryDispatch dispatch);
     // Load data
     CacheHit loadData(CacheData *data);
+    // Allocate memory for data
+    CacheHit allocate(CacheData *data);
     // Lock & unlock data
     void lock(std::vector<CacheData> data_list);
     void unlock(std::vector<CacheData> data_list);
@@ -120,6 +122,7 @@ class Cache {
   private:
     void initBlockCount(Block *block);
     void updateBlockCount(Block *block, bool match);
+    Block *cacheAlloc(CacheData *target_data, int indent);
     bool cacheReplaceable(Block *curr, Block *target);
     void safeErase(Block *block);
     std::vector<CacheData *> loadData2Block(CacheData *replacer_data,
