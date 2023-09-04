@@ -174,6 +174,18 @@ void Graph::gen() {
 std::vector<Node*> Graph::topoSort() {
   std::vector<Node*> operators_temp = operators;
   std::vector<Node*> result;
+  while (!operators_temp.empty()) {
+    for (auto op = operators_temp.begin(); op != operators_temp.end(); ++op) {
+      if ((*op)->indegree == 0) {
+        result.push_back(*op);
+        for (auto successor : (*op)->successors) {
+          --successor->indegree;
+        }
+        operators_temp.erase(op);
+        break;
+      }
+    }
+  }
   return result;
 }
 

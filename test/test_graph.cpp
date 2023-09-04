@@ -25,8 +25,13 @@ int main() {
   f->printInformation();
   g->printInformation();
 
-  Graph* graph = new Graph({add, mul}, {a, b}, {e, f, g});
+  Graph* graph = new Graph({add, mul, com}, {a, b}, {e, f, g});
   graph->printInformation();
+  LOG(INFO) << "===========================";
+  auto topo = graph->topoSort();
+  for (auto op : topo) {
+    op->printInformation();
+  }
 
   delete a;
   delete b;
