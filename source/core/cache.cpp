@@ -244,7 +244,24 @@ void Cache::freeBlock(Block *target) {
     }
 }
 
-CacheHit Cache::loadData(CacheData *target_data) {
+int64_t Cache::free(CacheData *target_data) {
+    int64_t offset = -1;
+    Block *ptr = cache_head->next;
+    while (ptr->next != nullptr) {
+        if (!ptr->allocated) {
+            ptr = ptr->next;
+            continue;
+        }
+        if (ptr->data->equalsTo(*target_data)) {
+            offset = ptr->block_offset;
+            freeBlock(ptr);
+            break;
+        }
+    }
+    return offset;
+}
+
+CacheHit Cache::load(CacheData *target_data) {
     int64_t size = target_data->size;
     if (size > cache_size) {
         LOG(ERROR) << "Cache size is less than data size.";
@@ -278,7 +295,9 @@ CacheHit Cache::loadData(CacheData *target_data) {
                              " has been cached on " + cache_info;
             updateBlockCount(ptr, true);
             target_cache_block = ptr;
-            break;
+            // need to update counts for all allocated blocks
+            // should not break early
+            // break;
         } else {
             updateBlockCount(ptr, false);
         }

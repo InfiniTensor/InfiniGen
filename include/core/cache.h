@@ -109,9 +109,11 @@ class Cache {
     // Reset cache dispatch algorithm
     void resetDispatch(MemoryDispatch dispatch);
     // Load data
-    CacheHit loadData(CacheData *data);
+    CacheHit load(CacheData *data);
     // Allocate memory for data
     CacheHit allocate(CacheData *data);
+    // free data from cache
+    int64_t free(CacheData *data);
     // Lock & unlock data
     void lock(std::vector<CacheData> data_list);
     void unlock(std::vector<CacheData> data_list);
