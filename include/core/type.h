@@ -35,5 +35,5 @@ enum class PlatformType { CUDA, BANG };
 enum class CacheType { CACHE, LDRAM };
 
 // CacheHitLocation
-enum class CacheHitLocation { CACHE, LDRAM, NOT_FOUND };
+enum class CacheHitLocation { CACHE, LDRAM, NOT_FOUND, ERROR };
 } // namespace infini

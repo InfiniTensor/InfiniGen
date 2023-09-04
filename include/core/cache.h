@@ -1,8 +1,8 @@
 #pragma once
 #include "core/type.h"
 #include <set>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 namespace infini {
 
@@ -27,13 +27,13 @@ struct CacheData {
 };
 
 struct CacheDataHash {
-  size_t operator()(const CacheData& data) const {
-      size_t name_hash = std::hash<std::string>{}(data.name);
-      size_t offset_hash = std::hash<int64_t>{}(data.offset);
-      size_t size_hash = std::hash<int64_t>{}(data.size);
+    size_t operator()(const CacheData &data) const {
+        size_t name_hash = std::hash<std::string>{}(data.name);
+        size_t offset_hash = std::hash<int64_t>{}(data.offset);
+        size_t size_hash = std::hash<int64_t>{}(data.size);
 
-      return name_hash ^ (offset_hash << 1) ^ (size_hash << 2);
-  }
+        return name_hash ^ (offset_hash << 1) ^ (size_hash << 2);
+    }
 };
 
 struct Block {
@@ -117,7 +117,9 @@ class Cache {
     void initBlockCount(Block *block);
     void updateBlockCount(Block *block, bool match);
     bool cacheReplaceable(Block *curr, Block *target);
-    CacheData *loadData2Block(CacheData *replacer_data, Block *replacee);
+    void safeErase(Block *block);
+    std::vector<CacheData *> loadData2Block(CacheData *replacer_data,
+                                            Block *replacee);
     void freeBlock(Block *target);
     void printMemoryGraph(Block *head, int height, int width);
 };
