@@ -27,7 +27,7 @@ int main() {
 
   Graph* graph = new Graph({add, mul, com}, {a, b}, {e, f, g});
   graph->printInformation();
-  LOG(INFO) << "===========================";
+  LOG(INFO) << "========== Topo Sort ==========";
   auto topo = graph->topoSort();
   for (auto op : topo) {
     op->printInformation();

@@ -1,6 +1,7 @@
 #include "core/graph.h"
 #include "core/utils.h"
 #include <algorithm>
+#include <unordered_map>
 
 namespace infini {
 
@@ -138,16 +139,19 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
 }
 
 std::vector<Node*> Graph::topoSort() {
-  std::vector<Node*> operators_temp = operators;
+  std::unordered_map<Node*, int64_t> operators_temp;
+  for (auto op : operators) {
+    operators_temp[op] = op->indegree;
+  }
   std::vector<Node*> result;
   while (!operators_temp.empty()) {
     for (auto op = operators_temp.begin(); op != operators_temp.end(); ++op) {
-      if ((*op)->indegree == 0) {
-        result.push_back(*op);
-        for (auto successor : (*op)->successors) {
-          --successor->indegree;
+      if (op->second == 0) {
+        result.push_back(op->first);
+        for (auto successor : (op->first)->successors) {
+          --operators_temp[successor];
         }
-        operators_temp.erase(op);
+        operators_temp.erase(op->first);
         break;
       }
     }
