@@ -39,6 +39,7 @@ Cache::Cache(int64_t total_nram, int64_t total_ldram, int64_t align_size,
     free_ldram_blocks.insert(first_block);
 
     storedInLdram = std::unordered_set<CacheData, CacheDataHash>();
+    lockedData = std::unordered_set<CacheData, CacheDataHash>();
 }
 
 void Cache::clearCache() {
@@ -81,6 +82,9 @@ void Cache::updateBlockCount(Block *block, bool match) {
 }
 
 bool Cache::cacheReplaceable(Block *curr, Block *target) {
+    if (lockedData.count(*(target->data)) > 0) {
+        return false;
+    }
     if (cache_dispatch == MemoryDispatch::FIFO) {
         // FIFO: find the one with min timestamp
         return curr->data_count < target->data_count;
@@ -98,16 +102,26 @@ bool Cache::cacheReplaceable(Block *curr, Block *target) {
         return false;
 }
 
+void Cache::lock(std::vector<CacheData> data_list) {
+    for (auto data : data_list) {
+        lockedData.insert(data);
+    }
+}
+
+void Cache::unlock(std::vector<CacheData> data_list) {
+    for (auto data : data_list) {
+        lockedData.erase(data);
+    }
+}
+
 void Cache::safeErase(Block *block) {
-    if (block->cache_type == CacheType::CACHE) {
-        if (!block->allocated) {
+    if (!block->allocated) {
+        if (block->cache_type == CacheType::CACHE) {
             auto it = free_cache_blocks.find(block);
             if (it != free_cache_blocks.end()) {
                 free_cache_blocks.erase(it);
             }
-        }
-    } else {
-        if (!block->allocated) {
+        } else {
             auto it = free_ldram_blocks.find(block);
             if (it != free_ldram_blocks.end()) {
                 free_ldram_blocks.erase(it);
@@ -333,7 +347,7 @@ CacheHit Cache::loadData(CacheData *target_data) {
                 ldram_ptr = ldram_ptr->next;
             }
         }
-        // No matter if found in ldram, a ldram_to_block is supposed to be
+        // No matter if found in ldram a ldram_to_block is supposed to be
         // allocated for cache swapping. We also assume that ldram is large
         // enough so abort in case of any overflow
         Block *cmp_ldram = new Block(
@@ -368,6 +382,7 @@ CacheHit Cache::loadData(CacheData *target_data) {
         Block *ldram_to_initial = ldram_to_block;
         if (!replacee_data_list.empty()) {
             for (auto replacee_data : replacee_data_list) {
+                // TODO: write back to ldram
                 loadData2Block(replacee_data, ldram_to_block);
                 storedInLdram.insert(*replacee_data);
                 ldram_to_block = ldram_to_block->next;

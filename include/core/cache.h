@@ -93,6 +93,7 @@ class Cache {
     std::set<Block *, compareBlockSize> free_cache_blocks;
     std::set<Block *, compareBlockSize> free_ldram_blocks;
     std::unordered_set<CacheData, CacheDataHash> storedInLdram;
+    std::unordered_set<CacheData, CacheDataHash> lockedData;
     MemoryDispatch cache_dispatch;
     std::string name;
 
@@ -109,6 +110,9 @@ class Cache {
     void resetDispatch(MemoryDispatch dispatch);
     // Load data
     CacheHit loadData(CacheData *data);
+    // Lock & unlock data
+    void lock(std::vector<CacheData> data_list);
+    void unlock(std::vector<CacheData> data_list);
     // Information
     void printInformation();
     void printBlocks(Block *head);
