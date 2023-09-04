@@ -83,6 +83,7 @@ void Cache::updateBlockCount(Block *block, bool match) {
 
 bool Cache::cacheReplaceable(Block *curr, Block *target) {
     if (lockedData.count(*(target->data)) > 0) {
+        // should not replace any block with locked data
         return false;
     }
     if (cache_dispatch == MemoryDispatch::FIFO) {
@@ -114,7 +115,7 @@ void Cache::unlock(std::vector<CacheData> data_list) {
     }
 }
 
-void Cache::safeErase(Block *block) {
+void Cache::safeEraseFreeBlock(Block *block) {
     if (!block->allocated) {
         if (block->cache_type == CacheType::CACHE) {
             auto it = free_cache_blocks.find(block);
@@ -156,7 +157,7 @@ std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
             replacee->next = remainder;
 
             // update free block list
-            safeErase(replacee);
+            safeEraseFreeBlock(replacee);
             if (replacee->cache_type == CacheType::CACHE) {
                 free_cache_blocks.insert(remainder);
             } else {
@@ -177,11 +178,8 @@ std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
             // no need to update free block list
         }
     } else if (remainder_size == 0) {
-        if (replacee->data != nullptr) {
-            replacee_data_list.push_back(replacee->data);
-        }
         // replace data in that block
-        safeErase(replacee);
+        safeEraseFreeBlock(replacee);
         replacee->allocated = true;
         replacee->data = replacer_data;
     } else if (remainder_size < 0) {
@@ -194,7 +192,7 @@ std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
             if (ptr->allocated) {
                 replacee_data_list.push_back(ptr->data);
             } else {
-                safeErase(ptr);
+                safeEraseFreeBlock(ptr);
             }
             ptr = ptr->next;
         }
@@ -219,19 +217,21 @@ void Cache::freeBlock(Block *target) {
         target->block_size += target->next->block_size;
         // TODO: delete memory of target->next?
         // delete target->next;
-        safeErase(target->next);
+        safeEraseFreeBlock(target->next);
         target->next = target->next->next;
         target->next->prev = target;
     } else if (target->next->allocated && !target->prev->allocated) {
         target->block_size += target->prev->block_size;
-        safeErase(target->prev);
+        target->block_offset = target->prev->block_offset;
+        safeEraseFreeBlock(target->prev);
         target->prev = target->prev->prev;
         target->prev->next = target;
     } else if (!target->next->allocated && !target->prev->allocated) {
         target->block_size += target->next->block_size;
         target->block_size += target->prev->block_size;
-        safeErase(target->next);
-        safeErase(target->prev);
+        target->block_offset = target->prev->block_offset;
+        safeEraseFreeBlock(target->next);
+        safeEraseFreeBlock(target->prev);
         target->next = target->next->next;
         target->next->prev = target;
         target->prev = target->prev->prev;
@@ -372,7 +372,7 @@ CacheHit Cache::load(CacheData *target_data) {
         Block *ldram_to_initial = ldram_to_block;
         if (!replacee_data_list.empty()) {
             for (auto replacee_data : replacee_data_list) {
-                // TODO: write back to ldram
+                // TODO: write back to ldram, this is an inconsistent manner
                 loadData2Block(replacee_data, ldram_to_block);
                 storedInLdram.insert(*replacee_data);
                 ldram_to_block = ldram_to_block->next;

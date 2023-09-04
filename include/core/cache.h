@@ -126,7 +126,7 @@ class Cache {
     void updateBlockCount(Block *block, bool match);
     Block *cacheAlloc(CacheData *target_data, int indent);
     bool cacheReplaceable(Block *curr, Block *target);
-    void safeErase(Block *block);
+    void safeEraseFreeBlock(Block *block);
     std::vector<CacheData *> loadData2Block(CacheData *replacer_data,
                                             Block *replacee);
     void freeBlock(Block *target);
