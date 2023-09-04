@@ -32,6 +32,22 @@ int main() {
   for (auto op : topo) {
     op->printInformation();
   }
+  LOG(INFO) << "===============================";
+  Data* n_a = new Data();
+  Data* n_b = new Data();
+  Node* in2out2 = new Node({n_a, n_b}, {}, "", 2);
+  Data* n_e = in2out2->getOutput(0);
+  Data* n_f = in2out2->getOutput(1);
+  Node* in2out1 = new Node({n_e, n_f});
+  Data* n_g = in2out1->getOutput(0);
+
+  Graph* graph2 = new Graph({in2out2, in2out1}, {n_a, n_b}, {n_g});
+  graph2->printInformation();
+  LOG(INFO) << "========== Topo Sort ==========";
+  topo = graph2->topoSort();
+  for (auto op : topo) {
+    op->printInformation();
+  }
 
   delete a;
   delete b;
@@ -40,12 +56,19 @@ int main() {
   delete e;
   delete f;
   delete g;
-
   delete add;
   delete mul;
   delete com;
-
   delete graph;
+
+  delete n_a;
+  delete n_b;
+  delete n_e;
+  delete n_f;
+  delete n_g;
+  delete in2out2;
+  delete in2out1;
+  delete graph2;
 
   return 0;
 }
