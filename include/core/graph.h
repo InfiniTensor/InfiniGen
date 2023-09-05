@@ -1,6 +1,7 @@
 #pragma once
 #include "core/type.h"
 #include <vector>
+#include <unordered_set>
 
 namespace infini {
 
@@ -41,6 +42,7 @@ class Data {
  public:
   std::string name;
   const int64_t index;
+  int remaining;
   Node* producer;
   std::vector<Node*> consumers;
 
@@ -67,6 +69,7 @@ class Graph {
   std::vector<Data*> inputs;
   std::vector<Data*> outputs;
   std::vector<Data*> temps;
+  std::unordered_set<Data*> remaining_data;
 
  public:
   // Constructor
@@ -77,6 +80,7 @@ class Graph {
   ~Graph() = default;
   // Function
   std::vector<Node*> topoSort();
+  void generatorCode();
   // Information
   void printInformation();
 };

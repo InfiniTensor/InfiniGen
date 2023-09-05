@@ -29,6 +29,7 @@ Node::Node(std::vector<Data*> inputs_list, std::vector<Data*> outputs_list,
   }
   for (auto it : inputs) {
     it->addConsumer(this);
+    it->remaining += 1;
     if (it->producer != NULL) {
       predecessors.push_back(it->producer);
       it->producer->successors.push_back(this);
@@ -85,7 +86,7 @@ void Node::printInformation() {
 //////////////////////////////////////////////////////////////////////
 
 Data::Data(std::string name_value)
-    : name(name_value), index(count++), producer(NULL) {
+    : name(name_value), index(count++), producer(NULL), remaining(0) {
   if (name == "") {
     name = "Data_" + std::to_string(index);
   }
@@ -102,6 +103,9 @@ void Data::printInformation() {
   info_string += "Data ";
   info_string += "Name: [";
   info_string += name;
+  info_string += "] ";
+  info_string += "Remaining: [";
+  info_string += std::to_string(remaining);
   info_string += "] ";
   info_string += "Producer: [";
   info_string += (producer == NULL ? "Null" : producer->name);
@@ -128,13 +132,37 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
     name = "Graph_" + std::to_string(index);
   }
   for (auto op : operators) {
+    for (auto data : op->inputs) {
+      remaining_data.insert(data);  // 不确定是否应该check是否存在
+    }
     for (auto data : op->outputs) {
-      // auto inputs_iter = std::find(inputs.begin(), inputs.end(), data);
       auto outputs_iter = std::find(outputs.begin(), outputs.end(), data);
       if (outputs_iter == outputs.end()) {
         temps.push_back(data);
       }
     }
+  }
+}
+
+void Graph::generatorCode() {
+  std::vector<Node*> sorted_op = topoSort();
+  // Forward pass of graph
+  for (auto op : sorted_op) {
+    // TODO: codegen
+    for (auto input : op->inputs) {
+      input->remaining -= 1;
+      if (input->remaining == 0) {
+        remaining_data.erase(input);
+      }
+    }
+    LOG(INFO) << "Codegen: " + op->name;
+    std::string temp = "Remain: [";
+    for (auto data : remaining_data) {
+      temp += data->name;
+      temp += ", ";
+    }
+    temp += "]";
+    LOG(INFO) << temp;
   }
 }
 
