@@ -36,4 +36,4 @@ enum class CacheType { CACHE, LDRAM };
 
 // CacheHitLocation
 enum class CacheHitLocation { CACHE, LDRAM, NOT_FOUND, ERROR };
-} // namespace infini
+}  // namespace infini
