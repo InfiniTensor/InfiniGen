@@ -527,8 +527,9 @@ void Cache::printMemoryGraph(Block *head, int height = 16, int width = 64) {
   int64_t total =
       (head->cache_type == CacheType::CACHE) ? cache_size : ldram_size;
   std::string info_string =
-      TO_STRING(head->cache_type) + " of " + head->cache_name;
-  info_string += ", Size: " + std::to_string(total);
+      " " + TO_STRING(head->cache_type) + " of " + head->cache_name;
+  info_string += ", Size: " + std::to_string(total) + " ";
+  info_string = lrpad(info_string, width + 12, '=');
   LOG(INFO) << info_string;
   float unit_size = float(total) / float(height * width);
 
@@ -576,7 +577,7 @@ void Cache::printMemoryGraph(Block *head, int height = 16, int width = 64) {
 
 void Cache::printInformation() {
   std::string info_string = "";
-  info_string += "—— Cache ";
+  info_string += ">>> Cache ";
   info_string += "Name: ";
   info_string += name;
   info_string += ", ";
@@ -589,10 +590,13 @@ void Cache::printInformation() {
   info_string += "Memory Dispatch: ";
   info_string += TO_STRING(cache_dispatch);
   LOG(INFO) << info_string;
+  LOG(INFO) << "";
   printMemoryGraph(cache_head);
   printBlocks(cache_head);
+  LOG(INFO) << "";
   printMemoryGraph(ldram_head);
   printBlocks(ldram_head);
+  LOG(INFO) << "";
 }
 
 void Cache::printBlocks(Block *head) {
@@ -601,7 +605,7 @@ void Cache::printBlocks(Block *head) {
   LOG(INFO) << info_string;
   Block *ptr = head->next;
   while (ptr->next != nullptr) {
-    info_string = "         - Block ";
+    info_string = indentation(4) + "- Block ";
     info_string += "Offset: ";
     info_string += std::to_string(ptr->block_offset);
     info_string += "; ";

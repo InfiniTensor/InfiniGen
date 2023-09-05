@@ -349,4 +349,13 @@ std::string rpad(std::string s, size_t len, char c) {
   return res;
 }
 
+std::string lrpad(std::string s, size_t len, char c) {
+  if (s.length() >= len) {
+    return s;
+  }
+  std::string res = std::string((len - s.length()) / 2, c) + s;
+  res += std::string(len - res.length(), c);
+  return res;
+}
+
 }  // namespace infini

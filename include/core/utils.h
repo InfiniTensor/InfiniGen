@@ -159,4 +159,6 @@ std::string lpad(std::string s, size_t len, char c);
 
 std::string rpad(std::string s, size_t len, char c);
 
+std::string lrpad(std::string s, size_t len, char c);
+
 }  // namespace infini
