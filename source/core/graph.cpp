@@ -133,7 +133,7 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
   }
   for (auto op : operators) {
     for (auto data : op->inputs) {
-      remainingData.insert(data); //不确定是否应该check是否存在
+      remaining_data.insert(data);  // 不确定是否应该check是否存在
     }
     for (auto data : op->outputs) {
       auto outputs_iter = std::find(outputs.begin(), outputs.end(), data);
@@ -144,31 +144,25 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
   }
 }
 
-void Graph::gen() {
-  std::vector<Node *> sorted_op = topoSort();
+void Graph::generatorCode() {
+  std::vector<Node*> sorted_op = topoSort();
   // Forward pass of graph
-  for (auto op : operators){
-    //TODO: codegen
-    
-    
-    for (auto t: op->inputs) {
-      if (t->remaining > 0){ // t still has reference in remaining ops
-        t->remaining -= 1;
-      }
-      else {
-        // t will not used 
-        t->remaining = 0;
-        auto remainingIter = remainingData.find(t);
-        if (remainingIter != remainingData.end()){
-          // If t in remainingData
-          remainingData.erase(t);
-        }
-        else {
-          // Not in remainingData
-          printf(std::string(t->name +  " is not FOUND in remainingData").c_str());
-        }
+  for (auto op : sorted_op) {
+    // TODO: codegen
+    for (auto input : op->inputs) {
+      input->remaining -= 1;
+      if (input->remaining == 0) {
+        remaining_data.erase(input);
       }
     }
+    LOG(INFO) << "Codegen: " + op->name;
+    std::string temp = "Remain: [";
+    for (auto data : remaining_data) {
+      temp += data->name;
+      temp += ", ";
+    }
+    temp += "]";
+    LOG(INFO) << temp;
   }
 }
 

@@ -32,6 +32,9 @@ int main() {
   for (auto op : topo) {
     op->printInformation();
   }
+  LOG(INFO) << "========== Codegen ==========";
+  graph->generatorCode();
+
   LOG(INFO) << "===============================";
   Data* n_a = new Data();
   Data* n_b = new Data();
@@ -48,6 +51,8 @@ int main() {
   for (auto op : topo) {
     op->printInformation();
   }
+  LOG(INFO) << "========== Codegen ==========";
+  graph2->generatorCode();
 
   delete a;
   delete b;

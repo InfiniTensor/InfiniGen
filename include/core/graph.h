@@ -69,7 +69,7 @@ class Graph {
   std::vector<Data*> inputs;
   std::vector<Data*> outputs;
   std::vector<Data*> temps;
-  std::unordered_set<Data*> remainingData;
+  std::unordered_set<Data*> remaining_data;
 
  public:
   // Constructor
@@ -80,7 +80,7 @@ class Graph {
   ~Graph() = default;
   // Function
   std::vector<Node*> topoSort();
-  void gen();
+  void generatorCode();
   // Information
   void printInformation();
 };
