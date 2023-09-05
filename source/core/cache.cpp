@@ -38,9 +38,11 @@ bool compareBlockSize::operator()(const Block *block1,
   return block1->block_size < block2->block_size;
 }
 
-CacheHit::CacheHit(CacheHitLocation _location, int64_t _cache_offset,
-                   int64_t _ldram_from_offset, int64_t _ldram_to_offset,
-                   int64_t _replaced_data_size)
+CacheHit::CacheHit(
+    CacheHitLocation _location, int64_t _cache_offset = -1,
+    int64_t _ldram_from_offset = -1,
+    std::vector<int64_t> _ldram_to_offset = std::vector<int64_t>(),
+    std::vector<int64_t> _replaced_data_size = std::vector<int64_t>())
     : location(_location),
       cache_offset(_cache_offset),
       ldram_from_offset(_ldram_from_offset),
@@ -307,7 +309,7 @@ CacheHit Cache::load(CacheData *target_data) {
   int64_t size = target_data->size;
   if (size > cache_size) {
     LOG(ERROR) << "Cache size is less than data size.";
-    return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
+    return CacheHit(CacheHitLocation::ERROR);
   }
 
   bool match_cache = false;
@@ -354,7 +356,7 @@ CacheHit Cache::load(CacheData *target_data) {
     // either find an empty cache block or find one to replace
     target_cache_block = cacheAlloc(target_data, 2);
     if (target_cache_block == nullptr) {
-      return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
+      return CacheHit(CacheHitLocation::ERROR);
     }
 
     // Then check ldram
@@ -393,27 +395,29 @@ CacheHit Cache::load(CacheData *target_data) {
                        TO_STRING(*target_cache_block) + " from cache.";
     } else {
       LOG(ERROR) << "LDRAM has no more space.";
-      return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
+      return CacheHit(CacheHitLocation::ERROR);
     }
   }
   // Now that we already know cache/ldram_from/ldram_to locations, we then
   // update the information in the block link list
   if (match_cache) {
     // OUTCOME 0: found in cache
-    return CacheHit(CacheHitLocation::CACHE, target_cache_block->block_offset,
-                    -1, -1, -1);
+    return CacheHit(CacheHitLocation::CACHE, target_cache_block->block_offset);
   } else {
     // OUTCOME 1/2: not found in cache
     // a. load target to cache
     auto replacee_data_list = loadData2Block(target_data, target_cache_block);
     initBlockCount(target_cache_block);
     // b. load replaced cache data to ldram
-    Block *ldram_to_initial = ldram_to_block;
+    std::vector<int64_t> ldram_to_block_list;
+    std::vector<int64_t> replaced_data_size_list;
     if (!replacee_data_list.empty()) {
       for (auto replacee_data : replacee_data_list) {
-        // TODO: write back to ldram, this is an inconsistent manner
+        // write back to ldram in an consistent manner
         loadData2Block(replacee_data, ldram_to_block);
         storedInLdram.insert(*replacee_data);
+        ldram_to_block_list.push_back(ldram_to_block->block_offset);
+        replaced_data_size_list.push_back(replacee_data->size);
         ldram_to_block = ldram_to_block->next;
       }
     }
@@ -424,27 +428,27 @@ CacheHit Cache::load(CacheData *target_data) {
       storedInLdram.erase(*target_data);
       if (!replacee_data_list.empty()) {
         // OUTCOME 1.1: found in ldram, cache full
-        return CacheHit(
-            CacheHitLocation::LDRAM, target_cache_block->block_offset,
-            ldram_from_block->block_offset, ldram_to_initial->block_offset,
-            target_cache_block->block_size);
+        return CacheHit(CacheHitLocation::LDRAM,
+                        target_cache_block->block_offset,
+                        ldram_from_block->block_offset, ldram_to_block_list,
+                        replaced_data_size_list);
       } else {
         // OUTCOME 1.1: found in ldram, cache has space
         return CacheHit(CacheHitLocation::LDRAM,
                         target_cache_block->block_offset,
-                        ldram_from_block->block_offset, -1, -1);
+                        ldram_from_block->block_offset);
       }
     } else {
       // OUTCOME 2: not found at all
       if (!replacee_data_list.empty()) {
         // OUTCOME 2.1: not found at all, cache full
-        return CacheHit(
-            CacheHitLocation::NOT_FOUND, target_cache_block->block_offset, -1,
-            ldram_to_initial->block_offset, target_cache_block->block_size);
+        return CacheHit(CacheHitLocation::NOT_FOUND,
+                        target_cache_block->block_offset, -1,
+                        ldram_to_block_list, replaced_data_size_list);
       } else {
         // OUTCOME 2.2: not found at all, cache has space
         return CacheHit(CacheHitLocation::NOT_FOUND,
-                        target_cache_block->block_offset, -1, -1, -1);
+                        target_cache_block->block_offset);
       }
     }
   }
@@ -503,7 +507,7 @@ CacheHit Cache::allocate(CacheData *target_data) {
   int64_t size = target_data->size;
   if (size > cache_size) {
     LOG(ERROR) << "Cache size is less than data size.";
-    return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
+    return CacheHit(CacheHitLocation::ERROR);
   }
 
   LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) + "...";
@@ -512,10 +516,10 @@ CacheHit Cache::allocate(CacheData *target_data) {
   Block *target_cache_block = cacheAlloc(target_data, 1);
 
   if (target_cache_block == nullptr) {
-    return CacheHit(CacheHitLocation::ERROR, -1, -1, -1, -1);
+    return CacheHit(CacheHitLocation::ERROR);
   } else {
     return CacheHit(CacheHitLocation::NOT_FOUND,
-                    target_cache_block->block_offset, -1, -1, -1);
+                    target_cache_block->block_offset);
   }
 }
 

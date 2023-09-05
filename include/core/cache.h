@@ -96,15 +96,15 @@ struct CacheHit {
   CacheHitLocation location;
   int64_t cache_offset;
   int64_t ldram_from_offset;
-  int64_t ldram_to_offset;
-  int64_t replaced_data_size;
+  std::vector<int64_t> ldram_to_offset;
+  std::vector<int64_t> replaced_data_size;
 
  public:
   // Constructor
   CacheHit() = delete;
   CacheHit(CacheHitLocation _location, int64_t _cache_offset,
-           int64_t _ldram_from_offset, int64_t _ldram_to_offset,
-           int64_t _replaced_data_size);
+           int64_t _ldram_from_offset, std::vector<int64_t> _ldram_to_offset,
+           std::vector<int64_t> _replaced_data_size);
   // Destructor
   ~CacheHit() = default;
 };
