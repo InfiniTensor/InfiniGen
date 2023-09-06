@@ -60,9 +60,11 @@ struct Block {
         CacheType _cache_type, CacheData *_data, int _data_count);
   // Destructor
   ~Block() = default;
+  // Operator overload
+  bool operator==(const Block &block) const;
 };
 
-struct compareBlockSize {
+struct CompareBlockSize {
   // Comparison Function for block size
   bool operator()(const Block *block1, const Block *block2) const;
 };
@@ -126,8 +128,8 @@ class Cache {
   Block *ldram_tail;
 
   // Free block List
-  std::set<Block *, compareBlockSize> free_cache_blocks;
-  std::set<Block *, compareBlockSize> free_ldram_blocks;
+  std::set<Block *, CompareBlockSize> free_cache_blocks;
+  std::set<Block *, CompareBlockSize> free_ldram_blocks;
   // Hashmap used to check if data is in ldram
   std::unordered_set<CacheData, CacheDataHash> storedInLdram;
   // Hashmap used to check if data is locked
@@ -141,7 +143,7 @@ class Cache {
   Cache(int64_t total_nram, int64_t total_ldram, int64_t align_size,
         std::string name, MemoryDispatch dispatch);
   // Destructor
-  ~Cache() = default;
+  ~Cache();
   // Clear cache information
   void clearCache();
   // Reset cache dispatch algorithm
@@ -169,9 +171,11 @@ class Cache {
   bool cacheReplaceable(Block *curr, Block *target);
   void freeBlock(Block *target);
   void safeEraseFreeBlock(Block *block);
+  void safeInsertFreeBlock(Block *block);
   Block *cacheAlloc(CacheData *target_data, int indent);
   std::vector<CacheData *> loadData2Block(CacheData *replacer_data,
                                           Block *replacee);
+  void peekFreeBlocks(CacheType type);
 };
 
 }  // namespace infini

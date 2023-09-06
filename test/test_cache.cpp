@@ -10,25 +10,47 @@ int main() {
 
   cache.load(a);
   cache.printInformation();
+
   cache.load(b);
   cache.printInformation();
+
   cache.load(c);
   cache.printInformation();
+
   cache.load(d);
   cache.printInformation();
+
   cache.load(e);
   cache.printInformation();
+
   cache.load(a);
   cache.printInformation();
+
   cache.load(c);
   cache.printInformation();
+
   cache.load(d);
   cache.printInformation();
+
   cache.load(e);
   cache.printInformation();
+
   cache.load(b);
   cache.printInformation();
+
   cache.load(a);
   cache.printInformation();
+
+  cache.free(a);
+  cache.printInformation();
+
+  cache.allocate(b);
+
+  delete a;
+  delete b;
+  delete c;
+  delete d;
+  delete e;
+
   return 0;
 }
