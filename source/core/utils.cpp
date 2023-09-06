@@ -333,7 +333,7 @@ std::string TO_STRING(CacheData data) {
 
 std::string indentation(int64_t num) { return std::string(num * 2, ' '); }
 
-std::string lpad(std::string s, size_t len, char c) {
+std::string left_pad(std::string s, size_t len, char c) {
   if (s.length() >= len) {
     return s;
   }
@@ -341,7 +341,7 @@ std::string lpad(std::string s, size_t len, char c) {
   return res;
 }
 
-std::string rpad(std::string s, size_t len, char c) {
+std::string right_pad(std::string s, size_t len, char c) {
   if (s.length() >= len) {
     return s;
   }
@@ -349,7 +349,7 @@ std::string rpad(std::string s, size_t len, char c) {
   return res;
 }
 
-std::string lrpad(std::string s, size_t len, char c) {
+std::string left_right_pad(std::string s, size_t len, char c) {
   if (s.length() >= len) {
     return s;
   }

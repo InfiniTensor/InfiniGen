@@ -155,10 +155,10 @@ std::string datatype_string(TensorDatatype type);
 
 std::string indentation(int64_t num);
 
-std::string lpad(std::string s, size_t len, char c);
+std::string left_pad(std::string s, size_t len, char c);
 
-std::string rpad(std::string s, size_t len, char c);
+std::string right_pad(std::string s, size_t len, char c);
 
-std::string lrpad(std::string s, size_t len, char c);
+std::string left_right_pad(std::string s, size_t len, char c);
 
 }  // namespace infini
