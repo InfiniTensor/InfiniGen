@@ -40,24 +40,22 @@ bool Block::operator==(const Block &block) const {
 
 bool CompareBlockSize::operator()(const Block *block1,
                                   const Block *block2) const {
-    // Since std::set uses key to sort as well as distinguishing among elements,
-    // We create a new key for comparison that does not affect the original order 
-    // of block size and includes offset information so the key is able to be an 
-    // identifier for blocks (No need to include cache name and type, since we 
-    // assume that one std::set only contains blocks in the same location).
-    //
-    // Key: size.offset (size as integer part, offset as fraction part)
-    auto blockHash = [](Block block) -> double
-    {
-        double offset = block.block_offset / 1.0;
-        while (offset > 1.0)
-        {
-            offset /= 10.0;
-        }
-        return block.block_size / 1.0 + offset;
-    };
+  // Since std::set uses key to sort as well as distinguishing among elements,
+  // We create a new key for comparison that does not affect the original order
+  // of block size and includes offset information so the key is able to be an
+  // identifier for blocks (No need to include cache name and type, since we
+  // assume that one std::set only contains blocks in the same location).
+  //
+  // Key: size.offset (size as integer part, offset as fraction part)
+  auto blockHash = [](Block block) -> double {
+    double offset = block.block_offset / 1.0;
+    while (offset > 1.0) {
+      offset /= 10.0;
+    }
+    return block.block_size / 1.0 + offset;
+  };
 
-    return blockHash(*block1) < blockHash(*block2);
+  return blockHash(*block1) < blockHash(*block2);
 }
 
 CacheHit::CacheHit(
@@ -236,15 +234,15 @@ void Cache::safeInsertFreeBlock(Block *block) {
 }
 
 void Cache::peekFreeBlocks(CacheType type) {
-    if (type == CacheType::CACHE) {
-      for (auto block : free_cache_blocks) {
-        LOG(INFO) << "Free cache block: " + TO_STRING(*block);
-      }
-    } else {
-      for (auto block : free_ldram_blocks) {
-        LOG(INFO) << "Free ldram block: " + TO_STRING(*block);
-      }
+  if (type == CacheType::CACHE) {
+    for (auto block : free_cache_blocks) {
+      LOG(INFO) << "Free cache block: " + TO_STRING(*block);
     }
+  } else {
+    for (auto block : free_ldram_blocks) {
+      LOG(INFO) << "Free ldram block: " + TO_STRING(*block);
+    }
+  }
 }
 
 std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
@@ -262,20 +260,20 @@ std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
     // Note that we should change the params of replacee instead of creating
     // a new one bc its pointer will be used again
     if (replacee->next->allocated) {
-        safeEraseFreeBlock(replacee);
-        // naive split to two blocks
-        replacee->block_size = data_size;
-        replacee->data = replacer_data;
-        Block *remainder =
-            new Block(false, replacee->block_offset + data_size, remainder_size,
-                      replacee->next, replacee, replacee->cache_name,
-                      replacee->cache_type, nullptr, -1);
-        replacee->next->prev = remainder;
-        replacee->next = remainder;
+      safeEraseFreeBlock(replacee);
+      // naive split to two blocks
+      replacee->block_size = data_size;
+      replacee->data = replacer_data;
+      Block *remainder =
+          new Block(false, replacee->block_offset + data_size, remainder_size,
+                    replacee->next, replacee, replacee->cache_name,
+                    replacee->cache_type, nullptr, -1);
+      replacee->next->prev = remainder;
+      replacee->next = remainder;
 
-        // update free block list
-        safeInsertFreeBlock(remainder);
-        replacee->allocated = true;
+      // update free block list
+      safeInsertFreeBlock(remainder);
+      replacee->allocated = true;
     } else {
       // there is a following empty block, so we need to do merging
       Block *next_empty_block = replacee->next;
