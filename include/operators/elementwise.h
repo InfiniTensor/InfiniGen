@@ -15,15 +15,15 @@ class Binary : public Operator {
   // Apply
   void applySplit() override;
   // Generator
-  std::string generatorBone(PlatformType platform) override;
+  // std::string generatorBone(PlatformType platform) override;
 
  private:
   // Check
   bool checkValid() override;
-  std::string generatorBoneOnCUDA(std::string name);
-  std::string generatorBoneOnBANG(std::string name);
-  std::string generatorCoreOnCUDA(int64_t id);
-  std::string generatorCoreOnBANG(int64_t id);
+  // std::string generatorBoneOnCUDA(std::string name);
+  // std::string generatorBoneOnBANG(std::string name);
+  // std::string generatorCoreOnCUDA(const std::vector<int64_t>& coord);
+  // std::string generatorCoreOnBANG(const std::vector<int64_t>& coord);
 };
 
 #define DEFINE_BINARY(OP_NAME)                                             \

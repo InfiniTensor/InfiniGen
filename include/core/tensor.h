@@ -2,11 +2,12 @@
 #include "core/type.h"
 #include "core/split.h"
 #include "core/tile.h"
-#include <initializer_list>
 #include <vector>
 #include <map>
 
 namespace infini {
+
+class TileTensor;
 
 class Tensor {
  public:
@@ -58,10 +59,14 @@ class TileTensor : public Tensor {
   ~TileTensor() = default;
   // Add tile
   void addTile(const Tile& t);
+  // Get tiles
+  std::vector<Tile> getTiles();
   // Delete tile
-  Tile deleteTile(const std::vector<int64_t>& pos);
+  Tile deleteTile(const std::vector<int64_t>& coord);
   // Get tile by multi-dimension coord
   Tile operator()(const std::vector<int64_t>& coord);
+  // Clear tiles
+  void clear();
 };
 
 }  // namespace infini

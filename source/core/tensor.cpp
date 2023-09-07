@@ -209,6 +209,17 @@ Tile TileTensor::operator()(const std::vector<int64_t>& coord) {
   // Get a Tile with Tile coord
   // Tile index = stride dot coord
   int64_t tile_index = DOT_PRODUCT(tensor_stride, coord);
+  // std::cout << "DEBUG INFO====================";
+  // std::cout << tile_index << std::endl;
+  // tiles[tile_index].printInformation();
   return tiles[tile_index];
+}
+
+void TileTensor::clear(){
+  tiles.clear();
+}
+
+std::vector<Tile> TileTensor::getTiles(){
+  return tiles;
 }
 }  // namespace infini

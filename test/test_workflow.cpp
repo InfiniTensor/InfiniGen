@@ -23,14 +23,14 @@ int main() {
   right.flatten();
   output.flatten();
   // Define Operator
-  infini::MUL sub(&left, &right, &output);
-  // Get Worker
-  sub.getWorker(workers);
+  // infini::MUL sub(&left, &right, &output);
+  // // Get Worker
+  // sub.getWorker(workers);
   // Declare split, operator and apply split
   infini::Split split({16});
-  sub.setSplit(split);
-  sub.applySplit();
-  LOG(PURE) << sub.generatorBone(infini::PlatformType::BANG);
+  // sub.setSplit(split);
+  // sub.applySplit();
+  // LOG(PURE) << sub.generatorBone(infini::PlatformType::BANG);
   for (infini::Worker* ptr : workers) {
     delete ptr;
   }

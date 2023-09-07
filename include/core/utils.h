@@ -84,6 +84,7 @@
 #ifndef DOT_PRODUCT
 #define DOT_PRODUCT(vec1, vec2)                  \
   ({                                             \
+    ASSERT((vec1).size() == (vec2).size());      \
     int64_t result = 0;                          \
     for (size_t i = 0; i < (vec1).size(); ++i) { \
       result += (vec1)[i] * (vec2)[i];           \
