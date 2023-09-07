@@ -288,18 +288,6 @@ void Cache::safeInsertFreeBlock(Block *block) {
   }
 }
 
-void Cache::peekFreeBlocks(CacheType type) {
-  if (type == CacheType::CACHE) {
-    for (auto block : free_cache_blocks) {
-      LOG(INFO) << "Free cache block: " + TO_STRING(*block);
-    }
-  } else {
-    for (auto block : free_ldram_blocks) {
-      LOG(INFO) << "Free ldram block: " + TO_STRING(*block);
-    }
-  }
-}
-
 std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
                                                Block *replacee) {
   // initialize return data list
@@ -422,7 +410,7 @@ void Cache::freeBlock(Block *target) {
 }
 
 CacheHit Cache::free(CacheData *target_data) {
-  LOG(INFO) << "Freeing cache memory for " + TO_STRING(*target_data) + "...";
+  DLOG(0) << "Freeing cache memory for " + TO_STRING(*target_data) + "...";
 
   if (lockedData.count(*(target_data)) > 0) {
     // should not free any block with locked data
@@ -477,10 +465,10 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
   std::string target_data_info = TO_STRING(*target_data);
 
   if (alloc) {
-    LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) +
+    DLOG(0) << "Allocating cache memory for " + TO_STRING(*target_data) +
                      "...";
   } else {
-    LOG(INFO) << "Looking for " + target_data_info + " in cache...";
+    DLOG(0) << "Looking for " + target_data_info + " in cache...";
   }
 
   // Cache block to return
@@ -500,7 +488,7 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
         // OUTCOME 0: found in cache
         match_cache = true;
         std::string cache_info = TO_STRING(*ptr);
-        LOG(INFO) << indentation(1) + "Cache hit, " + target_data_info +
+        DLOG(0) << indentation(1) + "Cache hit, " + target_data_info +
                          " has been cached on " + cache_info;
         updateBlockCount(ptr, true);
         target_cache_block = ptr;
@@ -515,7 +503,7 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
   }
   // 2. Not found in cache
   if (!match_cache) {
-    LOG(INFO) << indentation(1) + "Could not find " + target_data_info +
+    DLOG(0) << indentation(1) + "Could not find " + target_data_info +
                      " in cache.";
     int64_t data_size = PAD_UP(target_data->size, cache_align_size);
     // allocate memory in cache
@@ -539,7 +527,7 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
             match_ldram = true;
             ldram_from_block = ldram_ptr;
             std::string cache_info = TO_STRING(*ldram_from_block);
-            LOG(INFO) << indentation(3) + "LDRAM hit, " + target_data_info +
+            DLOG(0) << indentation(3) + "LDRAM hit, " + target_data_info +
                              " has been previously stored in " +
                              TO_STRING(*ldram_from_block);
             break;
@@ -570,7 +558,7 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
       auto ldram_block_it = free_ldram_blocks.lower_bound(cmp_ldram);
       if (ldram_block_it != free_ldram_blocks.end()) {
         ldram_to_block = *ldram_block_it;
-        LOG(INFO) << indentation(3) + "Find LDRAM block " +
+        DLOG(0) << indentation(3) + "Find LDRAM block " +
                          TO_STRING(*ldram_to_block) +
                          " to store the replaced data " +
                          TO_STRING(*target_cache_block) + " from cache.";
@@ -647,7 +635,7 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
   if (cache_block_it != free_cache_blocks.end()) {
     // found an empty cache block
     target_cache_block = *cache_block_it;
-    LOG(INFO) << indentation(indent) + "Find an empty block " +
+    DLOG(0) << indentation(indent) + "Find an empty block " +
                      TO_STRING(*target_cache_block) + " to cache " +
                      TO_STRING(*target_data) + ".";
   } else {
@@ -680,7 +668,7 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
     if (!target_cache_block->prev->allocated) {
       target_cache_block = target_cache_block->prev;
     }
-    LOG(INFO) << indentation(indent) + "Cache Full. Find cache block " +
+    DLOG(0) << indentation(indent) + "Cache Full. Find cache block " +
                      TO_STRING(*target_cache_block) + " to replace.";
   }
   delete cmp;

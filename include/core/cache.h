@@ -182,7 +182,6 @@ class Cache {
   std::vector<CacheData *> loadData2Block(CacheData *replacer_data,
                                           Block *replacee);
   CacheHit loadData(CacheData *data, bool alloc);
-  void peekFreeBlocks(CacheType type);
 };
 
 }  // namespace infini
