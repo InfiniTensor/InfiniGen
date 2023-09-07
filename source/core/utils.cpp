@@ -56,20 +56,6 @@ bool ALL_EQLESS(const std::vector<int64_t>& left,
   return true;
 }
 
-bool ALL_EQLESS(const std::vector<int64_t>& left,
-                const std::vector<int64_t>& right) {
-  if (left.size() != right.size()) {
-    LOG(ERROR) << "Can not campare two vector with diff length" << std::endl;
-    return false;
-  }
-  for (size_t i = 0; i < left.size(); i++) {
-    if (left[i] > right[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
 std::vector<int64_t> operator+(const std::vector<int64_t> &left,
                                const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
