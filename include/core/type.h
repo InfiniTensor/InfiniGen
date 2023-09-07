@@ -7,7 +7,7 @@ namespace infini {
 using Cacheline = std::tuple<std::string, std::string, int>;
 // MemoryDispatch
 enum class MemoryDispatch { RANDOM, FIFO, LRU, LFU };
-enum class TensorDatatype { HALF, FLOAT, DOUBLE, INT32 };
+enum class TensorDatatype { HALF, FLOAT, DOUBLE, INT32, TILE };
 enum class TensorLayout { NCHW, NHWC, ARRAY };
 enum class TensorType { CONST, VARIABLE };
 // OperatorType

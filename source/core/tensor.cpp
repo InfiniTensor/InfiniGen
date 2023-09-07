@@ -1,5 +1,6 @@
 #include "core/tensor.h"
 #include "core/utils.h"
+#include "core/type.h"
 
 namespace infini {
 
@@ -37,7 +38,7 @@ Tensor::Tensor(const std::vector<int64_t>& dimension,
   is_contiguous = (temp == tensor_stride ? true : false);
 }
 
-std::vector<Tile> Tensor::tiling(const Split& split) {
+TileTensor Tensor::tiling(const Split& split) {
   // Check
   CHECK_EQ(tensor_dimension.size(), split.split_dimension.size());
   std::vector<int64_t> easy = tensor_dimension / split.split_dimension;
@@ -51,7 +52,8 @@ std::vector<Tile> Tensor::tiling(const Split& split) {
     split_suffix[i] = split_suffix[i + 1] * split.split_dimension[i + 1];
   }
   int64_t total = VECTOR_PRODUCT(split.split_dimension);
-  std::vector<Tile> result;
+  TileTensor result(split.split_dimension, split_suffix, tensor_type,
+                    tensor_layout, tensor_name + "_split");
   for (int64_t i = 0; i < total; ++i) {
     // Local Position
     int64_t pos = i;
@@ -89,10 +91,21 @@ std::vector<Tile> Tensor::tiling(const Split& split) {
                             TO_STRING(start_position);
     Tile temp(tile_dimension, tile_local_position, tile_stride, tile_name,
               tile_start);
-    result.push_back(temp);
+    result.addTile(temp);
   }
+
   return result;
 }
+
+// TileTensor Tensor::tiling(const Tile & t){
+//   CHECK_EQ(tensor_dimension.size(), t.tile_dimension.size());
+//   // This stride means every k step in this dimmension
+//   std::vector<int64_t> tile_stride = t.tile_stride;
+//   std::vector<int64_t> split_dim = tensor_dimension / t.tile_dimension;
+//   // Tile stride restrict
+//   ASSERT(ALL_EQLESS(tile_stride, split_dim));
+
+// }
 
 void Tensor::printInformation() {
   std::string info_string = "";
@@ -178,4 +191,24 @@ void Tensor::flatten(int64_t start, int64_t end) {
   }
 }
 
+TileTensor::TileTensor(const std::vector<int64_t>& dimension,
+                       const std::vector<int64_t>& stride, TensorType type,
+                       TensorLayout layout, std::string name)
+    : Tensor(dimension, stride, TensorDatatype::TILE, type, layout, name) {}
+
+void TileTensor::addTile(const Tile& t) { tiles.push_back(t); }
+
+Tile TileTensor::deleteTile(const std::vector<int64_t>& coord) {
+  int64_t tile_index = DOT_PRODUCT(tensor_stride, coord);
+  Tile temp = tiles[tile_index];
+  tiles.erase(tiles.begin() + tile_index);
+  return temp;
+}
+
+Tile TileTensor::operator()(const std::vector<int64_t>& coord) {
+  // Get a Tile with Tile coord
+  // Tile index = stride dot coord
+  int64_t tile_index = DOT_PRODUCT(tensor_stride, coord);
+  return tiles[tile_index];
+}
 }  // namespace infini

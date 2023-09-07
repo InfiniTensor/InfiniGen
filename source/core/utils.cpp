@@ -41,6 +41,20 @@ int64_t VECTOR_PRODUCT(const std::vector<int64_t>& left) {
   return result;
 }
 
+bool ALL_EQLESS(const std::vector<int64_t>& left,
+                const std::vector<int64_t>& right) {
+  if (left.size() != right.size()) {
+    LOG(ERROR) << "Can not campare two vector with diff length" << std::endl;
+    return false;
+  }
+  for (size_t i = 0; i < left.size(); i++) {
+    if (left[i] > right[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 std::vector<int64_t> operator+(const std::vector<int64_t>& left,
                                const std::vector<int64_t>& right) {
   CHECK_EQ(left.size(), right.size());
@@ -209,6 +223,8 @@ std::string TO_STRING(TensorDatatype datatype) {
       return "DOUBLE";
     case TensorDatatype::INT32:
       return "INT32";
+    case TensorDatatype::TILE:
+      return "TILE";
     default:
       return "UNKNOWN";
   }

@@ -81,6 +81,17 @@
   }
 #endif
 
+#ifndef DOT_PRODUCT
+#define DOT_PRODUCT(vec1, vec2)                  \
+  ({                                             \
+    int64_t result = 0;                          \
+    for (size_t i = 0; i < (vec1).size(); ++i) { \
+      result += (vec1)[i] * (vec2)[i];           \
+    }                                            \
+    result;                                      \
+  })
+#endif
+
 namespace infini {
 
 std::vector<std::string> STRING_SPLIT(const std::string& input, char delimiter);
@@ -94,6 +105,9 @@ bool operator==(const Cacheline& left, const Cacheline& right);
 int64_t VECTOR_SUM(const std::vector<int64_t>& left);
 
 int64_t VECTOR_PRODUCT(const std::vector<int64_t>& left);
+
+bool ALL_EQLESS(const std::vector<int64_t>& left,
+                const std::vector<int64_t>& right);
 
 std::vector<int64_t> operator+(const std::vector<int64_t>& left,
                                const std::vector<int64_t>& right);
