@@ -442,17 +442,19 @@ CacheHit Cache::free(CacheData *target_data) {
       return CacheHit(CacheHitLocation::CACHE, offset);
     }
   }
-  if (ptr == cache_tail) {
-    ptr = ldram_head->next;
-    while (ptr->next != nullptr) {
-      if (!ptr->allocated) {
-        ptr = ptr->next;
-        continue;
-      }
-      if (*(ptr->data) == (*target_data)) {
-        offset = ptr->block_offset;
-        freeBlock(ptr);
-        return CacheHit(CacheHitLocation::LDRAM, -1, offset);
+  if (storedInLdram.count(*target_data) > 0) {
+    if (ptr == cache_tail) {
+      ptr = ldram_head->next;
+      while (ptr->next != nullptr) {
+        if (!ptr->allocated) {
+          ptr = ptr->next;
+          continue;
+        }
+        if (*(ptr->data) == (*target_data)) {
+          offset = ptr->block_offset;
+          freeBlock(ptr);
+          return CacheHit(CacheHitLocation::LDRAM, -1, offset);
+        }
       }
     }
   }
