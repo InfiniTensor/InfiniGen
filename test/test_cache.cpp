@@ -7,6 +7,7 @@ int main() {
   infini::CacheData *c = new infini::CacheData("C", 4, 100);
   infini::CacheData *d = new infini::CacheData("D", 2, 25);
   infini::CacheData *e = new infini::CacheData("E", 4, 70);
+  infini::CacheData *f = new infini::CacheData("F", 4, 200);
 
   auto res = cache.allocate(a);
   res.printInformation();
@@ -70,11 +71,16 @@ int main() {
   res.printInformation();
   cache.printInformation();
 
+  res = cache.allocate(f);
+  res.printInformation();
+  cache.printInformation();
+
   delete a;
   delete b;
   delete c;
   delete d;
   delete e;
+  delete f;
 
   return 0;
 }

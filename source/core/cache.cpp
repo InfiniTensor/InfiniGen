@@ -549,26 +549,37 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
       }
     }
 
-    // No matter if data is found in ldram, a ldram_to_block is supposed to
-    // be allocated for cache swapping. We also assume that ldram is large
-    // enough so abort in case of any overflow
-    Block *cmp_ldram = new Block(
-        true, 0,
-        std::max(target_cache_block->block_size, data_size) -
-            (cache_align_size - 1),
-        nullptr, nullptr, "", CacheType::LDRAM, target_cache_block->data, -1);
-    auto ldram_block_it = free_ldram_blocks.lower_bound(cmp_ldram);
-    if (ldram_block_it != free_ldram_blocks.end()) {
-      ldram_to_block = *ldram_block_it;
-      LOG(INFO) << indentation(3) + "Find LDRAM block " +
-                       TO_STRING(*ldram_to_block) +
-                       " to store the replaced data " +
-                       TO_STRING(*target_cache_block) + " from cache.";
-    } else {
-      LOG(ERROR) << "LDRAM has no more space.";
-      return CacheHit(CacheHitLocation::ERROR);
+    int64_t replaced_data_size_total = 0;
+    int64_t replaced_block_size_total = 0;
+    ptr = target_cache_block;
+    while (ptr->next != nullptr && replaced_block_size_total < data_size) {
+      replaced_block_size_total += ptr->block_size;
+      if (ptr->allocated) {
+        replaced_data_size_total += ptr->block_size;
+      }
+      ptr = ptr->next;
     }
-    delete cmp_ldram;
+
+    if (replaced_data_size_total > 0) {
+      // No matter if data is found in ldram, a ldram_to_block is supposed to
+      // be allocated for cache swapping. We also assume that ldram is large
+      // enough so abort in case of any overflow
+      Block *cmp_ldram =
+          new Block(true, 0, replaced_data_size_total, nullptr, nullptr, "",
+                    CacheType::LDRAM, target_cache_block->data, -1);
+      auto ldram_block_it = free_ldram_blocks.lower_bound(cmp_ldram);
+      if (ldram_block_it != free_ldram_blocks.end()) {
+        ldram_to_block = *ldram_block_it;
+        LOG(INFO) << indentation(3) + "Find LDRAM block " +
+                         TO_STRING(*ldram_to_block) +
+                         " to store the replaced data " +
+                         TO_STRING(*target_cache_block) + " from cache.";
+      } else {
+        LOG(ERROR) << "LDRAM has no more space.";
+        return CacheHit(CacheHitLocation::ERROR);
+      }
+      delete cmp_ldram;
+    }
   }
   // Now that we already know cache/ldram_from/ldram_to locations, we then
   // update the information in the block link list
@@ -630,8 +641,8 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
   Block *target_cache_block = nullptr;
   int64_t data_size = PAD_UP(target_data->size, cache_align_size);
   // Find an empty cache block first
-  Block *cmp = new Block(true, 0, data_size - (cache_align_size - 1), nullptr,
-                         nullptr, "", CacheType::CACHE, target_data, -1);
+  Block *cmp = new Block(true, 0, data_size, nullptr, nullptr, "",
+                         CacheType::CACHE, target_data, -1);
   auto cache_block_it = free_cache_blocks.lower_bound(cmp);
   if (cache_block_it != free_cache_blocks.end()) {
     // found an empty cache block
