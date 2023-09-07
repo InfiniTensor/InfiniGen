@@ -66,6 +66,10 @@ int main() {
   res.printInformation();
   cache.printInformation();
 
+  res = cache.free(b);
+  res.printInformation();
+  cache.printInformation();
+
   delete a;
   delete b;
   delete c;

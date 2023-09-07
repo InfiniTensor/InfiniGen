@@ -441,6 +441,7 @@ CacheHit Cache::free(CacheData *target_data) {
       freeBlock(ptr);
       return CacheHit(CacheHitLocation::CACHE, offset);
     }
+    ptr = ptr->next;
   }
   if (storedInLdram.count(*target_data) > 0) {
     if (ptr == cache_tail) {
@@ -455,6 +456,7 @@ CacheHit Cache::free(CacheData *target_data) {
           freeBlock(ptr);
           return CacheHit(CacheHitLocation::LDRAM, -1, offset);
         }
+        ptr = ptr->next;
       }
     }
   }
