@@ -463,7 +463,7 @@ CacheHit Cache::free(CacheData *target_data) {
   return CacheHit(CacheHitLocation::NOT_FOUND);
 }
 
-CacheHit Cache::load(CacheData *target_data, bool alloc) {
+CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
   int64_t size = target_data->size;
   if (size > cache_size) {
     LOG(ERROR) << "Cache size is less than data size.";
@@ -676,27 +676,12 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
   return target_cache_block;
 }
 
+CacheHit Cache::load(CacheData *target_data) {
+  return loadData(target_data, false);
+}
+
 CacheHit Cache::allocate(CacheData *target_data) {
-  return load(target_data, true);
-  //   int64_t size = target_data->size;
-  //   if (size > cache_size) {
-  //     LOG(ERROR) << "Cache size is less than data size.";
-  //     return CacheHit(CacheHitLocation::ERROR);
-  //   }
-
-  //   LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) +
-  //   "...";
-
-  //   // Cache block to return
-  //   Block *target_cache_block = cacheAlloc(target_data, 1);
-
-  //   if (target_cache_block == nullptr) {
-  //     return CacheHit(CacheHitLocation::ERROR);
-  //   } else {
-
-  //     return CacheHit(CacheHitLocation::NOT_FOUND,
-  //                     target_cache_block->block_offset);
-  //   }
+  return loadData(target_data, true);
 }
 
 void Cache::printMemoryGraph(Block *head, int height = 16, int width = 64) {

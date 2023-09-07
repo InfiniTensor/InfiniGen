@@ -157,7 +157,7 @@ class Cache {
 
   // Cache Primitives
   // Load data
-  CacheHit load(CacheData *data, bool alloc = false);
+  CacheHit load(CacheData *data);
   // Allocate memory for data
   CacheHit allocate(CacheData *data);
   // free data from cache
@@ -181,6 +181,7 @@ class Cache {
   Block *cacheAlloc(CacheData *target_data, int indent);
   std::vector<CacheData *> loadData2Block(CacheData *replacer_data,
                                           Block *replacee);
+  CacheHit loadData(CacheData *data, bool alloc);
   void peekFreeBlocks(CacheType type);
 };
 
