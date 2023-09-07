@@ -24,6 +24,8 @@ struct CacheData {
   ~CacheData() = default;
   // Operator overload
   bool operator==(const CacheData &other) const;
+  // Information
+  void printInformation();
 };
 
 struct CacheDataHash {
@@ -62,6 +64,8 @@ struct Block {
   ~Block() = default;
   // Operator overload
   bool operator==(const Block &block) const;
+  // Information
+  void printInformation(int indent);
 };
 
 struct CompareBlockSize {
@@ -109,6 +113,8 @@ struct CacheHit {
            std::vector<int64_t> _replaced_data_size);
   // Destructor
   ~CacheHit() = default;
+  // Information
+  void printInformation();
 };
 
 class Cache {
@@ -151,11 +157,11 @@ class Cache {
 
   // Cache Primitives
   // Load data
-  CacheHit load(CacheData *data);
+  CacheHit load(CacheData *data, bool alloc = false);
   // Allocate memory for data
   CacheHit allocate(CacheData *data);
   // free data from cache
-  int64_t free(CacheData *data);
+  CacheHit free(CacheData *data);
   // Lock & unlock data
   void lock(std::vector<CacheData> data_list);
   void unlock(std::vector<CacheData> data_list);

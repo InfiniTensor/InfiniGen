@@ -8,43 +8,57 @@ int main() {
   infini::CacheData *d = new infini::CacheData("D", 2, 25);
   infini::CacheData *e = new infini::CacheData("E", 4, 70);
 
-  cache.load(a);
+  auto res = cache.allocate(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(b);
+  res = cache.allocate(b);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(c);
+  res = cache.load(c);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(d);
+  res = cache.load(d);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(e);
+  res = cache.load(e);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(a);
+  res = cache.load(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(c);
+  res = cache.load(c);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(d);
+  res = cache.load(d);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(e);
+  res = cache.load(e);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(b);
+  res = cache.load(b);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(a);
+  res = cache.load(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.free(a);
+  res = cache.free(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.allocate(b);
+  res = cache.allocate(a);
+  res.printInformation();
+  cache.printInformation();
 
   delete a;
   delete b;
