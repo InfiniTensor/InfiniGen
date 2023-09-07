@@ -153,6 +153,8 @@ std::string TO_STRING(CacheData data);
 
 std::string TO_STRING(CacheType type);
 
+std::string TO_STRING(CacheHitLocation location);
+
 std::string TO_STRING(PlatformType type);
 
 std::string datatype_string(TensorDatatype type);

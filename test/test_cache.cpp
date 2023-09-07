@@ -7,50 +7,80 @@ int main() {
   infini::CacheData *c = new infini::CacheData("C", 4, 100);
   infini::CacheData *d = new infini::CacheData("D", 2, 25);
   infini::CacheData *e = new infini::CacheData("E", 4, 70);
+  infini::CacheData *f = new infini::CacheData("F", 4, 200);
 
-  cache.load(a);
+  auto res = cache.allocate(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(b);
+  res = cache.allocate(b);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(c);
+  res = cache.load(c);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(d);
+  res = cache.load(d);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(e);
+  res = cache.load(e);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(a);
+  res = cache.load(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(c);
+  res = cache.load(c);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(d);
+  std::vector<infini::CacheData> locked;
+  locked.push_back(*a);
+  cache.lock(locked);
+
+  res = cache.load(d);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(e);
+  res = cache.load(e);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(b);
+  cache.unlock(locked);
+
+  res = cache.load(b);
+  res.printInformation();
   cache.printInformation();
 
-  cache.load(a);
+  res = cache.load(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.free(a);
+  res = cache.free(a);
+  res.printInformation();
   cache.printInformation();
 
-  cache.allocate(b);
+  res = cache.allocate(a);
+  res.printInformation();
+  cache.printInformation();
+
+  res = cache.free(b);
+  res.printInformation();
+  cache.printInformation();
+
+  res = cache.allocate(f);
+  res.printInformation();
+  cache.printInformation();
 
   delete a;
   delete b;
   delete c;
   delete d;
   delete e;
+  delete f;
 
   return 0;
 }

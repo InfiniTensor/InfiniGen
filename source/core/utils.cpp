@@ -319,6 +319,21 @@ std::string TO_STRING(CacheType type) {
   }
 }
 
+std::string TO_STRING(CacheHitLocation location) {
+  switch (location) {
+    case CacheHitLocation::CACHE:
+      return "CACHE";
+    case CacheHitLocation::LDRAM:
+      return "LDRAM";
+    case CacheHitLocation::NOT_FOUND:
+      return "NOT_FOUND";
+    case CacheHitLocation::ERROR:
+      return "ERROR";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 std::string TO_STRING(Block block) {
   std::string info = block.cache_name + "_" + TO_STRING(block.cache_type) +
                      "_" + std::to_string(block.block_offset) + "_" +
