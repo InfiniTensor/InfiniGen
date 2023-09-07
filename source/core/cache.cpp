@@ -13,16 +13,16 @@ bool CacheData::operator==(const CacheData &other) const {
 }
 
 void CacheData::printInformation() {
-    std::string info_string = "CacheData ";
-    info_string += "Name: ";
-    info_string += name;
-    info_string += "; ";
-    info_string += "Offset: ";
-    info_string += std::to_string(offset);
-    info_string += "; ";
-    info_string += "Size: ";
-    info_string += std::to_string(size);
-    LOG(INFO) << info_string;
+  std::string info_string = "CacheData ";
+  info_string += "Name: ";
+  info_string += name;
+  info_string += "; ";
+  info_string += "Offset: ";
+  info_string += std::to_string(offset);
+  info_string += "; ";
+  info_string += "Size: ";
+  info_string += std::to_string(size);
+  LOG(INFO) << info_string;
 }
 
 size_t CacheDataHash::operator()(const CacheData &data) const {
@@ -52,29 +52,26 @@ bool Block::operator==(const Block &block) const {
 }
 
 void Block::printInformation(int indent = 0) {
-    std::string info_string = indentation(indent) + "- Block ";
-    info_string += "Offset: ";
-    info_string += std::to_string(block_offset);
+  std::string info_string = indentation(indent) + "- Block ";
+  info_string += "Offset: ";
+  info_string += std::to_string(block_offset);
+  info_string += "; ";
+  info_string += "Size: ";
+  info_string += std::to_string(block_size);
+  info_string += "; ";
+  if (!allocated) {
+    info_string += "Empty";
+  } else {
+    info_string += "Data Name: ";
+    info_string += data->name;
     info_string += "; ";
-    info_string += "Size: ";
-    info_string += std::to_string(block_size);
+    info_string += "Data Size: ";
+    info_string += std::to_string(data->size);
     info_string += "; ";
-    if (!allocated)
-    {
-        info_string += "Empty";
-    }
-    else
-    {
-        info_string += "Data Name: ";
-        info_string += data->name;
-        info_string += "; ";
-        info_string += "Data Size: ";
-        info_string += std::to_string(data->size);
-        info_string += "; ";
-        info_string += "Data Count: ";
-        info_string += std::to_string(data_count);
-    }
-    LOG(INFO) << info_string;
+    info_string += "Data Count: ";
+    info_string += std::to_string(data_count);
+  }
+  LOG(INFO) << info_string;
 }
 
 bool CompareBlockSize::operator()(const Block *block1,
@@ -108,61 +105,60 @@ CacheHit::CacheHit(
       ldram_to_offset(_ldram_to_offset),
       replaced_data_size(_replaced_data_size) {}
 
-void CacheHit::printInformation(){
-    std::string info_string = "CacheHit Result - ";
-    info_string += "Location: ";
-    info_string += TO_STRING(location);
-    info_string += "; ";
-    info_string += "CacheOffset: ";
-    info_string += std::to_string(cache_offset);
-    info_string += "; ";
-    info_string += "LdramFromOffset: ";
-    info_string += std::to_string(ldram_from_offset);
-    info_string += "; ";
-    info_string += "LdramToOffset: ";
-    info_string += TO_STRING(ldram_to_offset);
-    info_string += "; ";
-    info_string += "ReplacedDataSize: ";
-    info_string += TO_STRING(replaced_data_size);
-    LOG(INFO) << info_string;
+void CacheHit::printInformation() {
+  std::string info_string = "CacheHit Result - ";
+  info_string += "Location: ";
+  info_string += TO_STRING(location);
+  info_string += "; ";
+  info_string += "CacheOffset: ";
+  info_string += std::to_string(cache_offset);
+  info_string += "; ";
+  info_string += "LdramFromOffset: ";
+  info_string += std::to_string(ldram_from_offset);
+  info_string += "; ";
+  info_string += "LdramToOffset: ";
+  info_string += TO_STRING(ldram_to_offset);
+  info_string += "; ";
+  info_string += "ReplacedDataSize: ";
+  info_string += TO_STRING(replaced_data_size);
+  LOG(INFO) << info_string;
 }
 
 Cache::Cache(int64_t total_nram, int64_t total_ldram, int64_t align_size,
-             std::string name, MemoryDispatch dispatch)
-{
-    name = name;
-    cache_size = PAD_DOWN(total_nram, align_size);
-    ldram_size = PAD_DOWN(total_ldram, align_size);
-    cache_dispatch = dispatch;
-    cache_align_size = align_size;
-    clock = 0;
+             std::string name, MemoryDispatch dispatch) {
+  name = name;
+  cache_size = PAD_DOWN(total_nram, align_size);
+  ldram_size = PAD_DOWN(total_ldram, align_size);
+  cache_dispatch = dispatch;
+  cache_align_size = align_size;
+  clock = 0;
 
-    // build cache block list
-    Block *first_block = new Block(false, 0, total_nram, nullptr, nullptr, name,
-                                   CacheType::CACHE, nullptr, -1);
-    cache_head = new Block(true, 0, 0, first_block, nullptr, name,
-                           CacheType::CACHE, nullptr, -1);
-    cache_tail = new Block(true, total_nram, 0, nullptr, first_block, name,
-                           CacheType::CACHE, nullptr, -1);
-    first_block->prev = cache_head;
-    first_block->next = cache_tail;
-    free_cache_blocks = std::set<Block *, CompareBlockSize>();
-    free_cache_blocks.insert(first_block);
+  // build cache block list
+  Block *first_block = new Block(false, 0, total_nram, nullptr, nullptr, name,
+                                 CacheType::CACHE, nullptr, -1);
+  cache_head = new Block(true, 0, 0, first_block, nullptr, name,
+                         CacheType::CACHE, nullptr, -1);
+  cache_tail = new Block(true, total_nram, 0, nullptr, first_block, name,
+                         CacheType::CACHE, nullptr, -1);
+  first_block->prev = cache_head;
+  first_block->next = cache_tail;
+  free_cache_blocks = std::set<Block *, CompareBlockSize>();
+  free_cache_blocks.insert(first_block);
 
-    // build ldram block list
-    first_block = new Block(false, 0, total_ldram, nullptr, nullptr, name,
-                            CacheType::LDRAM, nullptr, -1);
-    ldram_head = new Block(true, 0, 0, first_block, nullptr, name,
-                           CacheType::LDRAM, nullptr, -1);
-    ldram_tail = new Block(true, total_nram, 0, nullptr, first_block, name,
-                           CacheType::LDRAM, nullptr, -1);
-    first_block->prev = ldram_head;
-    first_block->next = ldram_tail;
-    free_ldram_blocks = std::set<Block *, CompareBlockSize>();
-    free_ldram_blocks.insert(first_block);
+  // build ldram block list
+  first_block = new Block(false, 0, total_ldram, nullptr, nullptr, name,
+                          CacheType::LDRAM, nullptr, -1);
+  ldram_head = new Block(true, 0, 0, first_block, nullptr, name,
+                         CacheType::LDRAM, nullptr, -1);
+  ldram_tail = new Block(true, total_nram, 0, nullptr, first_block, name,
+                         CacheType::LDRAM, nullptr, -1);
+  first_block->prev = ldram_head;
+  first_block->next = ldram_tail;
+  free_ldram_blocks = std::set<Block *, CompareBlockSize>();
+  free_ldram_blocks.insert(first_block);
 
-    storedInLdram = std::unordered_set<CacheData, CacheDataHash>();
-    lockedData = std::unordered_set<CacheData, CacheDataHash>();
+  storedInLdram = std::unordered_set<CacheData, CacheDataHash>();
+  lockedData = std::unordered_set<CacheData, CacheDataHash>();
 }
 
 Cache::~Cache() {
@@ -447,21 +443,18 @@ CacheHit Cache::free(CacheData *target_data) {
     }
   }
   if (ptr == cache_tail) {
-      ptr = ldram_head->next;
-      while (ptr->next != nullptr)
-      {
-          if (!ptr->allocated)
-          {
-              ptr = ptr->next;
-              continue;
-          }
-          if (*(ptr->data) == (*target_data))
-          {
-              offset = ptr->block_offset;
-              freeBlock(ptr);
-              return CacheHit(CacheHitLocation::LDRAM, -1, offset);
-          }
+    ptr = ldram_head->next;
+    while (ptr->next != nullptr) {
+      if (!ptr->allocated) {
+        ptr = ptr->next;
+        continue;
       }
+      if (*(ptr->data) == (*target_data)) {
+        offset = ptr->block_offset;
+        freeBlock(ptr);
+        return CacheHit(CacheHitLocation::LDRAM, -1, offset);
+      }
+    }
   }
   return CacheHit(CacheHitLocation::NOT_FOUND);
 }
@@ -479,11 +472,12 @@ CacheHit Cache::load(CacheData *target_data, bool alloc) {
   Block *ptr = cache_head->next;
   std::string target_data_info = TO_STRING(*target_data);
 
-    if (alloc) {
-        LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) + "...";
-    } else {
-        LOG(INFO) << "Looking for " + target_data_info + " in cache...";
-    }
+  if (alloc) {
+    LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) +
+                     "...";
+  } else {
+    LOG(INFO) << "Looking for " + target_data_info + " in cache...";
+  }
 
   // Cache block to return
   Block *target_cache_block = nullptr;
@@ -492,33 +486,28 @@ CacheHit Cache::load(CacheData *target_data, bool alloc) {
 
   // If allocate, no need to find target
   if (!alloc) {
-      // 1. Find data in cache
-      while (ptr->next != nullptr)
-      {
-          if (!ptr->allocated)
-          {
-              ptr = ptr->next;
-              continue;
-          }
-          if (*(ptr->data) == (*target_data))
-          {
-              // OUTCOME 0: found in cache
-              match_cache = true;
-              std::string cache_info = TO_STRING(*ptr);
-              LOG(INFO) << indentation(1) + "Cache hit, " + target_data_info +
-                               " has been cached on " + cache_info;
-              updateBlockCount(ptr, true);
-              target_cache_block = ptr;
-              // need to update counts for all allocated blocks
-              // should not break early
-              // break;
-          }
-          else
-          {
-              updateBlockCount(ptr, false);
-          }
-          ptr = ptr->next;
+    // 1. Find data in cache
+    while (ptr->next != nullptr) {
+      if (!ptr->allocated) {
+        ptr = ptr->next;
+        continue;
       }
+      if (*(ptr->data) == (*target_data)) {
+        // OUTCOME 0: found in cache
+        match_cache = true;
+        std::string cache_info = TO_STRING(*ptr);
+        LOG(INFO) << indentation(1) + "Cache hit, " + target_data_info +
+                         " has been cached on " + cache_info;
+        updateBlockCount(ptr, true);
+        target_cache_block = ptr;
+        // need to update counts for all allocated blocks
+        // should not break early
+        // break;
+      } else {
+        updateBlockCount(ptr, false);
+      }
+      ptr = ptr->next;
+    }
   }
   // 2. Not found in cache
   if (!match_cache) {
@@ -533,31 +522,27 @@ CacheHit Cache::load(CacheData *target_data, bool alloc) {
     }
 
     if (!alloc) {
-        // Then check ldram
-        if (storedInLdram.count(*target_data) > 0)
-        {
-            Block *ldram_ptr = ldram_head->next;
-            while (ldram_ptr->next != nullptr)
-            {
-                if (!ldram_ptr->allocated)
-                {
-                    ldram_ptr = ldram_ptr->next;
-                    continue;
-                }
-                if (*(ldram_ptr->data) == (*target_data))
-                {
-                    // OUTCOME 1: found in ldram
-                    match_ldram = true;
-                    ldram_from_block = ldram_ptr;
-                    std::string cache_info = TO_STRING(*ldram_from_block);
-                    LOG(INFO) << indentation(3) + "LDRAM hit, " + target_data_info +
-                                     " has been previously stored in " +
-                                     TO_STRING(*ldram_from_block);
-                    break;
-                }
-                ldram_ptr = ldram_ptr->next;
-            }
+      // Then check ldram
+      if (storedInLdram.count(*target_data) > 0) {
+        Block *ldram_ptr = ldram_head->next;
+        while (ldram_ptr->next != nullptr) {
+          if (!ldram_ptr->allocated) {
+            ldram_ptr = ldram_ptr->next;
+            continue;
+          }
+          if (*(ldram_ptr->data) == (*target_data)) {
+            // OUTCOME 1: found in ldram
+            match_ldram = true;
+            ldram_from_block = ldram_ptr;
+            std::string cache_info = TO_STRING(*ldram_from_block);
+            LOG(INFO) << indentation(3) + "LDRAM hit, " + target_data_info +
+                             " has been previously stored in " +
+                             TO_STRING(*ldram_from_block);
+            break;
+          }
+          ldram_ptr = ldram_ptr->next;
         }
+      }
     }
 
     // No matter if data is found in ldram, a ldram_to_block is supposed to
@@ -688,25 +673,26 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
 }
 
 CacheHit Cache::allocate(CacheData *target_data) {
-    return load(target_data, true);
-    //   int64_t size = target_data->size;
-    //   if (size > cache_size) {
-    //     LOG(ERROR) << "Cache size is less than data size.";
-    //     return CacheHit(CacheHitLocation::ERROR);
-    //   }
+  return load(target_data, true);
+  //   int64_t size = target_data->size;
+  //   if (size > cache_size) {
+  //     LOG(ERROR) << "Cache size is less than data size.";
+  //     return CacheHit(CacheHitLocation::ERROR);
+  //   }
 
-    //   LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) + "...";
+  //   LOG(INFO) << "Allocating cache memory for " + TO_STRING(*target_data) +
+  //   "...";
 
-    //   // Cache block to return
-    //   Block *target_cache_block = cacheAlloc(target_data, 1);
+  //   // Cache block to return
+  //   Block *target_cache_block = cacheAlloc(target_data, 1);
 
-    //   if (target_cache_block == nullptr) {
-    //     return CacheHit(CacheHitLocation::ERROR);
-    //   } else {
+  //   if (target_cache_block == nullptr) {
+  //     return CacheHit(CacheHitLocation::ERROR);
+  //   } else {
 
-    //     return CacheHit(CacheHitLocation::NOT_FOUND,
-    //                     target_cache_block->block_offset);
-    //   }
+  //     return CacheHit(CacheHitLocation::NOT_FOUND,
+  //                     target_cache_block->block_offset);
+  //   }
 }
 
 void Cache::printMemoryGraph(Block *head, int height = 16, int width = 64) {
@@ -791,8 +777,8 @@ void Cache::printBlocks(Block *head) {
   LOG(INFO) << info_string;
   Block *ptr = head->next;
   while (ptr->next != nullptr) {
-      ptr->printInformation(4);
-      ptr = ptr->next;
+    ptr->printInformation(4);
+    ptr = ptr->next;
   }
 }
 
