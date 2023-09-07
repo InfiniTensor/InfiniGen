@@ -42,5 +42,12 @@ int main() {
   for (auto i : tilelist) {
     i.printSummary();
   }
+  LOG(WARNING)
+      << "3 ============================================================";
+  DLOG(0) << "DLOG 0";
+  DLOG(1) << "DLOG 1";
+  DLOG(2) << "DLOG 2";
+  DLOG(3) << "DLOG 3";
+  DLOG(4) << "DLOG 4";
   return 0;
 }

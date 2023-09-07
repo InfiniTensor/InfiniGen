@@ -42,13 +42,17 @@
 #endif
 
 #ifndef LOG
-#define LOG(severity) PRINTLOG(Thread, severity)
+#define LOG(severity) PRINTLOG(Codegen, severity)
 #endif
 
 #ifndef LOG_N
 #define LOG_N(severity, n)                                            \
   static std::atomic<int> TOKENPASTE(LOG_, __LINE__, _OCCURRENCE)(0); \
-  if (TOKENPASTE(LOG_, __LINE__, _OCCURRENCE)++ < n) PRINTLOG(Thread, severity)
+  if (TOKENPASTE(LOG_, __LINE__, _OCCURRENCE)++ < n) PRINTLOG(Codegen, severity)
+#endif
+
+#ifndef DLOG
+#define DLOG(level) DEVELOPLOG(Codegen, level)
 #endif
 
 #ifndef CHECK
@@ -160,5 +164,10 @@ std::string left_pad(std::string s, size_t len, char c);
 std::string right_pad(std::string s, size_t len, char c);
 
 std::string left_right_pad(std::string s, size_t len, char c);
+
+bool getBoolEnvironmentVariable(const std::string& str, bool default_value);
+
+int64_t getLevelEnvironmentVariable(const std::string& str,
+                                    int64_t default_value);
 
 }  // namespace infini
