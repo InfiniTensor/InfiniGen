@@ -1,4 +1,5 @@
 #include "core/utils.h"
+#include <algorithm>
 
 namespace infini {
 
@@ -371,6 +372,27 @@ std::string left_right_pad(std::string s, size_t len, char c) {
   std::string res = std::string((len - s.length()) / 2, c) + s;
   res += std::string(len - res.length(), c);
   return res;
+}
+
+bool getBoolEnvironmentVariable(const std::string &str, bool default_value) {
+  const char *pointer = std::getenv(str.c_str());
+  if (pointer == NULL) {
+    return default_value;
+  }
+  std::string value = std::string(pointer);
+  std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+  return (value == "1" || value == "ON" || value == "YES" || value == "TRUE");
+}
+
+int64_t getLevelEnvironmentVariable(const std::string &str,
+                                    int64_t default_value) {
+  const char *pointer = std::getenv(str.c_str());
+  if (pointer == nullptr) {
+    return default_value;
+  }
+  std::string value = std::string(pointer);
+  std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+  return std::stoll(value);
 }
 
 }  // namespace infini

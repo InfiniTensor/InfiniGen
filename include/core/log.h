@@ -9,14 +9,15 @@
 #define LOG_WARNING 2
 #define LOG_ERROR 3
 #define LOG_FATAL 4
+#define LOG_DLOG 5
 
 #define PRINTLOG(name, severity) \
   infini::Log(__FILE__, __LINE__, LOG_##severity, 0, #name).stream()
 
-namespace infini {
+#define DEVELOPLOG(name, level) \
+  infini::Log(__FILE__, __LINE__, LOG_DLOG, level, #name).stream()
 
-static std::ostream print_stream(std::cout.rdbuf());
-static std::ofstream log_stream;
+namespace infini {
 
 class Log {
  public:
@@ -43,5 +44,9 @@ class Log {
   // 日志信息
   std::stringstream &stream();
 };
+
+bool getBoolEnvironment(const std::string &str, bool default_value);
+
+int32_t getLevelEnvironment(const std::string &str, int32_t default_value);
 
 }  // namespace infini
