@@ -30,4 +30,10 @@ enum class KernelType {
 };
 // PlatformType
 enum class PlatformType { CUDA, BANG };
+
+// CacheType
+enum class CacheType { CACHE, LDRAM };
+
+// CacheHitLocation
+enum class CacheHitLocation { CACHE, LDRAM, NOT_FOUND, ERROR };
 }  // namespace infini

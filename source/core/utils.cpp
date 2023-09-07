@@ -1,8 +1,9 @@
 #include "core/utils.h"
+#include <algorithm>
 
 namespace infini {
 
-std::vector<std::string> STRING_SPLIT(const std::string& input,
+std::vector<std::string> STRING_SPLIT(const std::string &input,
                                       char delimiter) {
   std::vector<std::string> tokens;
   std::stringstream data(input);
@@ -13,19 +14,19 @@ std::vector<std::string> STRING_SPLIT(const std::string& input,
   return tokens;
 }
 
-bool operator<(const Cacheline& left, const Cacheline& right) {
+bool operator<(const Cacheline &left, const Cacheline &right) {
   return std::get<2>(left) < std::get<2>(right);
 }
 
-bool operator>(const Cacheline& left, const Cacheline& right) {
+bool operator>(const Cacheline &left, const Cacheline &right) {
   return std::get<2>(left) > std::get<2>(right);
 }
 
-bool operator==(const Cacheline& left, const Cacheline& right) {
+bool operator==(const Cacheline &left, const Cacheline &right) {
   return std::get<2>(left) == std::get<2>(right);
 }
 
-int64_t VECTOR_SUM(const std::vector<int64_t>& left) {
+int64_t VECTOR_SUM(const std::vector<int64_t> &left) {
   int64_t result = 0;
   for (auto i = 0; i < left.size(); ++i) {
     result += left[i];
@@ -33,7 +34,7 @@ int64_t VECTOR_SUM(const std::vector<int64_t>& left) {
   return result;
 }
 
-int64_t VECTOR_PRODUCT(const std::vector<int64_t>& left) {
+int64_t VECTOR_PRODUCT(const std::vector<int64_t> &left) {
   int64_t result = 1;
   for (auto i = 0; i < left.size(); ++i) {
     result *= left[i];
@@ -55,8 +56,22 @@ bool ALL_EQLESS(const std::vector<int64_t>& left,
   return true;
 }
 
-std::vector<int64_t> operator+(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right) {
+bool ALL_EQLESS(const std::vector<int64_t>& left,
+                const std::vector<int64_t>& right) {
+  if (left.size() != right.size()) {
+    LOG(ERROR) << "Can not campare two vector with diff length" << std::endl;
+    return false;
+  }
+  for (size_t i = 0; i < left.size(); i++) {
+    if (left[i] > right[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+std::vector<int64_t> operator+(const std::vector<int64_t> &left,
+                               const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   std::vector<int64_t> result(left.size(), 0);
   for (auto i = 0; i < left.size(); ++i) {
@@ -65,8 +80,8 @@ std::vector<int64_t> operator+(const std::vector<int64_t>& left,
   return std::move(result);
 }
 
-std::vector<int64_t> operator-(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right) {
+std::vector<int64_t> operator-(const std::vector<int64_t> &left,
+                               const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   std::vector<int64_t> result(left.size(), 0);
   for (auto i = 0; i < left.size(); ++i) {
@@ -75,8 +90,8 @@ std::vector<int64_t> operator-(const std::vector<int64_t>& left,
   return std::move(result);
 }
 
-std::vector<int64_t> operator*(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right) {
+std::vector<int64_t> operator*(const std::vector<int64_t> &left,
+                               const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   std::vector<int64_t> result(left.size(), 0);
   for (auto i = 0; i < left.size(); ++i) {
@@ -85,8 +100,8 @@ std::vector<int64_t> operator*(const std::vector<int64_t>& left,
   return std::move(result);
 }
 
-std::vector<int64_t> operator/(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right) {
+std::vector<int64_t> operator/(const std::vector<int64_t> &left,
+                               const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   std::vector<int64_t> result(left.size(), 0);
   for (auto i = 0; i < left.size(); ++i) {
@@ -95,8 +110,8 @@ std::vector<int64_t> operator/(const std::vector<int64_t>& left,
   return std::move(result);
 }
 
-std::vector<int64_t> operator%(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right) {
+std::vector<int64_t> operator%(const std::vector<int64_t> &left,
+                               const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   std::vector<int64_t> result(left.size(), 0);
   for (auto i = 0; i < left.size(); ++i) {
@@ -105,48 +120,48 @@ std::vector<int64_t> operator%(const std::vector<int64_t>& left,
   return std::move(result);
 }
 
-std::vector<int64_t>& operator+=(std::vector<int64_t>& left,
-                                 const int64_t& right) {
+std::vector<int64_t> &operator+=(std::vector<int64_t> &left,
+                                 const int64_t &right) {
   for (auto i = 0; i < left.size(); ++i) {
     left[i] += right;
   }
   return left;
 }
 
-std::vector<int64_t>& operator-=(std::vector<int64_t>& left,
-                                 const int64_t& right) {
+std::vector<int64_t> &operator-=(std::vector<int64_t> &left,
+                                 const int64_t &right) {
   for (auto i = 0; i < left.size(); ++i) {
     left[i] -= right;
   }
   return left;
 }
 
-std::vector<int64_t>& operator*=(std::vector<int64_t>& left,
-                                 const int64_t& right) {
+std::vector<int64_t> &operator*=(std::vector<int64_t> &left,
+                                 const int64_t &right) {
   for (auto i = 0; i < left.size(); ++i) {
     left[i] *= right;
   }
   return left;
 }
 
-std::vector<int64_t>& operator/=(std::vector<int64_t>& left,
-                                 const int64_t& right) {
+std::vector<int64_t> &operator/=(std::vector<int64_t> &left,
+                                 const int64_t &right) {
   for (auto i = 0; i < left.size(); ++i) {
     left[i] /= right;
   }
   return left;
 }
 
-std::vector<int64_t>& operator%=(std::vector<int64_t>& left,
-                                 const int64_t& right) {
+std::vector<int64_t> &operator%=(std::vector<int64_t> &left,
+                                 const int64_t &right) {
   for (auto i = 0; i < left.size(); ++i) {
     left[i] %= right;
   }
   return left;
 }
 
-std::vector<int64_t>& operator+=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right) {
+std::vector<int64_t> &operator+=(std::vector<int64_t> &left,
+                                 const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   for (auto i = 0; i < left.size(); ++i) {
     left[i] = left[i] + right[i];
@@ -154,8 +169,8 @@ std::vector<int64_t>& operator+=(std::vector<int64_t>& left,
   return left;
 }
 
-std::vector<int64_t>& operator-=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right) {
+std::vector<int64_t> &operator-=(std::vector<int64_t> &left,
+                                 const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   for (auto i = 0; i < left.size(); ++i) {
     left[i] = left[i] - right[i];
@@ -163,8 +178,8 @@ std::vector<int64_t>& operator-=(std::vector<int64_t>& left,
   return left;
 }
 
-std::vector<int64_t>& operator*=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right) {
+std::vector<int64_t> &operator*=(std::vector<int64_t> &left,
+                                 const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   for (auto i = 0; i < left.size(); ++i) {
     left[i] = left[i] * right[i];
@@ -172,8 +187,8 @@ std::vector<int64_t>& operator*=(std::vector<int64_t>& left,
   return left;
 }
 
-std::vector<int64_t>& operator/=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right) {
+std::vector<int64_t> &operator/=(std::vector<int64_t> &left,
+                                 const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   for (auto i = 0; i < left.size(); ++i) {
     left[i] = left[i] / right[i];
@@ -181,8 +196,8 @@ std::vector<int64_t>& operator/=(std::vector<int64_t>& left,
   return left;
 }
 
-std::vector<int64_t>& operator%=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right) {
+std::vector<int64_t> &operator%=(std::vector<int64_t> &left,
+                                 const std::vector<int64_t> &right) {
   CHECK_EQ(left.size(), right.size());
   for (auto i = 0; i < left.size(); ++i) {
     left[i] = left[i] % right[i];
@@ -190,7 +205,7 @@ std::vector<int64_t>& operator%=(std::vector<int64_t>& left,
   return left;
 }
 
-std::string operator*(const std::string& left, const int64_t& right) {
+std::string operator*(const std::string &left, const int64_t &right) {
   std::string result = "";
   for (auto i = 0; i < right; ++i) {
     result += left;
@@ -254,7 +269,7 @@ std::string TO_STRING(TensorType type) {
   }
 }
 
-std::string TO_STRING(std::vector<int64_t>& input) {
+std::string TO_STRING(std::vector<int64_t> &input) {
   std::string info_string = "[";
   for (auto i = 0; i < input.size(); ++i) {
     info_string += std::to_string(input[i]);
@@ -323,6 +338,91 @@ std::string datatype_string(TensorDatatype datatype) {
   }
 }
 
+std::string TO_STRING(CacheType type) {
+  switch (type) {
+    case CacheType::CACHE:
+      return "CACHE";
+    case CacheType::LDRAM:
+      return "LDRAM";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+std::string TO_STRING(CacheHitLocation location) {
+  switch (location) {
+    case CacheHitLocation::CACHE:
+      return "CACHE";
+    case CacheHitLocation::LDRAM:
+      return "LDRAM";
+    case CacheHitLocation::NOT_FOUND:
+      return "NOT_FOUND";
+    case CacheHitLocation::ERROR:
+      return "ERROR";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+std::string TO_STRING(Block block) {
+  std::string info = block.cache_name + "_" + TO_STRING(block.cache_type) +
+                     "_" + std::to_string(block.block_offset) + "_" +
+                     std::to_string(block.block_size);
+  return info;
+}
+
+std::string TO_STRING(CacheData data) {
+  std::string data_info = data.name + "_" + std::to_string(data.offset) + "_" +
+                          std::to_string(data.size);
+  return data_info;
+}
+
 std::string indentation(int64_t num) { return std::string(num * 2, ' '); }
+
+std::string left_pad(std::string s, size_t len, char c) {
+  if (s.length() >= len) {
+    return s;
+  }
+  std::string res = std::string(len - s.length(), c) + s;
+  return res;
+}
+
+std::string right_pad(std::string s, size_t len, char c) {
+  if (s.length() >= len) {
+    return s;
+  }
+  std::string res = s + std::string(len - s.length(), c);
+  return res;
+}
+
+std::string left_right_pad(std::string s, size_t len, char c) {
+  if (s.length() >= len) {
+    return s;
+  }
+  std::string res = std::string((len - s.length()) / 2, c) + s;
+  res += std::string(len - res.length(), c);
+  return res;
+}
+
+bool getBoolEnvironmentVariable(const std::string &str, bool default_value) {
+  const char *pointer = std::getenv(str.c_str());
+  if (pointer == NULL) {
+    return default_value;
+  }
+  std::string value = std::string(pointer);
+  std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+  return (value == "1" || value == "ON" || value == "YES" || value == "TRUE");
+}
+
+int64_t getLevelEnvironmentVariable(const std::string &str,
+                                    int64_t default_value) {
+  const char *pointer = std::getenv(str.c_str());
+  if (pointer == nullptr) {
+    return default_value;
+  }
+  std::string value = std::string(pointer);
+  std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+  return std::stoll(value);
+}
 
 }  // namespace infini

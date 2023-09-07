@@ -6,6 +6,7 @@
 #include <atomic>
 #include "core/log.h"
 #include "core/type.h"
+#include "core/cache.h"
 
 #ifndef TOKENPASTE
 #define _TOKENPASTE(x, y, z) x##y##z
@@ -41,13 +42,17 @@
 #endif
 
 #ifndef LOG
-#define LOG(severity) PRINTLOG(Thread, severity)
+#define LOG(severity) PRINTLOG(Codegen, severity)
 #endif
 
 #ifndef LOG_N
 #define LOG_N(severity, n)                                            \
   static std::atomic<int> TOKENPASTE(LOG_, __LINE__, _OCCURRENCE)(0); \
-  if (TOKENPASTE(LOG_, __LINE__, _OCCURRENCE)++ < n) PRINTLOG(Thread, severity)
+  if (TOKENPASTE(LOG_, __LINE__, _OCCURRENCE)++ < n) PRINTLOG(Codegen, severity)
+#endif
+
+#ifndef DLOG
+#define DLOG(level) DEVELOPLOG(Codegen, level)
 #endif
 
 #ifndef CHECK
@@ -157,10 +162,29 @@ std::string TO_STRING(OperatorType type);
 
 std::string TO_STRING(KernelType type);
 
+std::string TO_STRING(Block block);
+
+std::string TO_STRING(CacheData data);
+
+std::string TO_STRING(CacheType type);
+
+std::string TO_STRING(CacheHitLocation location);
+
 std::string TO_STRING(PlatformType type);
 
 std::string datatype_string(TensorDatatype type);
 
 std::string indentation(int64_t num);
+
+std::string left_pad(std::string s, size_t len, char c);
+
+std::string right_pad(std::string s, size_t len, char c);
+
+std::string left_right_pad(std::string s, size_t len, char c);
+
+bool getBoolEnvironmentVariable(const std::string& str, bool default_value);
+
+int64_t getLevelEnvironmentVariable(const std::string& str,
+                                    int64_t default_value);
 
 }  // namespace infini
