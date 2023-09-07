@@ -639,7 +639,7 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
     // Cache full, find one cache block to swap
     Block *ptr = cache_head->next;
     while (ptr->next != nullptr) {
-      if (!ptr->allocated) {
+      if (!ptr->allocated or lockedData.count(*(ptr->data)) > 0) {
         ptr = ptr->next;
         continue;
       }

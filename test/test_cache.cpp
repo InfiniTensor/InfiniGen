@@ -36,6 +36,10 @@ int main() {
   res.printInformation();
   cache.printInformation();
 
+  std::vector<infini::CacheData> locked;
+  locked.push_back(*a);
+  cache.lock(locked);
+
   res = cache.load(d);
   res.printInformation();
   cache.printInformation();
@@ -43,6 +47,8 @@ int main() {
   res = cache.load(e);
   res.printInformation();
   cache.printInformation();
+
+  cache.unlock(locked);
 
   res = cache.load(b);
   res.printInformation();
