@@ -1,4 +1,7 @@
 #include "core/api.h"
+#include "core/tensor.h"
+
+using namespace infini;
 
 int main() {
   LOG(WARNING)
@@ -35,11 +38,12 @@ int main() {
   tile1.printInformation();
   tile1.printSummary();
 
-  std::vector<infini::Tile> tilelist = tensor1.tiling(split1);
-  for (auto i : tilelist) {
+  TileTensor tiletensor = tensor1.tiling(split1);
+  tiletensor.printInformation();
+  for (auto i : tiletensor.getTiles()) {
     i.printInformation();
   }
-  for (auto i : tilelist) {
+  for (auto i : tiletensor.getTiles()) {
     i.printSummary();
   }
   LOG(WARNING)
