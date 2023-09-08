@@ -148,23 +148,13 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
 
 void Graph::generatorCode() {
   std::vector<Node*> sorted_op = topoSort();
-  // Forward pass of graph
   for (auto op : sorted_op) {
-    // TODO: codegen
     for (auto input : op->inputs) {
       input->remaining -= 1;
       if (input->remaining == 0) {
         remaining_data.erase(input);
       }
     }
-    LOG(INFO) << "Codegen: " + op->name;
-    std::string temp = "Remain: [";
-    for (auto data : remaining_data) {
-      temp += data->name;
-      temp += ", ";
-    }
-    temp += "]";
-    LOG(INFO) << temp;
   }
 }
 

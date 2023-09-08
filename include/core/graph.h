@@ -84,7 +84,7 @@ class Graph {
   ~Graph() = default;
   // Function
   std::vector<Node*> topoSort();
-  void generatorCode();
+  virtual void generatorCode();
   void setDevice(int64_t& worker, Cache& cache);
   // Information
   void printInformation();
