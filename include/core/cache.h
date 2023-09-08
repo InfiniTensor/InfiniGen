@@ -18,12 +18,14 @@ struct CacheData {
 
  public:
   // Constructor
-  CacheData() = delete;
+  CacheData();
   CacheData(std::string _name, int64_t _offset, int64_t _size);
   // Destructor
   ~CacheData() = default;
   // Operator overload
   bool operator==(const CacheData &other) const;
+  // Empty
+  bool isEmpty();
   // Information
   void printInformation();
 };
@@ -49,8 +51,8 @@ struct Block {
   std::string cache_name;
   // Type: cache or ldram
   CacheType cache_type;
-  // Ptr to data cached in block
-  CacheData *data;
+  // Data cached in block
+  CacheData data;
   // Count for cache replacement
   int data_count;
 
@@ -59,7 +61,7 @@ struct Block {
   Block() = delete;
   Block(bool _allocated, int64_t _block_offset, int64_t _block_size,
         Block *_next, Block *_prev, std::string _cache_name,
-        CacheType _cache_type, CacheData *_data, int _data_count);
+        CacheType _cache_type, CacheData _data, int _data_count);
   // Destructor
   ~Block() = default;
   // Operator overload
@@ -140,6 +142,8 @@ class Cache {
   std::unordered_set<CacheData, CacheDataHash> storedInLdram;
   // Hashmap used to check if data is locked
   std::unordered_set<CacheData, CacheDataHash> lockedData;
+  // Flag that indicates lock all following data
+  bool lock_on;
   // Clock count for FIFO
   int64_t clock;
 
@@ -157,14 +161,14 @@ class Cache {
 
   // Cache Primitives
   // Load data
-  CacheHit load(CacheData *data);
+  CacheHit load(CacheData data);
   // Allocate memory for data
-  CacheHit allocate(CacheData *data);
+  CacheHit allocate(CacheData data);
   // free data from cache
-  CacheHit free(CacheData *data);
+  CacheHit free(CacheData data);
   // Lock & unlock data
-  void lock(std::vector<CacheData> data_list);
-  void unlock(std::vector<CacheData> data_list);
+  void lock();
+  void unlock();
 
   // Information
   void printInformation();
@@ -178,10 +182,10 @@ class Cache {
   void freeBlock(Block *target);
   void safeEraseFreeBlock(Block *block);
   void safeInsertFreeBlock(Block *block);
-  Block *cacheAlloc(CacheData *target_data, int indent);
-  std::vector<CacheData *> loadData2Block(CacheData *replacer_data,
-                                          Block *replacee);
-  CacheHit loadData(CacheData *data, bool alloc);
+  Block *cacheAlloc(CacheData target_data, int indent);
+  std::vector<CacheData> loadData2Block(CacheData replacer_data,
+                                        Block *replacee);
+  CacheHit loadData(CacheData data, bool alloc);
 };
 
 }  // namespace infini

@@ -5,12 +5,16 @@
 
 namespace infini {
 
+CacheData::CacheData() : name(""), offset(0), size(0) {}
+
 CacheData::CacheData(std::string _name, int64_t _offset, int64_t _size)
     : name(_name), offset(_offset), size(_size) {}
 
 bool CacheData::operator==(const CacheData &other) const {
   return name == other.name && offset == other.offset && size == other.size;
 }
+
+bool CacheData::isEmpty() { return size == 0; }
 
 void CacheData::printInformation() {
   std::string info_string = "CacheData ";
@@ -35,7 +39,7 @@ size_t CacheDataHash::operator()(const CacheData &data) const {
 
 Block::Block(bool _allocated, int64_t _block_offset, int64_t _block_size,
              Block *_next, Block *_prev, std::string _cache_name,
-             CacheType _cache_type, CacheData *_data, int _data_count)
+             CacheType _cache_type, CacheData _data, int _data_count)
     : allocated(_allocated),
       block_offset(_block_offset),
       block_size(_block_size),
@@ -63,10 +67,10 @@ void Block::printInformation(int indent = 0) {
     info_string += "Empty";
   } else {
     info_string += "Data Name: ";
-    info_string += data->name;
+    info_string += data.name;
     info_string += "; ";
     info_string += "Data Size: ";
-    info_string += std::to_string(data->size);
+    info_string += std::to_string(data.size);
     info_string += "; ";
     info_string += "Data Count: ";
     info_string += std::to_string(data_count);
@@ -135,11 +139,11 @@ Cache::Cache(int64_t total_nram, int64_t total_ldram, int64_t align_size,
 
   // build cache block list
   Block *first_block = new Block(false, 0, total_nram, nullptr, nullptr, name,
-                                 CacheType::CACHE, nullptr, -1);
+                                 CacheType::CACHE, CacheData(), -1);
   cache_head = new Block(true, 0, 0, first_block, nullptr, name,
-                         CacheType::CACHE, nullptr, -1);
+                         CacheType::CACHE, CacheData(), -1);
   cache_tail = new Block(true, total_nram, 0, nullptr, first_block, name,
-                         CacheType::CACHE, nullptr, -1);
+                         CacheType::CACHE, CacheData(), -1);
   first_block->prev = cache_head;
   first_block->next = cache_tail;
   free_cache_blocks = std::set<Block *, CompareBlockSize>();
@@ -147,11 +151,11 @@ Cache::Cache(int64_t total_nram, int64_t total_ldram, int64_t align_size,
 
   // build ldram block list
   first_block = new Block(false, 0, total_ldram, nullptr, nullptr, name,
-                          CacheType::LDRAM, nullptr, -1);
+                          CacheType::LDRAM, CacheData(), -1);
   ldram_head = new Block(true, 0, 0, first_block, nullptr, name,
-                         CacheType::LDRAM, nullptr, -1);
+                         CacheType::LDRAM, CacheData(), -1);
   ldram_tail = new Block(true, total_nram, 0, nullptr, first_block, name,
-                         CacheType::LDRAM, nullptr, -1);
+                         CacheType::LDRAM, CacheData(), -1);
   first_block->prev = ldram_head;
   first_block->next = ldram_tail;
   free_ldram_blocks = std::set<Block *, CompareBlockSize>();
@@ -159,6 +163,7 @@ Cache::Cache(int64_t total_nram, int64_t total_ldram, int64_t align_size,
 
   storedInLdram = std::unordered_set<CacheData, CacheDataHash>();
   lockedData = std::unordered_set<CacheData, CacheDataHash>();
+  lock_on = false;
 }
 
 Cache::~Cache() {
@@ -194,11 +199,12 @@ void Cache::clearCache() {
     delete block;
   }
   Block *first_block = new Block(false, 0, cache_size, cache_tail, cache_head,
-                                 name, CacheType::CACHE, nullptr, -1);
+                                 name, CacheType::CACHE, CacheData(), -1);
   cache_head->next = first_block;
   cache_tail->prev = first_block;
   free_cache_blocks = std::set<Block *, CompareBlockSize>();
   free_cache_blocks.insert(cache_head);
+  unlock();
 }
 
 void Cache::resetDispatch(MemoryDispatch dispatch) {
@@ -224,6 +230,8 @@ void Cache::updateBlockCount(Block *block, bool match) {
     clock += 1;
   } else if (cache_dispatch == MemoryDispatch::LRU && !match) {
     block->data_count += 1;
+  } else if (cache_dispatch == MemoryDispatch::LRU && match) {
+    block->data_count = 0;
   } else if (cache_dispatch == MemoryDispatch::LFU && match) {
     block->data_count += 1;
   } else
@@ -231,7 +239,7 @@ void Cache::updateBlockCount(Block *block, bool match) {
 }
 
 bool Cache::cacheReplaceable(Block *curr, Block *target) {
-  if (lockedData.count(*(target->data)) > 0) {
+  if (lockedData.count(target->data) > 0) {
     // should not replace any block with locked data
     return false;
   }
@@ -252,16 +260,11 @@ bool Cache::cacheReplaceable(Block *curr, Block *target) {
     return false;
 }
 
-void Cache::lock(std::vector<CacheData> data_list) {
-  for (auto data : data_list) {
-    lockedData.insert(data);
-  }
-}
+void Cache::lock() { lock_on = true; }
 
-void Cache::unlock(std::vector<CacheData> data_list) {
-  for (auto data : data_list) {
-    lockedData.erase(data);
-  }
+void Cache::unlock() {
+  lock_on = false;
+  lockedData.clear();
 }
 
 void Cache::safeEraseFreeBlock(Block *block) {
@@ -288,14 +291,14 @@ void Cache::safeInsertFreeBlock(Block *block) {
   }
 }
 
-std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
-                                               Block *replacee) {
+std::vector<CacheData> Cache::loadData2Block(CacheData replacer_data,
+                                             Block *replacee) {
   // initialize return data list
-  std::vector<CacheData *> replacee_data_list;
-  if (replacee->data != nullptr) {
+  std::vector<CacheData> replacee_data_list;
+  if (!replacee->data.isEmpty()) {
     replacee_data_list.push_back(replacee->data);
   }
-  int64_t data_size = PAD_UP(replacer_data->size, cache_align_size);
+  int64_t data_size = PAD_UP(replacer_data.size, cache_align_size);
   int64_t remainder_size = replacee->block_size - data_size;
   if (remainder_size > 0) {
     // split to two blocks, and see if the 2nd block can be merged
@@ -310,7 +313,7 @@ std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
       Block *remainder =
           new Block(false, replacee->block_offset + data_size, remainder_size,
                     replacee->next, replacee, replacee->cache_name,
-                    replacee->cache_type, nullptr, -1);
+                    replacee->cache_type, CacheData(), -1);
       replacee->next->prev = remainder;
       replacee->next = remainder;
 
@@ -357,7 +360,7 @@ std::vector<CacheData *> Cache::loadData2Block(CacheData *replacer_data,
     replacee->block_size = replacee_total_size;
     replacee->next = ptr;
     ptr->prev = replacee;
-    replacee->data = nullptr;
+    replacee->data = CacheData();
     // in this case, replacee should be able to contain replacer_data
     // and since replacee->data is set to nullptr, return vec should be
     // empty
@@ -375,7 +378,7 @@ void Cache::freeBlock(Block *target) {
     return;
   }
   target->allocated = false;
-  target->data = nullptr;
+  target->data = CacheData();
   std::vector<Block *> blocks_to_delete;
   if (!target->next->allocated && target->prev->allocated) {
     target->block_size += target->next->block_size;
@@ -409,10 +412,10 @@ void Cache::freeBlock(Block *target) {
   safeInsertFreeBlock(target);
 }
 
-CacheHit Cache::free(CacheData *target_data) {
-  DLOG(0) << "Freeing cache memory for " + TO_STRING(*target_data) + "...";
+CacheHit Cache::free(CacheData target_data) {
+  DLOG(0) << "Freeing cache memory for " + TO_STRING(target_data) + "...";
 
-  if (lockedData.count(*(target_data)) > 0) {
+  if (lockedData.count(target_data) > 0) {
     // should not free any block with locked data
     return CacheHit(CacheHitLocation::ERROR);
   }
@@ -424,14 +427,14 @@ CacheHit Cache::free(CacheData *target_data) {
       ptr = ptr->next;
       continue;
     }
-    if (*(ptr->data) == (*target_data)) {
+    if (ptr->data == target_data) {
       offset = ptr->block_offset;
       freeBlock(ptr);
       return CacheHit(CacheHitLocation::CACHE, offset);
     }
     ptr = ptr->next;
   }
-  if (storedInLdram.count(*target_data) > 0) {
+  if (storedInLdram.count(target_data) > 0) {
     if (ptr == cache_tail) {
       ptr = ldram_head->next;
       while (ptr->next != nullptr) {
@@ -439,7 +442,7 @@ CacheHit Cache::free(CacheData *target_data) {
           ptr = ptr->next;
           continue;
         }
-        if (*(ptr->data) == (*target_data)) {
+        if (ptr->data == target_data) {
           offset = ptr->block_offset;
           freeBlock(ptr);
           return CacheHit(CacheHitLocation::LDRAM, -1, offset);
@@ -451,8 +454,8 @@ CacheHit Cache::free(CacheData *target_data) {
   return CacheHit(CacheHitLocation::NOT_FOUND);
 }
 
-CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
-  int64_t size = target_data->size;
+CacheHit Cache::loadData(CacheData target_data, bool alloc) {
+  int64_t size = target_data.size;
   if (size > cache_size) {
     LOG(ERROR) << "Cache size is less than data size.";
     return CacheHit(CacheHitLocation::ERROR);
@@ -462,10 +465,14 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
   bool match_ldram = false;
   std::string result = "";
   Block *ptr = cache_head->next;
-  std::string target_data_info = TO_STRING(*target_data);
+  std::string target_data_info = TO_STRING(target_data);
+
+  if (lock_on) {
+    lockedData.insert(target_data);
+  }
 
   if (alloc) {
-    DLOG(0) << "Allocating cache memory for " + TO_STRING(*target_data) + "...";
+    DLOG(0) << "Allocating cache memory for " + TO_STRING(target_data) + "...";
   } else {
     DLOG(0) << "Looking for " + target_data_info + " in cache...";
   }
@@ -483,7 +490,7 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
         ptr = ptr->next;
         continue;
       }
-      if (*(ptr->data) == (*target_data)) {
+      if (ptr->data == target_data) {
         // OUTCOME 0: found in cache
         match_cache = true;
         std::string cache_info = TO_STRING(*ptr);
@@ -504,7 +511,7 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
   if (!match_cache) {
     DLOG(0) << indentation(1) + "Could not find " + target_data_info +
                    " in cache.";
-    int64_t data_size = PAD_UP(target_data->size, cache_align_size);
+    int64_t data_size = PAD_UP(target_data.size, cache_align_size);
     // allocate memory in cache
     // either find an empty cache block or find one to replace
     target_cache_block = cacheAlloc(target_data, 2);
@@ -514,14 +521,14 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
 
     if (!alloc) {
       // Then check ldram
-      if (storedInLdram.count(*target_data) > 0) {
+      if (storedInLdram.count(target_data) > 0) {
         Block *ldram_ptr = ldram_head->next;
         while (ldram_ptr->next != nullptr) {
           if (!ldram_ptr->allocated) {
             ldram_ptr = ldram_ptr->next;
             continue;
           }
-          if (*(ldram_ptr->data) == (*target_data)) {
+          if (ldram_ptr->data == target_data) {
             // OUTCOME 1: found in ldram
             match_ldram = true;
             ldram_from_block = ldram_ptr;
@@ -585,9 +592,9 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
       for (auto replacee_data : replacee_data_list) {
         // write back to ldram in an consistent manner
         loadData2Block(replacee_data, ldram_to_block);
-        storedInLdram.insert(*replacee_data);
+        storedInLdram.insert(replacee_data);
         ldram_to_block_list.push_back(ldram_to_block->block_offset);
-        replaced_data_size_list.push_back(replacee_data->size);
+        replaced_data_size_list.push_back(replacee_data.size);
         ldram_to_block = ldram_to_block->next;
       }
     }
@@ -595,7 +602,7 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
       // OUTCOME 1: found in ldram
       // c. free target from ldram
       freeBlock(ldram_from_block);
-      storedInLdram.erase(*target_data);
+      storedInLdram.erase(target_data);
       if (!replacee_data_list.empty()) {
         // OUTCOME 1.1: found in ldram, cache full
         return CacheHit(CacheHitLocation::LDRAM,
@@ -624,9 +631,9 @@ CacheHit Cache::loadData(CacheData *target_data, bool alloc) {
   }
 }
 
-Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
+Block *Cache::cacheAlloc(CacheData target_data, int indent) {
   Block *target_cache_block = nullptr;
-  int64_t data_size = PAD_UP(target_data->size, cache_align_size);
+  int64_t data_size = PAD_UP(target_data.size, cache_align_size);
   // Find an empty cache block first
   Block *cmp = new Block(true, 0, data_size, nullptr, nullptr, "",
                          CacheType::CACHE, target_data, -1);
@@ -636,12 +643,12 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
     target_cache_block = *cache_block_it;
     DLOG(0) << indentation(indent) + "Find an empty block " +
                    TO_STRING(*target_cache_block) + " to cache " +
-                   TO_STRING(*target_data) + ".";
+                   TO_STRING(target_data) + ".";
   } else {
     // Cache full, find one cache block to swap
     Block *ptr = cache_head->next;
     while (ptr->next != nullptr) {
-      if (!ptr->allocated or lockedData.count(*(ptr->data)) > 0) {
+      if (!ptr->allocated or lockedData.count(ptr->data) > 0) {
         ptr = ptr->next;
         continue;
       }
@@ -653,13 +660,13 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
     }
     while (ptr->next != nullptr) {
       if (ptr->allocated && cacheReplaceable(ptr, target_cache_block) &&
-          cache_size - ptr->block_offset >= target_data->size) {
+          cache_size - ptr->block_offset >= target_data.size) {
         target_cache_block = ptr;
       }
       ptr = ptr->next;
     }
     if (target_cache_block == nullptr) {
-      LOG(ERROR) << "Cache has no more space for " + TO_STRING(*target_data) +
+      LOG(ERROR) << "Cache has no more space for " + TO_STRING(target_data) +
                         ".";
       return nullptr;
     }
@@ -674,11 +681,11 @@ Block *Cache::cacheAlloc(CacheData *target_data, int indent) {
   return target_cache_block;
 }
 
-CacheHit Cache::load(CacheData *target_data) {
+CacheHit Cache::load(CacheData target_data) {
   return loadData(target_data, false);
 }
 
-CacheHit Cache::allocate(CacheData *target_data) {
+CacheHit Cache::allocate(CacheData target_data) {
   return loadData(target_data, true);
 }
 
@@ -711,10 +718,10 @@ void Cache::printMemoryGraph(Block *head, int height = 16, int width = 64) {
     int num_units = size / unit_size;
     std::string status = "";
     if (ptr->allocated) {
-      if (ptr->data->name.length() == 1) {
-        status += ptr->data->name;
+      if (ptr->data.name.length() == 1) {
+        status += ptr->data.name;
       } else {
-        int index = CacheDataHash()(*(ptr->data)) % characters.length();
+        int index = CacheDataHash()(ptr->data) % characters.length();
         status += characters[index];
       }
     } else {
