@@ -32,7 +32,7 @@ class Tensor {
          TensorType type, TensorLayout layout, std::string name,
          int64_t offset = 0);
   // Destructor
-  virtual ~Tensor() = default;
+  ~Tensor() = default;
   // Tiling with split
   TileTensor tiling(const Split& split);
   //   // Tiling with tile size
@@ -44,29 +44,6 @@ class Tensor {
   bool isContiguous();
   // Easy Funciton;
   void flatten(int64_t start = 0, int64_t end = -1);
-};
-
-class TileTensor : public Tensor {
- private:
-  std::vector<Tile> tiles;
-
- public:
-  // Constructor
-  TileTensor() = default;
-  TileTensor(const std::vector<int64_t>& dimension,
-             const std::vector<int64_t>& stride, TensorType type,
-             TensorLayout layout, std::string name);
-  ~TileTensor() = default;
-  // Add tile
-  void addTile(const Tile& t);
-  // Get tiles
-  std::vector<Tile> getTiles();
-  // Delete tile
-  Tile deleteTile(const std::vector<int64_t>& coord);
-  // Get tile by multi-dimension coord
-  Tile operator()(const std::vector<int64_t>& coord);
-  // Clear tiles
-  void clear();
 };
 
 }  // namespace infini

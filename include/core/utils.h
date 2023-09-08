@@ -55,6 +55,21 @@
 #define DLOG(level) DEVELOPLOG(Codegen, level)
 #endif
 
+#ifndef VEC_CAMPARE
+#define VEC_CAMPARE(OP) \
+  template<class T> \
+  std::vector<bool> operator OP(const std::vector<T>& left, const std::vector<T>& right) \
+  { \
+    ASSERT((left).size() == (right).size()); \
+    std::vector<bool> result; \
+    result.reserve((left).size()); \
+    for (size_t i=0; i < (left).size(); i++) { \
+      result.push_back(left[i] OP right[i]); \
+    } \
+    return result; \
+  } 
+#endif
+
 #ifndef CHECK
 #define CHECK(condition, ...)                                     \
   if (!(condition)) {                                             \
@@ -86,19 +101,17 @@
   }
 #endif
 
-#ifndef DOT_PRODUCT
-#define DOT_PRODUCT(vec1, vec2)                  \
-  ({                                             \
-    ASSERT((vec1).size() == (vec2).size());      \
-    int64_t result = 0;                          \
-    for (size_t i = 0; i < (vec1).size(); ++i) { \
-      result += (vec1)[i] * (vec2)[i];           \
-    }                                            \
-    result;                                      \
-  })
-#endif
-
 namespace infini {
+
+VEC_CAMPARE(<)
+VEC_CAMPARE(>)
+VEC_CAMPARE(==)
+VEC_CAMPARE(<=)
+VEC_CAMPARE(>=)
+VEC_CAMPARE(!=)
+
+bool ANY(const std::vector<bool>& boolvec);
+bool ALL(const std::vector<bool>& boolvec);
 
 std::vector<std::string> STRING_SPLIT(const std::string& input, char delimiter);
 
@@ -112,8 +125,7 @@ int64_t VECTOR_SUM(const std::vector<int64_t>& left);
 
 int64_t VECTOR_PRODUCT(const std::vector<int64_t>& left);
 
-bool ALL_EQLESS(const std::vector<int64_t>& left,
-                const std::vector<int64_t>& right);
+int64_t DOT_PRODUCT(const std::vector<int64_t>& left, const std::vector<int64_t>& right);
 
 std::vector<int64_t> operator+(const std::vector<int64_t>& left,
                                const std::vector<int64_t>& right);

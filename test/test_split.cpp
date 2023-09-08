@@ -12,11 +12,11 @@ int main() {
   infini::TileTensor tiletensor = tensor.tiling(split1);
   LOG(INFO) << "TileTensor INFO";
   tiletensor.printInformation();
-  LOG(INFO) << "Tile at tensor(0, 0)";
+  LOG(INFO) << "Tile at tensor(0, 0, 0, 0)";
   auto t = tiletensor({0,0,0,0}); 
   t.printInformation();
   t = tiletensor({0,0,1,1});
-  LOG(INFO) << "Tile at tensor(1, 1)";
+  LOG(INFO) << "Tile at tensor(0, 0, 1, 1)";
   t.printInformation();
 
   LOG(INFO) << "For loop tiletensor.getTiles()";

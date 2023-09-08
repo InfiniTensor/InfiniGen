@@ -35,7 +35,7 @@ Tensor::Tensor(const std::vector<int64_t>& dimension,
   for (int64_t i = temp.size() - 2; i >= 0; --i) {
     temp[i] = temp[i + 1] * tensor_dimension[i + 1];
   }
-  is_contiguous = (temp == tensor_stride ? true : false);
+  is_contiguous = ALL(temp == tensor_dimension);
 }
 
 TileTensor Tensor::tiling(const Split& split) {
@@ -191,35 +191,4 @@ void Tensor::flatten(int64_t start, int64_t end) {
   }
 }
 
-TileTensor::TileTensor(const std::vector<int64_t>& dimension,
-                       const std::vector<int64_t>& stride, TensorType type,
-                       TensorLayout layout, std::string name)
-    : Tensor(dimension, stride, TensorDatatype::TILE, type, layout, name) {}
-
-void TileTensor::addTile(const Tile& t) { tiles.push_back(t); }
-
-Tile TileTensor::deleteTile(const std::vector<int64_t>& coord) {
-  int64_t tile_index = DOT_PRODUCT(tensor_stride, coord);
-  Tile temp = tiles[tile_index];
-  tiles.erase(tiles.begin() + tile_index);
-  return temp;
-}
-
-Tile TileTensor::operator()(const std::vector<int64_t>& coord) {
-  // Get a Tile with Tile coord
-  // Tile index = stride dot coord
-  int64_t tile_index = DOT_PRODUCT(tensor_stride, coord);
-  // std::cout << "DEBUG INFO====================";
-  // std::cout << tile_index << std::endl;
-  // tiles[tile_index].printInformation();
-  return tiles[tile_index];
-}
-
-void TileTensor::clear(){
-  tiles.clear();
-}
-
-std::vector<Tile> TileTensor::getTiles(){
-  return tiles;
-}
 }  // namespace infini
