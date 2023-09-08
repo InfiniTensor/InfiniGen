@@ -25,13 +25,15 @@ int main() {
   f->printInformation();
   g->printInformation();
 
-  Graph* graph = new Graph({add, mul, com}, {a, b}, {e, f, g});
+  Graph* graph = new BinaryUnaryGraph({add, mul, com}, {a, b}, {e, f, g});
   graph->printInformation();
   LOG(INFO) << "========== Topo Sort ==========";
   auto topo = graph->topoSort();
   for (auto op : topo) {
     op->printInformation();
   }
+  LOG(INFO) << "========== Codegen ==========";
+  graph->generatorCode();
 
   LOG(INFO) << "===============================";
   Data* n_a = new Data();
@@ -42,13 +44,15 @@ int main() {
   Node* in2out1 = new Node({n_e, n_f});
   Data* n_g = in2out1->getOutput(0);
 
-  Graph* graph2 = new Graph({in2out2, in2out1}, {n_a, n_b}, {n_g});
+  Graph* graph2 = new BinaryUnaryGraph({in2out2, in2out1}, {n_a, n_b}, {n_g});
   graph2->printInformation();
   LOG(INFO) << "========== Topo Sort ==========";
   topo = graph2->topoSort();
   for (auto op : topo) {
     op->printInformation();
   }
+  LOG(INFO) << "========== Codegen ==========";
+  graph2->generatorCode();
 
   delete a;
   delete b;

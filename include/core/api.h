@@ -10,3 +10,4 @@
 #include "core/attribute.h"
 #include "core/graph.h"
 #include "operators/elementwise.h"
+#include "graphs/binary_unary_graph.h"
