@@ -42,10 +42,11 @@ int64_t VECTOR_PRODUCT(const std::vector<int64_t> &left) {
   return result;
 }
 
-int64_t DOT_PRODUCT(const std::vector<int64_t>& left, const std::vector<int64_t>& right){
+int64_t DOT_PRODUCT(const std::vector<int64_t> &left,
+                    const std::vector<int64_t> &right) {
   ASSERT(left.size() == right.size());
   int64_t result = 0;
-  for (size_t i = 0; i < left.size(); ++i){
+  for (size_t i = 0; i < left.size(); ++i) {
     result += left[i] * right[i];
   }
   return result;
@@ -404,18 +405,18 @@ int64_t getLevelEnvironmentVariable(const std::string &str,
   return std::stoll(value);
 }
 
-bool ALL(const std::vector<bool>& boolvec){
-  for (size_t i = 0; i < boolvec.size(); i++){
-    if (!boolvec[i]){
+bool ALL(const std::vector<bool> &boolvec) {
+  for (size_t i = 0; i < boolvec.size(); i++) {
+    if (!boolvec[i]) {
       return false;
     }
   }
   return true;
 }
 
-bool ANY(const std::vector<bool>& boolvec){
-  for (size_t i = 0; i < boolvec.size(); i++){
-    if (boolvec[i]){
+bool ANY(const std::vector<bool> &boolvec) {
+  for (size_t i = 0; i < boolvec.size(); i++) {
+    if (boolvec[i]) {
       return true;
     }
   }

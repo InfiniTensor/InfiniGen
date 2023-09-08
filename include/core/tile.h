@@ -29,12 +29,12 @@ class Tile {
   void printSummary();
 };
 
-class TileTensor{
+class TileTensor {
   /* Tile Tensor is a class that contains tensor tiles after split
-  *  tiles: vector of Tile
-  *  stride: stride of tiles in TileTensor
-  *  shape: num_tiles = IIshape
-  */
+   *  tiles: vector of Tile
+   *  stride: stride of tiles in TileTensor
+   *  shape: num_tiles = IIshape
+   */
  public:
   std::vector<Tile> tiles;
   std::vector<int64_t> stride;

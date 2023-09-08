@@ -13,9 +13,9 @@ int main() {
   LOG(INFO) << "TileTensor INFO";
   tiletensor.printInformation();
   LOG(INFO) << "Tile at tensor(0, 0, 0, 0)";
-  auto t = tiletensor({0,0,0,0}); 
+  auto t = tiletensor({0, 0, 0, 0});
   t.printInformation();
-  t = tiletensor({0,0,1,1});
+  t = tiletensor({0, 0, 1, 1});
   LOG(INFO) << "Tile at tensor(0, 0, 1, 1)";
   t.printInformation();
 

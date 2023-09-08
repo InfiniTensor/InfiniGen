@@ -70,7 +70,9 @@ void Tile::printSummary() {
 TileTensor::TileTensor(const std::vector<int64_t>& shape,
                        const std::vector<int64_t>& stride, TensorType type,
                        TensorLayout layout, std::string name)
-    : shape(shape), stride(stride), type(type), layout(layout), name(name) {tiles.clear();}
+    : shape(shape), stride(stride), type(type), layout(layout), name(name) {
+  tiles.clear();
+}
 
 void TileTensor::addTile(const Tile& t) { tiles.push_back(t); }
 
@@ -88,19 +90,15 @@ Tile TileTensor::operator()(const std::vector<int64_t>& coord) {
   return tiles[tile_index];
 }
 
-void TileTensor::clear(){
-  tiles.clear();
-}
+void TileTensor::clear() { tiles.clear(); }
 
-std::vector<Tile> TileTensor::getTiles(){
-  return tiles;
-}
+std::vector<Tile> TileTensor::getTiles() { return tiles; }
 
-bool TileTensor::empty() {return tiles.empty();}
+bool TileTensor::empty() { return tiles.empty(); }
 
-int64_t TileTensor::numTiles() {return tiles.size();}
+int64_t TileTensor::numTiles() { return tiles.size(); }
 
-void TileTensor::printInformation(){
+void TileTensor::printInformation() {
   std::string info_string = "";
   info_string += "—— TileTensor ";
   info_string += "Name: ";
@@ -121,7 +119,7 @@ void TileTensor::printInformation(){
   LOG(INFO) << info_string;
 }
 
-void TileTensor::printSummary(){
+void TileTensor::printSummary() {
   std::string info_string = "";
   info_string += "TileTensor ";
   info_string += "Shape: ";
