@@ -7,8 +7,6 @@
 
 namespace infini {
 
-class TileTensor;
-
 class Tensor {
  public:
   // Self information
