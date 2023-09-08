@@ -29,4 +29,45 @@ class Tile {
   void printSummary();
 };
 
+class TileTensor {
+  /* Tile Tensor is a class that contains tensor tiles after split
+   *  tiles: vector of Tile
+   *  stride: stride of tiles in TileTensor
+   *  shape: num_tiles = IIshape
+   */
+ public:
+  std::vector<Tile> tiles;
+  std::vector<int64_t> stride;
+  std::vector<int64_t> shape;
+  TensorLayout layout;
+  TensorType type;
+  std::string name;
+
+ public:
+  // Constructor
+  TileTensor() = default;
+  TileTensor(const std::vector<int64_t>& shape,
+             const std::vector<int64_t>& stride, TensorType type,
+             TensorLayout layout, std::string name);
+  ~TileTensor() = default;
+  // Add tile
+  void addTile(const Tile& t);
+  // Get tiles
+  std::vector<Tile> getTiles();
+  // Delete tile
+  Tile deleteTile(const std::vector<int64_t>& coord);
+  // Get tile by multi-dimension coord
+  Tile operator()(const std::vector<int64_t>& coord);
+  // Clear tiles
+  void clear();
+  // Tiles are empty or not
+  bool empty();
+  // num tiles
+  int64_t numTiles();
+
+  // print
+  void printInformation();
+  void printSummary();
+};
+
 }  // namespace infini

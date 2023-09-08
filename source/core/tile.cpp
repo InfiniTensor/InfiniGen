@@ -3,6 +3,7 @@
 
 namespace infini {
 
+// Tile implemenation
 Tile::Tile(const std::vector<int64_t>& dimension,
            const std::vector<int64_t>& position, const std::string& name,
            const int64_t& offset) {
@@ -65,4 +66,74 @@ void Tile::printSummary() {
   LOG(PURE) << info_string;
 }
 
+// TileTensor implementation
+TileTensor::TileTensor(const std::vector<int64_t>& shape,
+                       const std::vector<int64_t>& stride, TensorType type,
+                       TensorLayout layout, std::string name)
+    : shape(shape), stride(stride), type(type), layout(layout), name(name) {
+  tiles.clear();
+}
+
+void TileTensor::addTile(const Tile& t) { tiles.push_back(t); }
+
+Tile TileTensor::deleteTile(const std::vector<int64_t>& coord) {
+  int64_t tile_index = DOT_PRODUCT(stride, coord);
+  Tile temp = tiles[tile_index];
+  tiles.erase(tiles.begin() + tile_index);
+  return temp;
+}
+
+Tile TileTensor::operator()(const std::vector<int64_t>& coord) {
+  // Get a Tile with Tile coord
+  // Tile index = stride dot coord
+  int64_t tile_index = DOT_PRODUCT(stride, coord);
+  return tiles[tile_index];
+}
+
+void TileTensor::clear() { tiles.clear(); }
+
+std::vector<Tile> TileTensor::getTiles() { return tiles; }
+
+bool TileTensor::empty() { return tiles.empty(); }
+
+int64_t TileTensor::numTiles() { return tiles.size(); }
+
+void TileTensor::printInformation() {
+  std::string info_string = "";
+  info_string += "—— TileTensor ";
+  info_string += "Name: ";
+  info_string += name;
+  info_string += " ";
+  info_string += "Shape: ";
+  info_string += TO_STRING(shape);
+  info_string += " ";
+  info_string += "Stride: ";
+  info_string += TO_STRING(stride);
+  info_string += " ";
+  info_string += "TensorType: ";
+  info_string += TO_STRING(type);
+  info_string += " ";
+  info_string += "TensorLayout: ";
+  info_string += TO_STRING(layout);
+  info_string += " ";
+  LOG(INFO) << info_string;
+}
+
+void TileTensor::printSummary() {
+  std::string info_string = "";
+  info_string += "TileTensor ";
+  info_string += "Shape: ";
+  info_string += TO_STRING(shape);
+  info_string += " ";
+  info_string += "Stride: ";
+  info_string += TO_STRING(stride);
+  info_string += " ";
+  info_string += "TensorType: ";
+  info_string += TO_STRING(type);
+  info_string += " ";
+  info_string += "TensorLayout: ";
+  info_string += TO_STRING(layout);
+  info_string += "\n";
+  LOG(PURE) << info_string;
+}
 }  // namespace infini

@@ -3,17 +3,20 @@
 #include "core/split.h"
 #include "core/tile.h"
 #include <vector>
+#include <map>
 
 namespace infini {
+
+class TileTensor;
 
 class Tensor {
  public:
   // Self information
-  TensorDatatype tensor_datatype;
-  TensorType tensor_type;
-  TensorLayout tensor_layout;
-  std::vector<int64_t> tensor_dimension;
-  std::vector<int64_t> tensor_stride;
+  TensorDatatype tensor_datatype;         // element type
+  TensorType tensor_type;                 // const or variable
+  TensorLayout tensor_layout;             // array or bchw or bhwc
+  std::vector<int64_t> tensor_dimension;  // tensor dim
+  std::vector<int64_t> tensor_stride;     // tensor stride
   std::string tensor_name;
   int64_t data_offset;
   bool is_contiguous;
@@ -30,8 +33,10 @@ class Tensor {
          int64_t offset = 0);
   // Destructor
   ~Tensor() = default;
-  // Tiling
-  std::vector<Tile> tiling(const Split& split);
+  // Tiling with split
+  TileTensor tiling(const Split& split);
+  //   // Tiling with tile size
+  //   TileTensor tiling(const Tile& Tile);
   // Information
   void printInformation();
   void printSummary();

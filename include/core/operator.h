@@ -20,8 +20,8 @@ class Operator {
   std::unordered_map<std::string, Attribute> attributes;
   // Split information
   Split split;
-  std::vector<std::vector<Tile>> inputs_tiles;
-  std::vector<std::vector<Tile>> outputs_tiles;
+  std::vector<TileTensor> inputs_tiles;
+  std::vector<TileTensor> outputs_tiles;
   // Kernel information
   std::vector<Kernel*> kernel_list;
   // Worker information

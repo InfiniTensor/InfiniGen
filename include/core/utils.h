@@ -55,6 +55,21 @@
 #define DLOG(level) DEVELOPLOG(Codegen, level)
 #endif
 
+#ifndef VEC_CAMPARE
+#define VEC_CAMPARE(OP)                                        \
+  template <class T>                                           \
+  std::vector<bool> operator OP(const std::vector<T>& left,    \
+                                const std::vector<T>& right) { \
+    ASSERT((left).size() == (right).size());                   \
+    std::vector<bool> result;                                  \
+    result.reserve((left).size());                             \
+    for (size_t i = 0; i < (left).size(); i++) {               \
+      result.push_back(left[i] OP right[i]);                   \
+    }                                                          \
+    return result;                                             \
+  }
+#endif
+
 #ifndef CHECK
 #define CHECK(condition, ...)                                     \
   if (!(condition)) {                                             \
@@ -88,6 +103,16 @@
 
 namespace infini {
 
+VEC_CAMPARE(<)
+VEC_CAMPARE(>)
+VEC_CAMPARE(==)
+VEC_CAMPARE(<=)
+VEC_CAMPARE(>=)
+VEC_CAMPARE(!=)
+
+bool ANY(const std::vector<bool>& boolvec);
+bool ALL(const std::vector<bool>& boolvec);
+
 std::vector<std::string> STRING_SPLIT(const std::string& input, char delimiter);
 
 bool operator<(const Cacheline& left, const Cacheline& right);
@@ -99,6 +124,9 @@ bool operator==(const Cacheline& left, const Cacheline& right);
 int64_t VECTOR_SUM(const std::vector<int64_t>& left);
 
 int64_t VECTOR_PRODUCT(const std::vector<int64_t>& left);
+
+int64_t DOT_PRODUCT(const std::vector<int64_t>& left,
+                    const std::vector<int64_t>& right);
 
 std::vector<int64_t> operator+(const std::vector<int64_t>& left,
                                const std::vector<int64_t>& right);
