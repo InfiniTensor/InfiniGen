@@ -1,5 +1,6 @@
 #pragma once
 #include "core/type.h"
+#include "core/cache.h"
 #include <vector>
 #include <unordered_set>
 
@@ -71,6 +72,9 @@ class Graph {
   std::vector<Data*> temps;
   std::unordered_set<Data*> remaining_data;
 
+  Cache cache_info;
+  int64_t worker_num;
+
  public:
   // Constructor
   Graph(std::vector<Node*> operators_list = {},
@@ -81,6 +85,7 @@ class Graph {
   // Function
   std::vector<Node*> topoSort();
   void generatorCode();
+  void setDevice(int64_t& worker, Cache& cache);
   // Information
   void printInformation();
 };

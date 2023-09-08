@@ -127,7 +127,9 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
       index(count++),
       operators(operators_list),
       inputs(inputs_list),
-      outputs(outputs_list) {
+      outputs(outputs_list),
+      worker_num(1),
+      cache_info(1, 1, 1, "", MemoryDispatch::FIFO) {
   if (name == "") {
     name = "Graph_" + std::to_string(index);
   }
@@ -164,6 +166,11 @@ void Graph::generatorCode() {
     temp += "]";
     LOG(INFO) << temp;
   }
+}
+
+void Graph::setDevice(int64_t& worker, Cache& cache) {
+  worker_num = worker;
+  cache_info = cache;
 }
 
 std::vector<Node*> Graph::topoSort() {
