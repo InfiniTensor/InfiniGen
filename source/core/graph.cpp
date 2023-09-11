@@ -1,7 +1,6 @@
 #include "core/graph.h"
 #include "core/utils.h"
 #include <algorithm>
-#include <unordered_map>
 
 namespace infini {
 
@@ -17,13 +16,13 @@ Node::Node(std::vector<Data*> inputs_list, std::vector<Data*> outputs_list,
       outputs_num(outputs_num_value),
       inputs(inputs_list),
       outputs(outputs_list) {
-  if (name == "") {
-    name = "Operator_" + std::to_string(index);
-  }
+  name = (name == "" ? "Operator_" + std::to_string(index) : name);
   if (outputs.empty()) {
     Data* temp;
     for (auto i = 0; i < outputs_num; ++i) {
-      temp = new Data();
+      temp = new Data(inputs[0]->tensor_dimension, inputs[0]->tensor_stride,
+                      inputs[0]->tensor_datatype, inputs[0]->tensor_type,
+                      inputs[0]->tensor_layout, inputs[0]->data_offset);
       outputs.push_back(temp);
     }
   }
@@ -47,9 +46,31 @@ Data* Node::getOutput(int64_t index) { return outputs[index]; }
 
 std::vector<Data*> Node::getOutputs() { return outputs; }
 
-void Node::printInformation() {
+void Node::printNode() {
   std::string info_string = "";
-  info_string += "Node ";
+  info_string += "Operator ";
+  info_string += "Name: [";
+  info_string += name;
+  info_string += "] ";
+  info_string += "Inputs: [";
+  for (auto i = 0; i < inputs.size(); ++i) {
+    info_string += TO_STRING(inputs[i]->tensor_dimension);
+    info_string += (i == (inputs.size() - 1) ? "" : ",");
+  }
+  info_string += "]";
+  info_string += " ";
+  info_string += "Outputs: [";
+  for (auto i = 0; i < outputs.size(); ++i) {
+    info_string += TO_STRING(outputs[i]->tensor_dimension);
+    info_string += (i == (outputs.size() - 1) ? "" : ",");
+  }
+  info_string += "]";
+  LOG(INFO) << info_string;
+}
+
+void Node::printLink() {
+  std::string info_string = "";
+  info_string += "Operator ";
   info_string += "Name: [";
   info_string += name;
   info_string += "] ";
@@ -83,13 +104,65 @@ void Node::printInformation() {
   LOG(INFO) << info_string;
 }
 
+void Node::setAttribute(std::string key, Attribute attribute) {
+  attributes[key] = attribute;
+}
+
+Attribute Node::getAttribute(std::string key) {
+  auto iter = attributes.find(key);
+  CHECK(iter != attributes.end(), "Can't find this key: " + key);
+  return iter->second;
+}
+
+void Node::deleteAttribute(std::string key) {
+  auto iter = attributes.find(key);
+  if (iter != attributes.end()) {
+    attributes.erase(iter);
+  }
+}
+
 //////////////////////////////////////////////////////////////////////
 
-Data::Data(std::string name_value)
-    : name(name_value), index(count++), producer(NULL), remaining(0) {
-  if (name == "") {
-    name = "Data_" + std::to_string(index);
+Data::Data(const std::vector<int64_t>& dimension, TensorDatatype dtype,
+           TensorType type, TensorLayout layout, int64_t offset,
+           std::string name_value)
+    : tensor_dimension(dimension),
+      tensor_datatype(dtype),
+      tensor_type(type),
+      tensor_layout(layout),
+      data_offset(offset),
+      is_contiguous(true),
+      name(name_value),
+      index(count++),
+      producer(NULL),
+      remaining(0) {
+  name = (name == "" ? "Data_" + std::to_string(index) : name);
+  tensor_stride = std::vector<int64_t>(tensor_dimension.size(), 1);
+  for (int64_t i = tensor_stride.size() - 2; i >= 0; --i) {
+    tensor_stride[i] = tensor_stride[i + 1] * tensor_dimension[i + 1];
   }
+}
+
+Data::Data(const std::vector<int64_t>& dimension,
+           const std::vector<int64_t>& stride, TensorDatatype dtype,
+           TensorType type, TensorLayout layout, int64_t offset,
+           std::string name_value)
+    : tensor_dimension(dimension),
+      tensor_stride(stride),
+      tensor_datatype(dtype),
+      tensor_type(type),
+      tensor_layout(layout),
+      data_offset(offset),
+      name(name_value),
+      index(count++),
+      producer(NULL),
+      remaining(0) {
+  name = (name == "" ? "Data_" + std::to_string(index) : name);
+  std::vector<int64_t> temp = std::vector<int64_t>(tensor_dimension.size(), 1);
+  for (int64_t i = temp.size() - 2; i >= 0; --i) {
+    temp[i] = temp[i + 1] * tensor_dimension[i + 1];
+  }
+  is_contiguous = ALL(temp == tensor_stride);
 }
 
 void Data::setProducer(Node* producer_value) { producer = producer_value; }
@@ -98,9 +171,36 @@ void Data::addConsumer(Node* consumer_value) {
   consumers.push_back(consumer_value);
 }
 
-void Data::printInformation() {
+void Data::printData() {
   std::string info_string = "";
-  info_string += "Data ";
+  info_string += "Tensor ";
+  info_string += "Name: [";
+  info_string += name;
+  info_string += "] ";
+  info_string += "Datatype: [";
+  info_string += TO_STRING(tensor_datatype);
+  info_string += "] ";
+  info_string += "Type: [";
+  info_string += TO_STRING(tensor_type);
+  info_string += "] ";
+  info_string += "Layout: [";
+  info_string += TO_STRING(tensor_layout);
+  info_string += "] ";
+  info_string += "Dimension: ";
+  info_string += TO_STRING(tensor_dimension);
+  info_string += " ";
+  info_string += "Stride: ";
+  info_string += TO_STRING(tensor_stride);
+  info_string += " ";
+  info_string += "Offset: [";
+  info_string += std::to_string(data_offset);
+  info_string += "]";
+  LOG(INFO) << info_string;
+}
+
+void Data::printLink() {
+  std::string info_string = "";
+  info_string += "Tensor ";
   info_string += "Name: [";
   info_string += name;
   info_string += "] ";
@@ -119,6 +219,43 @@ void Data::printInformation() {
   LOG(INFO) << info_string;
 }
 
+bool Data::isContiguous() { return is_contiguous; }
+
+void Data::flatten(int64_t start, int64_t end) {
+  // Check
+  int64_t len = tensor_dimension.size();
+  CHECK(isContiguous());
+  CHECK_GE(start, -len);
+  CHECK_LE(start, len - 1);
+  CHECK_GE(end, -len);
+  CHECK_LE(end, len - 1);
+  // Compute
+  start = (start + len) % len;
+  end = (end + len) % len;
+  CHECK_LE(start, end);
+  if (start == end) {
+    return;
+  }
+  std::vector<int64_t> result_dimension(len - (end - start), 0);
+  for (auto i = 0; i < start; ++i) {
+    result_dimension[i] = tensor_dimension[i];
+  }
+  int64_t accumulate = 1;
+  for (auto i = start; i <= end; ++i) {
+    accumulate *= tensor_dimension[i];
+  }
+  result_dimension[start] = accumulate;
+  for (auto i = end + 1; i < len; ++i) {
+    result_dimension[++start] = tensor_dimension[i];
+  }
+  // Assign
+  tensor_dimension = result_dimension;
+  tensor_stride = std::vector<int64_t>(tensor_dimension.size(), 1);
+  for (int64_t i = tensor_stride.size() - 2; i >= 0; --i) {
+    tensor_stride[i] = tensor_stride[i + 1] * tensor_dimension[i + 1];
+  }
+}
+
 //////////////////////////////////////////////////////////////////////
 
 Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
@@ -127,15 +264,11 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
       index(count++),
       operators(operators_list),
       inputs(inputs_list),
-      outputs(outputs_list),
-      worker_num(1),
-      cache_info(1, 1, 1, "", MemoryDispatch::FIFO) {
-  if (name == "") {
-    name = "Graph_" + std::to_string(index);
-  }
+      outputs(outputs_list) {
+  name = (name == "" ? "Graph_" + std::to_string(index) : name);
   for (auto op : operators) {
     for (auto data : op->inputs) {
-      remaining_data.insert(data);  // 不确定是否应该check是否存在
+      remaining_data.insert(data);
     }
     for (auto data : op->outputs) {
       auto outputs_iter = std::find(outputs.begin(), outputs.end(), data);
@@ -168,11 +301,6 @@ void Graph::generatorCode() {
   }
 }
 
-void Graph::setDevice(int64_t& worker, Cache& cache) {
-  worker_num = worker;
-  cache_info = cache;
-}
-
 std::vector<Node*> Graph::topoSort() {
   std::unordered_map<Node*, int64_t> operators_temp;
   for (auto op : operators) {
@@ -194,7 +322,7 @@ std::vector<Node*> Graph::topoSort() {
   return result;
 }
 
-void Graph::printInformation() {
+void Graph::printGraph() {
   std::string info_string = "";
   info_string += "Graph ";
   info_string += "Name: [";
@@ -203,19 +331,19 @@ void Graph::printInformation() {
   LOG(INFO) << info_string;
   LOG(INFO) << "==== Operators ====";
   for (auto it : operators) {
-    it->printInformation();
+    it->printLink();
   }
   LOG(INFO) << "==== Inputs ====";
   for (auto it : inputs) {
-    it->printInformation();
+    it->printLink();
   }
   LOG(INFO) << "==== Temps ====";
   for (auto it : temps) {
-    it->printInformation();
+    it->printLink();
   }
   LOG(INFO) << "==== Outputs ====";
   for (auto it : outputs) {
-    it->printInformation();
+    it->printLink();
   }
 }
 
