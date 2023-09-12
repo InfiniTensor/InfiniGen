@@ -35,7 +35,7 @@ Tensor::Tensor(const std::vector<int64_t>& dimension,
   for (int64_t i = temp.size() - 2; i >= 0; --i) {
     temp[i] = temp[i + 1] * tensor_dimension[i + 1];
   }
-  is_contiguous = ALL(temp == tensor_dimension);
+  is_contiguous = ALL(temp == tensor_stride);
 }
 
 TileTensor Tensor::tiling(const Split& split) {
