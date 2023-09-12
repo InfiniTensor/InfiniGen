@@ -9,4 +9,6 @@
 #include "core/operator.h"
 #include "core/attribute.h"
 #include "core/graph.h"
+#include "core/micro.h"
+#include "core/task.h"
 #include "operators/elementwise.h"

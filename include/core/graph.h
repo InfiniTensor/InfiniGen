@@ -98,7 +98,7 @@ class Graph {
         std::vector<Data*> outputs_list = {}, std::string name_value = "");
   ~Graph() = default;
   std::vector<Node*> topoSort();
-  void generatorCode();
+  virtual void generatorCode();
   void printGraph();
 };
 
