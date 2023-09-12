@@ -7,6 +7,7 @@
 
 namespace infini {
 
+
 class Tensor {
  public:
   // Self information
