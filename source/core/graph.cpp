@@ -308,7 +308,7 @@ void Graph::generatorCode() {
           temp_remain.erase(input);
         }
       }
-      BangAddMicro* micro = new BangAddMicro(
+      CudaAddMicro* micro = new CudaAddMicro(
           op->outputs[0]->name, i * tile_len, op->inputs[0]->name, i * tile_len,
           op->inputs[1]->name, i * tile_len, tile_len);
       task.pushMicro(micro);

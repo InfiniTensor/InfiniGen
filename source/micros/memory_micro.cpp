@@ -38,4 +38,39 @@ std::string BangAllocateMicro::generatorCode(Cache& cache, std::string& code) {
   return cache_string;
 }
 
+std::string CudaLoadMicro::generatorCode(Cache& cache, std::string& code) {
+  CacheData cache_data = CacheData(data_name, data, length);
+  auto result = cache.load(cache_data);
+  std::string cache_string =
+      cache.name + "[" + std::to_string(result.cache_offset) + " + ";
+  std::string data_string = data_name + "[" + std::to_string(data) + " + ";
+  std::string length_string = std::to_string(length);
+  switch (result.location) {
+    case CacheHitLocation::CACHE:
+      return cache_string;
+    case CacheHitLocation::LDRAM:
+      code += "TODO\n";
+      return "";
+    case CacheHitLocation::NOT_FOUND:
+      code += "int index = threadIdx.x;\n";
+      code += cache_string + "index] = " + data_string + "index];\n";
+      return cache_string;
+    default:
+      return "";
+  }
+}
+
+std::string CudaStoreMicro::generatorCode(Cache& cache, std::string& code) {
+  return "";
+}
+
+std::string CudaAllocateMicro::generatorCode(Cache& cache, std::string& code) {
+  CacheData cache_data = CacheData(data_name, data, length);
+  auto result = cache.allocate(cache_data);
+  // TODO mang thing
+  std::string cache_string =
+      cache.name + "[" + std::to_string(result.cache_offset) + " + ";
+  return cache_string;
+}
+
 }  // namespace infini

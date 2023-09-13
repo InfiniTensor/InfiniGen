@@ -24,5 +24,6 @@ namespace infini {
   };
 
 BINARY_MICRO(BangAdd)
+BINARY_MICRO(CudaAdd)
 #undef BINARY_MICRO
 }  // namespace infini

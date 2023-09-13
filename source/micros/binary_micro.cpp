@@ -18,4 +18,19 @@ std::string BangAddMicro::generatorCode(Cache& cache, std::string& code) {
   return "";
 }
 
+std::string CudaAddMicro::generatorCode(Cache& cache, std::string& code) {
+  cache.lock();
+  std::string left_cache =
+      CudaLoadMicro(left_name, left, length).generatorCode(cache, code);
+  std::string right_cache =
+      CudaLoadMicro(right_name, right, length).generatorCode(cache, code);
+  std::string output_cache =
+      CudaAllocateMicro(output_name, output, length).generatorCode(cache, code);
+  code += "int index = threadIdx.x;\n";
+  code += output_cache + "index] = " + left_cache + "index]" + " + " +
+          right_cache + "idnex];\n";
+  cache.unlock();
+  return "";
+}
+
 }  // namespace infini

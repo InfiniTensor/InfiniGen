@@ -21,5 +21,9 @@ MEMORY_MICRO(BangLoad)
 MEMORY_MICRO(BangStore)
 MEMORY_MICRO(BangAllocate)
 
+MEMORY_MICRO(CudaLoad)
+MEMORY_MICRO(CudaStore)
+MEMORY_MICRO(CudaAllocate)
+
 #undef MEMORY_MICRO
 }  // namespace infini
