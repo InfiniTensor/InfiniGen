@@ -287,17 +287,17 @@ void Graph::generatorCode() {
   int64_t loop = tensor_len / tile_len;
   int64_t rem_len = tensor_len % tile_len;
   std::vector<Node*> sorted_op = topoSort();
-  for(int i = 0; i < loop; ++i) {
+  for (int i = 0; i < loop; ++i) {
     LOG(INFO) << "======== Loop =========" << i;
-    Task task(1024*10, 1024*100, 128,"__nram__");
-    std::unordered_map<Data*, int64_t> temp_remain; 
-    for(auto data : inputs) {
+    Task task(1024 * 10, 1024 * 100, 128, "cache");
+    std::unordered_map<Data*, int64_t> temp_remain;
+    for (auto data : inputs) {
       temp_remain[data] = data->remaining;
     }
-    for(auto data : temps) {
+    for (auto data : temps) {
       temp_remain[data] = data->remaining;
     }
-    for(auto data : outputs) {
+    for (auto data : outputs) {
       temp_remain[data] = data->remaining;
     }
     for (auto op : sorted_op) {
@@ -308,7 +308,9 @@ void Graph::generatorCode() {
           temp_remain.erase(input);
         }
       }
-      BangAddMicro *micro = new BangAddMicro(op->outputs[0]->name,i * tile_len, op->inputs[0]->name, i * tile_len, op->inputs[1]->name, i * tile_len, tile_len);
+      BangAddMicro* micro = new BangAddMicro(
+          op->outputs[0]->name, i * tile_len, op->inputs[0]->name, i * tile_len,
+          op->inputs[1]->name, i * tile_len, tile_len);
       task.pushMicro(micro);
       LOG(INFO) << "Codegen: " + op->name;
       std::string temp = "Remain: [";

@@ -12,7 +12,7 @@ class Micro {
   // Destructor
   ~Micro() = default;
   // Generator
-  virtual std::string generatorCode(Cache& cache);
+  virtual std::string generatorCode(Cache& cache, std::string& result);
 };
 
 }  // namespace infini

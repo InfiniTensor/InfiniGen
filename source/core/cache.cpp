@@ -130,7 +130,7 @@ void CacheHit::printInformation() {
 
 Cache::Cache(int64_t total_nram, int64_t total_ldram, int64_t align_size,
              std::string name, MemoryDispatch dispatch) {
-  name = name;
+  this->name = name;
   cache_size = PAD_DOWN(total_nram, align_size);
   ldram_size = PAD_DOWN(total_ldram, align_size);
   cache_dispatch = dispatch;

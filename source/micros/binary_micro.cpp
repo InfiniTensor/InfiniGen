@@ -1,32 +1,21 @@
 #include "micros/binary_micro.h"
+#include "micros/memory_micro.h"
 #include "core/cache.h"
 
 namespace infini {
 
-std::string BangAddMicro::generatorCode(Cache& cache) {
-  std::string code;
+std::string BangAddMicro::generatorCode(Cache& cache, std::string& code) {
   cache.lock();
-  CacheData left_data = CacheData(left_name, left, length);
-  CacheData right_data = CacheData(right_name, right, length);
-  CacheData output_data = CacheData(output_name, output, length);
-  auto result = cache.load(left_data);
-  if (result.location == CacheHitLocation::NOT_FOUND) {
-    code += "__bang_memcpy()\n";
-  }
-  result.printInformation();
-  result = cache.load(right_data);
-  if (result.location == CacheHitLocation::NOT_FOUND) {
-    code += "__bang_memcpy()\n";
-  }
-  result.printInformation();
-  result = cache.allocate(output_data);
-  if (result.location == CacheHitLocation::NOT_FOUND) {
-    code += "__bang_memcpy()\n";
-  }
-  result.printInformation();
-  code += "bang_add()\n";
+  std::string left_cache =
+      BangLoadMicro(left_name, left, length).generatorCode(cache, code);
+  std::string right_cache =
+      BangLoadMicro(right_name, right, length).generatorCode(cache, code);
+  std::string output_cache =
+      BangAllocateMicro(output_name, output, length).generatorCode(cache, code);
+  code += "__bang_add(" + output_cache + ", " + left_cache + ", " +
+          right_cache + ", " + std::to_string(length) + ");\n";
   cache.unlock();
-  return code;
+  return "";
 }
 
 }  // namespace infini
