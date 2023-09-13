@@ -52,7 +52,6 @@ std::string CudaLoadMicro::generatorCode(Cache& cache, std::string& code) {
       code += "TODO\n";
       return "";
     case CacheHitLocation::NOT_FOUND:
-      code += "int index = threadIdx.x;\n";
       code += cache_string + "index] = " + data_string + "index];\n";
       return cache_string;
     default:
