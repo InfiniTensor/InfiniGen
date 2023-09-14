@@ -12,7 +12,8 @@ class Task {
 
  public:
   // Constructor
-  Task(int64_t cache_length, int64_t swap_length, int64_t align_length, std::string cache_name);
+  Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
+       std::string cache_name);
   // Destructor
   ~Task() = default;
   // Function

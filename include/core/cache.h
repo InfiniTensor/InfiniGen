@@ -100,11 +100,13 @@ struct CacheHit {
   //    3.2. cache_offset is occupied
   //        - ldram_to_offset: alloc a space in ldram for cache swapping
   //        - replaced_data_size: size of replaced data from cache
+
  public:
   CacheHitLocation location;
   int64_t cache_offset;
   int64_t ldram_from_offset;
   std::vector<int64_t> ldram_to_offset;
+  std::vector<int64_t> replaced_data_cache_offset;
   std::vector<int64_t> replaced_data_size;
 
  public:
@@ -112,6 +114,7 @@ struct CacheHit {
   CacheHit() = delete;
   CacheHit(CacheHitLocation _location, int64_t _cache_offset,
            int64_t _ldram_from_offset, std::vector<int64_t> _ldram_to_offset,
+           std::vector<int64_t> _replaced_data_cache_offset,
            std::vector<int64_t> _replaced_data_size);
   // Destructor
   ~CacheHit() = default;
@@ -183,8 +186,8 @@ class Cache {
   void safeEraseFreeBlock(Block *block);
   void safeInsertFreeBlock(Block *block);
   Block *cacheAlloc(CacheData target_data, int indent);
-  std::vector<CacheData> loadData2Block(CacheData replacer_data,
-                                        Block *replacee);
+  std::vector<std::tuple<CacheData, int64_t>> loadData2Block(
+      CacheData replacer_data, Block *replacee);
   CacheHit loadData(CacheData data, bool alloc);
 };
 
