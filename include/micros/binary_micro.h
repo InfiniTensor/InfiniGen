@@ -20,7 +20,8 @@ namespace infini {
           right_name(right_name_string),                                     \
           right(right_offset),                                               \
           length(length_value) {}                                            \
-    std::string generatorCode(Cache& cache, std::string& result) override;   \
+    std::string generatorCode(Cache& cache, std::string& result,             \
+                              std::string coreIndex = "") override;          \
   };
 
 BINARY_MICRO(BangAdd)
