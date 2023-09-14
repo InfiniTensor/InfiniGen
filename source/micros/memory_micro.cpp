@@ -1,4 +1,3 @@
-
 #include "micros/memory_micro.h"
 #include "core/cache.h"
 
@@ -14,47 +13,34 @@ std::string BangLoadMicro::generatorCode(Cache& cache, std::string& code) {
   std::string ldram_from_string =
       cache.name + "_ldram + " + std::to_string(result.ldram_from_offset);
   int64_t replaced_data_count = result.ldram_to_offset.size();
-  switch (result.location) {
-    case CacheHitLocation::CACHE:
-      return cache_string;
-    case CacheHitLocation::LDRAM:
-      if (replaced_data_count > 0) {
-        for (int i = 0; i < replaced_data_count; i++) {
-          std::string cache_from_string =
-              cache.name + " + " +
-              std::to_string(result.replaced_data_cache_offset[i]);
-          std::string ldram_to_string =
-              cache.name + "_ldram + " +
-              std::to_string(result.ldram_to_offset[i]);
-          std::string replaced_data_length_string =
-              std::to_string(result.replaced_data_size[i]);
-          code += "__memcpy(" + ldram_to_string + ", " + cache_from_string +
-                  ", " + replaced_data_length_string + ", NRAM2LDRAM);\n";
-        }
+
+  if (result.location == CacheHitLocation::CACHE) {
+    return cache_string;
+  } else {
+    if (replaced_data_count > 0) {
+      for (int i = 0; i < replaced_data_count; i++) {
+        std::string cache_from_string =
+            cache.name + " + " +
+            std::to_string(result.replaced_data_cache_offset[i]);
+        std::string ldram_to_string = cache.name + "_ldram + " +
+                                      std::to_string(result.ldram_to_offset[i]);
+        std::string replaced_data_length_string =
+            std::to_string(result.replaced_data_size[i]);
+        code += "__memcpy(" + ldram_to_string + ", " + cache_from_string +
+                ", " + replaced_data_length_string + ", NRAM2LDRAM);\n";
       }
+    }
+    if (result.location == CacheHitLocation::LDRAM) {
       code += "__memcpy(" + cache_string + ", " + ldram_from_string + ", " +
               length_string + ", LDRAM2NRAM);\n";
       return cache_string;
-    case CacheHitLocation::NOT_FOUND:
-      if (replaced_data_count > 0) {
-        for (int i = 0; i < replaced_data_count; i++) {
-          std::string cache_from_string =
-              cache.name + " + " +
-              std::to_string(result.replaced_data_cache_offset[i]);
-          std::string ldram_to_string =
-              cache.name + "_ldram + " +
-              std::to_string(result.ldram_to_offset[i]);
-          std::string replaced_data_length_string =
-              std::to_string(result.replaced_data_size[i]);
-          code += "__memcpy(" + ldram_to_string + ", " + cache_from_string +
-                  ", " + replaced_data_length_string + ", NRAM2LDRAM);\n";
-        }
-      }
+    } else if (result.location == CacheHitLocation::NOT_FOUND) {
       code += "__memcpy(" + cache_string + ", " + data_string + ", " +
               length_string + ", GDRAM2NRAM);\n";
       return cache_string;
-    default:
+    } else {
       return "";
+    }
   }
 }
 
@@ -100,51 +86,35 @@ std::string CudaLoadMicro::generatorCode(Cache& cache, std::string& code) {
   std::string ldram_from_string =
       cache.name + "[" + std::to_string(result.ldram_from_offset) + " + ";
   int64_t replaced_data_count = result.ldram_to_offset.size();
-  switch (result.location) {
-    case CacheHitLocation::CACHE:
-      return cache_string;
-    case CacheHitLocation::LDRAM:
-      if (replaced_data_count > 0) {
-        for (int i = 0; i < replaced_data_count; i++) {
-          std::string cache_from_string =
-              cache.name + "[" +
-              std::to_string(result.replaced_data_cache_offset[i]) + " + ";
-          std::string ldram_to_string =
-              cache.name + "_ldram + " +
-              std::to_string(result.ldram_to_offset[i]);
-          std::string replaced_data_length_string =
-              std::to_string(result.replaced_data_size[i]);
-          code += "if (threadIdx.x < " + replaced_data_length_string +
-                  " ) {\n" + "  " + ldram_to_string +
-                  "threadIdx.x] = " + cache_from_string + "threadIdx.x]\n" +
-                  "}\n";
-        }
+
+  if (result.location == CacheHitLocation::CACHE) {
+    return cache_string;
+  } else {
+    if (replaced_data_count > 0) {
+      for (int i = 0; i < replaced_data_count; i++) {
+        std::string cache_from_string =
+            cache.name + "[" +
+            std::to_string(result.replaced_data_cache_offset[i]) + " + ";
+        std::string ldram_to_string = cache.name + "_ldram + " +
+                                      std::to_string(result.ldram_to_offset[i]);
+        std::string replaced_data_length_string =
+            std::to_string(result.replaced_data_size[i]);
+        code += "if (threadIdx.x < " + replaced_data_length_string + " ) {\n" +
+                "  " + ldram_to_string + "threadIdx.x] = " + cache_from_string +
+                "threadIdx.x]\n" + "}\n";
       }
+    }
+    if (result.location == CacheHitLocation::LDRAM) {
       code += cache_string + "threadIdx.x] = " + ldram_from_string +
               "threadIdx.x];\n";
       return cache_string;
-    case CacheHitLocation::NOT_FOUND:
-      if (replaced_data_count > 0) {
-        for (int i = 0; i < replaced_data_count; i++) {
-          std::string cache_from_string =
-              cache.name + "[" +
-              std::to_string(result.replaced_data_cache_offset[i]) + " + ";
-          std::string ldram_to_string =
-              cache.name + "_ldram + " +
-              std::to_string(result.ldram_to_offset[i]);
-          std::string replaced_data_length_string =
-              std::to_string(result.replaced_data_size[i]);
-          code += "if (threadIdx.x < " + replaced_data_length_string +
-                  " ) {\n" + "  " + ldram_to_string +
-                  "threadIdx.x] = " + cache_from_string + "threadIdx.x]\n" +
-                  "}\n";
-        }
-      }
+    } else if (result.location == CacheHitLocation::NOT_FOUND) {
       code +=
           cache_string + "threadIdx.x] = " + data_string + "threadIdx.x];\n";
       return cache_string;
-    default:
+    } else {
       return "";
+    }
   }
 }
 
