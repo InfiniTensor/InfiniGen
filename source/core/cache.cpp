@@ -192,10 +192,15 @@ Cache::~Cache() {
   delete ldram_tail;
 }
 
-void Cache::clearCache() {
+void Cache::reset() {
   clock = 0;
   std::vector<Block *> blocks_to_delete;
   Block *ptr = cache_head->next;
+  while (ptr->next != nullptr) {
+    blocks_to_delete.push_back(ptr);
+    ptr = ptr->next;
+  }
+  ptr = ldram_head->next;
   while (ptr->next != nullptr) {
     blocks_to_delete.push_back(ptr);
     ptr = ptr->next;
@@ -209,6 +214,14 @@ void Cache::clearCache() {
   cache_tail->prev = first_block;
   free_cache_blocks = std::set<Block *, CompareBlockSize>();
   free_cache_blocks.insert(cache_head);
+
+  first_block = new Block(false, 0, total_ldram, ldram_tail, ldram_head, name,
+                          CacheType::LDRAM, CacheData(), -1);
+  ldram_head->next = first_block;
+  ldram_tail->prev = first_block;
+  free_ldram_blocks = std::set<Block *, CompareBlockSize>();
+  free_ldram_blocks.insert(first_block);
+
   unlock();
 }
 

@@ -157,8 +157,8 @@ class Cache {
         std::string name, MemoryDispatch dispatch);
   // Destructor
   ~Cache();
-  // Clear cache information
-  void clearCache();
+  // Clear cache/ldram
+  void reset();
   // Reset cache dispatch algorithm
   void resetDispatch(MemoryDispatch dispatch);
 
