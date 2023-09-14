@@ -432,10 +432,14 @@ void Cache::freeBlock(Block *target) {
   safeInsertFreeBlock(target);
 }
 
-CacheHit Cache::free(CacheData target_data) {
-  DLOG(0) << "Freeing cache memory for " + TO_STRING(target_data) + "...";
+CacheHit Cache::findData(CacheData target_data, bool free) {
+  if (free) {
+    DLOG(0) << "Freeing cache memory for " + TO_STRING(target_data) + "...";
+  } else {
+    DLOG(0) << "Finding " + TO_STRING(target_data) + "in cache...";
+  }
 
-  if (lockedData.count(target_data) > 0) {
+  if (free && (lockedData.count(target_data) > 0)) {
     // should not free any block with locked data
     return CacheHit(CacheHitLocation::ERROR);
   }
@@ -449,7 +453,9 @@ CacheHit Cache::free(CacheData target_data) {
     }
     if (ptr->data == target_data) {
       offset = ptr->block_offset;
-      freeBlock(ptr);
+      if (free) {
+        freeBlock(ptr);
+      }
       return CacheHit(CacheHitLocation::CACHE, offset);
     }
     ptr = ptr->next;
@@ -464,7 +470,9 @@ CacheHit Cache::free(CacheData target_data) {
         }
         if (ptr->data == target_data) {
           offset = ptr->block_offset;
-          freeBlock(ptr);
+          if (free) {
+            freeBlock(ptr);
+          }
           return CacheHit(CacheHitLocation::LDRAM, -1, offset);
         }
         ptr = ptr->next;
@@ -472,6 +480,14 @@ CacheHit Cache::free(CacheData target_data) {
     }
   }
   return CacheHit(CacheHitLocation::NOT_FOUND);
+}
+
+CacheHit Cache::free(CacheData target_data) {
+  return findData(target_data, true);
+}
+
+CacheHit Cache::find(CacheData target_data) {
+  return findData(target_data, false);
 }
 
 CacheHit Cache::loadData(CacheData target_data, bool alloc) {

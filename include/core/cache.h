@@ -163,12 +163,14 @@ class Cache {
   void resetDispatch(MemoryDispatch dispatch);
 
   // Cache Primitives
-  // Load data
+  // Load data to cache
   CacheHit load(CacheData data);
   // Allocate memory for data
   CacheHit allocate(CacheData data);
-  // free data from cache
+  // Free data from cache
   CacheHit free(CacheData data);
+  // Find data in cache (read-only)
+  CacheHit find(CacheData data);
   // Lock & unlock data
   void lock();
   void unlock();
@@ -189,6 +191,7 @@ class Cache {
   std::vector<std::tuple<CacheData, int64_t>> loadData2Block(
       CacheData replacer_data, Block *replacee);
   CacheHit loadData(CacheData data, bool alloc);
+  CacheHit findData(CacheData data, bool free);
 };
 
 }  // namespace infini
