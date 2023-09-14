@@ -215,7 +215,7 @@ void Cache::reset() {
   free_cache_blocks = std::set<Block *, CompareBlockSize>();
   free_cache_blocks.insert(cache_head);
 
-  first_block = new Block(false, 0, total_ldram, ldram_tail, ldram_head, name,
+  first_block = new Block(false, 0, ldram_size, ldram_tail, ldram_head, name,
                           CacheType::LDRAM, CacheData(), -1);
   ldram_head->next = first_block;
   ldram_tail->prev = first_block;
@@ -226,7 +226,7 @@ void Cache::reset() {
 }
 
 void Cache::resetDispatch(MemoryDispatch dispatch) {
-  this->clearCache();
+  this->reset();
   cache_dispatch = dispatch;
 }
 
