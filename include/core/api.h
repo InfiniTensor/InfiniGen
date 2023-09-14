@@ -12,3 +12,4 @@
 #include "core/micro.h"
 #include "core/task.h"
 #include "operators/elementwise.h"
+#include "graphs/binary_unary_graph.h"

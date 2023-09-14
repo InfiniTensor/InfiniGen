@@ -17,7 +17,7 @@ int main() {
   temp->printData();
   d->printData();
 
-  Graph* graph = new Graph({add, mul}, {a, b}, {d});
+  Graph* graph = new BinaryUnaryGraph({add, mul}, {a, b}, {d});
   graph->printGraph();
   LOG(INFO) << "========== Topo Sort ==========";
   auto topo = graph->topoSort();
