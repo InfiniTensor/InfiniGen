@@ -36,7 +36,7 @@ class Micro {
    * specific platform.
    */
   virtual std::string generatorCode(Cache &cache,
-                                    std::string &result) const = 0;
+                                    std::string &result) = 0;
 
   /** @brief Information print*/
   virtual void printInformation();
