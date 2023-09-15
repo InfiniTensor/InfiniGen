@@ -15,7 +15,7 @@ namespace infini {
           data(data_offset),                                               \
           Micro(MICRO_TYPE, PLATFORM_TYPE),                                \
           length(length_value) {}                                          \
-    std::string generatorCode(Cache& cache, std::string& result) override; \
+    std::string generatorCode(Cache &cache, std::string &result) override; \
   };
 
 MEMORY_MICRO(BangLoad, MicroType::LOAD, PlatformType::BANG)
