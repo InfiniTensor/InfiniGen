@@ -75,7 +75,7 @@ std::string BangFreeMicro::generatorCode(Cache &cache, std::string &code) {
 
 std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code) {
   CacheData cache_data = CacheData(data_name, data, length);
-  auto result = cache.load(cache_data);
+  auto result = cache.allocate(cache_data);
   std::string cache_string =
       cache.name + " + " + std::to_string(result.cache_offset);
   std::string data_string = data_name + " + " + std::to_string(data);
@@ -168,7 +168,7 @@ std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code) {
 
 std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code) {
   CacheData cache_data = CacheData(data_name, data, length);
-  auto result = cache.load(cache_data);
+  auto result = cache.allocate(cache_data);
   std::string cache_string =
       cache.name + "[" + std::to_string(result.cache_offset) + " + ";
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
