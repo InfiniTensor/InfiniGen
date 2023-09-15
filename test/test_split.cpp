@@ -2,11 +2,11 @@
 #include "core/tensor.h"
 
 int main() {
-  infini::Tensor tensor({1, 1, 7, 7}, infini::TensorDatatype::FLOAT,
+  infini::Data tensor({1, 1, 7, 7}, infini::TensorDatatype::FLOAT,
                         infini::TensorType::CONST, infini::TensorLayout::NCHW,
-                        "abc", 1);
+                        1, "abc");
   LOG(INFO) << "Tensor INFO";
-  tensor.printInformation();
+  tensor.printData();
   infini::Split split1({1, 1, 2, 2});
   split1.printInformation();
   infini::TileTensor tiletensor = tensor.tiling(split1);
