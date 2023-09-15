@@ -127,7 +127,7 @@ std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code) {
             std::to_string(result.replaced_data_size[i]);
         code += "if (threadIdx.x < " + replaced_data_length_string + " ) {\n" +
                 "  " + ldram_to_string + "threadIdx.x] = " + cache_from_string +
-                "threadIdx.x]\n" + "}\n";
+                "threadIdx.x];\n" + "}\n";
       }
     }
     if (result.location == CacheHitLocation::LDRAM) {
@@ -188,7 +188,7 @@ std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code) {
           std::to_string(result.replaced_data_size[i]);
       code += "if (threadIdx.x < " + replaced_data_length_string + " ) {\n" +
               "  " + ldram_to_string + "threadIdx.x] = " + cache_from_string +
-              "threadIdx.x]\n" + "}\n";
+              "threadIdx.x];\n" + "}\n";
     }
   }
   code += cache_string + "threadIdx.x] = " + data_string + "threadIdx.x];\n";
