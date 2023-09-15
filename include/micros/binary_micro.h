@@ -19,10 +19,8 @@ namespace infini {
           left(left_offset),                                                 \
           right_name(right_name_string),                                     \
           right(right_offset),                                               \
-          length(length_value) {                                             \
-      micro_type = MICRO_TYPE;                                               \
-      platform = PLATFORM_TYPE;                                              \
-    }                                                                        \
+          Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
+          length(length_value) {}                                            \
     std::string generatorCode(Cache& cache, std::string& result) override;   \
   };
 

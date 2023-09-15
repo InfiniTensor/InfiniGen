@@ -23,6 +23,7 @@ class Micro {
   // Constructor
   Micro(){};
   Micro(const Micro &) = delete;
+  Micro(MicroType mt, PlatformType pt);
   // Destructor
   virtual ~Micro(){};
 

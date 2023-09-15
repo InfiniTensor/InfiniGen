@@ -13,10 +13,8 @@ namespace infini {
                       int64_t length_value)                                \
         : data_name(data_name_string),                                     \
           data(data_offset),                                               \
-          length(length_value) {                                           \
-      micro_type = MICRO_TYPE;                                             \
-      platform = PLATFORM_TYPE;                                            \
-    }                                                                      \
+          Micro(MICRO_TYPE, PLATFORM_TYPE),                                \
+          length(length_value) {}                                          \
     std::string generatorCode(Cache& cache, std::string& result) override; \
   };
 
@@ -25,7 +23,7 @@ MEMORY_MICRO(BangStore, MicroType::STORE, PlatformType::BANG)
 MEMORY_MICRO(BangAllocate, MicroType::ALLOCATE, PlatformType::BANG)
 
 MEMORY_MICRO(CudaLoad, MicroType::LOAD, PlatformType::CUDA)
-MEMORY_MICRO(CudaStore, MicroType::STORE, PlatformType::CUDA )
+MEMORY_MICRO(CudaStore, MicroType::STORE, PlatformType::CUDA)
 MEMORY_MICRO(CudaAllocate, MicroType::ALLOCATE, PlatformType::CUDA)
 
 #undef MEMORY_MICRO
