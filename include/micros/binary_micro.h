@@ -21,7 +21,8 @@ namespace infini {
           right(right_offset),                                               \
           Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
           length(length_value) {}                                            \
-    std::string generatorCode(Cache& cache, std::string& result) override;   \
+    std::string generatorCode(Cache& cache, std::string& result,             \
+                              std::string coreIndex = "") override;          \
   };
 
 BINARY_MICRO(BangAdd, MicroType::ADD, PlatformType::BANG)
