@@ -3,8 +3,8 @@
 
 int main() {
   infini::Data tensor({1, 1, 7, 7}, infini::TensorDatatype::FLOAT,
-                        infini::TensorType::CONST, infini::TensorLayout::NCHW,
-                        1, "abc");
+                      infini::TensorType::CONST, infini::TensorLayout::NCHW, 1,
+                      "abc");
   LOG(INFO) << "Tensor INFO";
   tensor.printData();
   infini::Split split1({1, 1, 2, 2});
