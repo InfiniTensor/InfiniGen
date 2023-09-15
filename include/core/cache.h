@@ -90,6 +90,7 @@ struct CacheHit {
   //        - other variables are null
   //    2.2. cache_offset is occupied
   //        - ldram_to_offset: alloc a space in ldram for cache swapping
+  //        - replaced_data_cache_offset: replaced data start address in cache
   //        - replaced_data_size: size of replaced data from cache
   // 3. Location == NOT_FOUND, which means target data is not found in either
   //                nram cache or ldram
@@ -99,12 +100,15 @@ struct CacheHit {
   //        - other variables are null
   //    3.2. cache_offset is occupied
   //        - ldram_to_offset: alloc a space in ldram for cache swapping
+  //        - replaced_data_cache_offset: replaced data start address in cache
   //        - replaced_data_size: size of replaced data from cache
+
  public:
   CacheHitLocation location;
   int64_t cache_offset;
   int64_t ldram_from_offset;
   std::vector<int64_t> ldram_to_offset;
+  std::vector<int64_t> replaced_data_cache_offset;
   std::vector<int64_t> replaced_data_size;
 
  public:
@@ -112,6 +116,7 @@ struct CacheHit {
   CacheHit() = delete;
   CacheHit(CacheHitLocation _location, int64_t _cache_offset,
            int64_t _ldram_from_offset, std::vector<int64_t> _ldram_to_offset,
+           std::vector<int64_t> _replaced_data_cache_offset,
            std::vector<int64_t> _replaced_data_size);
   // Destructor
   ~CacheHit() = default;
@@ -154,18 +159,20 @@ class Cache {
         std::string name, MemoryDispatch dispatch);
   // Destructor
   ~Cache();
-  // Clear cache information
-  void clearCache();
+  // Clear cache/ldram
+  void reset();
   // Reset cache dispatch algorithm
   void resetDispatch(MemoryDispatch dispatch);
 
   // Cache Primitives
-  // Load data
+  // Load data to cache
   CacheHit load(CacheData data);
   // Allocate memory for data
   CacheHit allocate(CacheData data);
-  // free data from cache
+  // Free data from cache
   CacheHit free(CacheData data);
+  // Find data in cache (read-only)
+  CacheHit find(CacheData data);
   // Lock & unlock data
   void lock();
   void unlock();
@@ -183,9 +190,10 @@ class Cache {
   void safeEraseFreeBlock(Block *block);
   void safeInsertFreeBlock(Block *block);
   Block *cacheAlloc(CacheData target_data, int indent);
-  std::vector<CacheData> loadData2Block(CacheData replacer_data,
-                                        Block *replacee);
+  std::vector<std::tuple<CacheData, int64_t>> loadData2Block(
+      CacheData replacer_data, Block *replacee);
   CacheHit loadData(CacheData data, bool alloc);
+  CacheHit findData(CacheData data, bool free);
 };
 
 }  // namespace infini

@@ -102,11 +102,13 @@ CacheHit::CacheHit(
     CacheHitLocation _location, int64_t _cache_offset = -1,
     int64_t _ldram_from_offset = -1,
     std::vector<int64_t> _ldram_to_offset = std::vector<int64_t>(),
+    std::vector<int64_t> _replaced_data_cache_offset = std::vector<int64_t>(),
     std::vector<int64_t> _replaced_data_size = std::vector<int64_t>())
     : location(_location),
       cache_offset(_cache_offset),
       ldram_from_offset(_ldram_from_offset),
       ldram_to_offset(_ldram_to_offset),
+      replaced_data_cache_offset(_replaced_data_cache_offset),
       replaced_data_size(_replaced_data_size) {}
 
 void CacheHit::printInformation() {
@@ -122,6 +124,9 @@ void CacheHit::printInformation() {
   info_string += "; ";
   info_string += "LdramToOffset: ";
   info_string += TO_STRING(ldram_to_offset);
+  info_string += "; ";
+  info_string += "ReplacedDataCacheOffset: ";
+  info_string += TO_STRING(replaced_data_cache_offset);
   info_string += "; ";
   info_string += "ReplacedDataSize: ";
   info_string += TO_STRING(replaced_data_size);
@@ -187,10 +192,15 @@ Cache::~Cache() {
   delete ldram_tail;
 }
 
-void Cache::clearCache() {
+void Cache::reset() {
   clock = 0;
   std::vector<Block *> blocks_to_delete;
   Block *ptr = cache_head->next;
+  while (ptr->next != nullptr) {
+    blocks_to_delete.push_back(ptr);
+    ptr = ptr->next;
+  }
+  ptr = ldram_head->next;
   while (ptr->next != nullptr) {
     blocks_to_delete.push_back(ptr);
     ptr = ptr->next;
@@ -204,11 +214,19 @@ void Cache::clearCache() {
   cache_tail->prev = first_block;
   free_cache_blocks = std::set<Block *, CompareBlockSize>();
   free_cache_blocks.insert(cache_head);
+
+  first_block = new Block(false, 0, ldram_size, ldram_tail, ldram_head, name,
+                          CacheType::LDRAM, CacheData(), -1);
+  ldram_head->next = first_block;
+  ldram_tail->prev = first_block;
+  free_ldram_blocks = std::set<Block *, CompareBlockSize>();
+  free_ldram_blocks.insert(first_block);
+
   unlock();
 }
 
 void Cache::resetDispatch(MemoryDispatch dispatch) {
-  this->clearCache();
+  this->reset();
   cache_dispatch = dispatch;
 }
 
@@ -291,12 +309,13 @@ void Cache::safeInsertFreeBlock(Block *block) {
   }
 }
 
-std::vector<CacheData> Cache::loadData2Block(CacheData replacer_data,
-                                             Block *replacee) {
+std::vector<std::tuple<CacheData, int64_t>> Cache::loadData2Block(
+    CacheData replacer_data, Block *replacee) {
   // initialize return data list
-  std::vector<CacheData> replacee_data_list;
+  std::vector<std::tuple<CacheData, int64_t>> replacee_data_list;
   if (!replacee->data.isEmpty()) {
-    replacee_data_list.push_back(replacee->data);
+    replacee_data_list.push_back(
+        std::make_tuple(replacee->data, replacee->block_offset));
   }
   int64_t data_size = PAD_UP(replacer_data.size, cache_align_size);
   int64_t remainder_size = replacee->block_size - data_size;
@@ -349,7 +368,8 @@ std::vector<CacheData> Cache::loadData2Block(CacheData replacer_data,
     while (ptr->next != nullptr && replacee_total_size < data_size) {
       replacee_total_size += ptr->block_size;
       if (ptr->allocated) {
-        replacee_data_list.push_back(ptr->data);
+        replacee_data_list.push_back(
+            std::make_tuple(ptr->data, ptr->block_offset));
       } else {
         safeEraseFreeBlock(ptr);
       }
@@ -412,10 +432,14 @@ void Cache::freeBlock(Block *target) {
   safeInsertFreeBlock(target);
 }
 
-CacheHit Cache::free(CacheData target_data) {
-  DLOG(0) << "Freeing cache memory for " + TO_STRING(target_data) + "...";
+CacheHit Cache::findData(CacheData target_data, bool free) {
+  if (free) {
+    DLOG(0) << "Freeing cache memory for " + TO_STRING(target_data) + "...";
+  } else {
+    DLOG(0) << "Finding " + TO_STRING(target_data) + "in cache...";
+  }
 
-  if (lockedData.count(target_data) > 0) {
+  if (free && (lockedData.count(target_data) > 0)) {
     // should not free any block with locked data
     return CacheHit(CacheHitLocation::ERROR);
   }
@@ -429,7 +453,9 @@ CacheHit Cache::free(CacheData target_data) {
     }
     if (ptr->data == target_data) {
       offset = ptr->block_offset;
-      freeBlock(ptr);
+      if (free) {
+        freeBlock(ptr);
+      }
       return CacheHit(CacheHitLocation::CACHE, offset);
     }
     ptr = ptr->next;
@@ -444,7 +470,9 @@ CacheHit Cache::free(CacheData target_data) {
         }
         if (ptr->data == target_data) {
           offset = ptr->block_offset;
-          freeBlock(ptr);
+          if (free) {
+            freeBlock(ptr);
+          }
           return CacheHit(CacheHitLocation::LDRAM, -1, offset);
         }
         ptr = ptr->next;
@@ -452,6 +480,14 @@ CacheHit Cache::free(CacheData target_data) {
     }
   }
   return CacheHit(CacheHitLocation::NOT_FOUND);
+}
+
+CacheHit Cache::free(CacheData target_data) {
+  return findData(target_data, true);
+}
+
+CacheHit Cache::find(CacheData target_data) {
+  return findData(target_data, false);
 }
 
 CacheHit Cache::loadData(CacheData target_data, bool alloc) {
@@ -587,13 +623,17 @@ CacheHit Cache::loadData(CacheData target_data, bool alloc) {
     initBlockCount(target_cache_block);
     // b. load replaced cache data to ldram
     std::vector<int64_t> ldram_to_block_list;
+    std::vector<int64_t> replaced_data_cache_offset_list;
     std::vector<int64_t> replaced_data_size_list;
     if (!replacee_data_list.empty()) {
-      for (auto replacee_data : replacee_data_list) {
+      for (auto replacee_data_info : replacee_data_list) {
+        CacheData replacee_data = std::get<0>(replacee_data_info);
+        int64_t replacee_data_cache_offset = std::get<1>(replacee_data_info);
         // write back to ldram in an consistent manner
         loadData2Block(replacee_data, ldram_to_block);
         storedInLdram.insert(replacee_data);
         ldram_to_block_list.push_back(ldram_to_block->block_offset);
+        replaced_data_cache_offset_list.push_back(replacee_data_cache_offset);
         replaced_data_size_list.push_back(replacee_data.size);
         ldram_to_block = ldram_to_block->next;
       }
@@ -605,10 +645,10 @@ CacheHit Cache::loadData(CacheData target_data, bool alloc) {
       storedInLdram.erase(target_data);
       if (!replacee_data_list.empty()) {
         // OUTCOME 1.1: found in ldram, cache full
-        return CacheHit(CacheHitLocation::LDRAM,
-                        target_cache_block->block_offset,
-                        ldram_from_block->block_offset, ldram_to_block_list,
-                        replaced_data_size_list);
+        return CacheHit(
+            CacheHitLocation::LDRAM, target_cache_block->block_offset,
+            ldram_from_block->block_offset, ldram_to_block_list,
+            replaced_data_cache_offset_list, replaced_data_size_list);
       } else {
         // OUTCOME 1.1: found in ldram, cache has space
         return CacheHit(CacheHitLocation::LDRAM,
@@ -621,7 +661,8 @@ CacheHit Cache::loadData(CacheData target_data, bool alloc) {
         // OUTCOME 2.1: not found at all, cache full
         return CacheHit(CacheHitLocation::NOT_FOUND,
                         target_cache_block->block_offset, -1,
-                        ldram_to_block_list, replaced_data_size_list);
+                        ldram_to_block_list, replaced_data_cache_offset_list,
+                        replaced_data_size_list);
       } else {
         // OUTCOME 2.2: not found at all, cache has space
         return CacheHit(CacheHitLocation::NOT_FOUND,

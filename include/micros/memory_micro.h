@@ -14,16 +14,18 @@ namespace infini {
         : data_name(data_name_string),                                     \
           data(data_offset),                                               \
           length(length_value) {}                                          \
-    std::string generatorCode(Cache& cache, std::string& result) override; \
+    std::string generatorCode(Cache &cache, std::string &result) override; \
   };
 
 MEMORY_MICRO(BangLoad)
 MEMORY_MICRO(BangStore)
 MEMORY_MICRO(BangAllocate)
+MEMORY_MICRO(BangFree)
 
 MEMORY_MICRO(CudaLoad)
 MEMORY_MICRO(CudaStore)
 MEMORY_MICRO(CudaAllocate)
+MEMORY_MICRO(CudaFree)
 
 #undef MEMORY_MICRO
 }  // namespace infini

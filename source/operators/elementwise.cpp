@@ -116,21 +116,24 @@ bool Binary::checkValid() {
 
 // std::string Binary::generatorCoreOnCUDA(const std::vector<int64_t>& id) {
 //   std::string temp = "";
-//   temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* " +
+//   temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* "
+//   +
 //           inputs[0]->tensor_name + "_start = " + inputs[0]->tensor_name +
 //           " + " + std::to_string(inputs_tiles[0](id).start_offset) + ";\n";
-//   temp += indentation(3) + datatype_string(inputs[1]->tensor_datatype) + "* " +
+//   temp += indentation(3) + datatype_string(inputs[1]->tensor_datatype) + "* "
+//   +
 //           inputs[1]->tensor_name + "_start = " + inputs[1]->tensor_name +
 //           " + " + std::to_string(inputs_tiles[1](id).start_offset) + ";\n";
-//   temp += indentation(3) + datatype_string(outputs[0]->tensor_datatype) + "* " +
+//   temp += indentation(3) + datatype_string(outputs[0]->tensor_datatype) + "*
+//   " +
 //           outputs[0]->tensor_name + "_start = " + outputs[0]->tensor_name +
 //           " + " + std::to_string(outputs_tiles[0](id).start_offset) + ";\n";
 //   temp += indentation(3) + "int64_t repeat = " +
-//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension)) +
-//           " / " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
+//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension))
+//           + " / " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
 //   temp += indentation(3) + "int64_t rem = " +
-//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension)) +
-//           " % " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
+//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension))
+//           + " % " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
 //   temp += indentation(3) + "for (int64_t i = 0; i < repeat; ++i) {\n";
 //   temp +=
 //       indentation(4) + kernel_list[3]->generatorCodeOnCUDA(
@@ -178,21 +181,24 @@ bool Binary::checkValid() {
 // std::string Binary::generatorCoreOnBANG(const std::vector<int64_t>& id) {
 //   std::string temp = "";
 //   temp += worker_list[id]->generatorBoneOnBANG("__nram__", 3);
-//   temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* " +
+//   temp += indentation(3) + datatype_string(inputs[0]->tensor_datatype) + "* "
+//   +
 //           inputs[0]->tensor_name + "_start = " + inputs[0]->tensor_name +
 //           " + " + std::to_string(inputs_tiles[0][id].start_offset) + ";\n";
-//   temp += indentation(3) + datatype_string(inputs[1]->tensor_datatype) + "* " +
+//   temp += indentation(3) + datatype_string(inputs[1]->tensor_datatype) + "* "
+//   +
 //           inputs[1]->tensor_name + "_start = " + inputs[1]->tensor_name +
 //           " + " + std::to_string(inputs_tiles[1][id].start_offset) + ";\n";
-//   temp += indentation(3) + datatype_string(outputs[0]->tensor_datatype) + "* " +
+//   temp += indentation(3) + datatype_string(outputs[0]->tensor_datatype) + "*
+//   " +
 //           outputs[0]->tensor_name + "_start = " + outputs[0]->tensor_name +
 //           " + " + std::to_string(outputs_tiles[0][id].start_offset) + ";\n";
 //   temp += indentation(3) + "int64_t repeat = " +
-//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension)) +
-//           " / " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
+//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension))
+//           + " / " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
 //   temp += indentation(3) + "int64_t rem = " +
-//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension)) +
-//           " % " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
+//           std::to_string(VECTOR_PRODUCT(inputs_tiles[0][id].tile_dimension))
+//           + " % " + std::to_string(worker_list[id]->cache_line_size) + ";\n";
 //   temp += indentation(3) + "for (int64_t i = 0; i < repeat; ++i) {\n";
 //   temp +=
 //       indentation(4) +
@@ -209,7 +215,8 @@ bool Binary::checkValid() {
 //   temp += indentation(4) +
 //           kernel_list[2]->generatorCodeOnBANG(
 //               {"buffer_slice_0", "buffer_slice_1", "buffer_slice_2",
-//                std::to_string(worker_list[id]->cache_line_size) + " / sizeof(" +
+//                std::to_string(worker_list[id]->cache_line_size) + " /
+//                sizeof(" +
 //                    datatype_string(inputs[0]->tensor_datatype) + ")"}) +
 //           "\n";
 //   temp +=
@@ -242,7 +249,8 @@ bool Binary::checkValid() {
 //   temp += indentation(4) +
 //           kernel_list[2]->generatorCodeOnBANG(
 //               {"buffer_slice_0", "buffer_slice_1", "buffer_slice_2",
-//                std::to_string(worker_list[id]->cache_line_size) + " / sizeof(" +
+//                std::to_string(worker_list[id]->cache_line_size) + " /
+//                sizeof(" +
 //                    datatype_string(inputs[0]->tensor_datatype) + ")"}) +
 //           "\n";
 //   temp += indentation(4) +
