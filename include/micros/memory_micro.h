@@ -3,7 +3,7 @@
 
 namespace infini {
 
-#define MEMORY_MICRO(MICRO_NAME)                                           \
+#define MEMORY_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)                \
   class MICRO_NAME##Micro : public Micro {                                 \
     int64_t data, length;                                                  \
     std::string data_name;                                                 \
@@ -13,17 +13,20 @@ namespace infini {
                       int64_t length_value)                                \
         : data_name(data_name_string),                                     \
           data(data_offset),                                               \
-          length(length_value) {}                                          \
+          length(length_value) {                                           \
+      micro_type = MICRO_TYPE;                                             \
+      platform = PLATFORM_TYPE;                                            \
+    }                                                                      \
     std::string generatorCode(Cache& cache, std::string& result) override; \
   };
 
-MEMORY_MICRO(BangLoad)
-MEMORY_MICRO(BangStore)
-MEMORY_MICRO(BangAllocate)
+MEMORY_MICRO(BangLoad, MicroType::LOAD, PlatformType::BANG)
+MEMORY_MICRO(BangStore, MicroType::STORE, PlatformType::BANG)
+MEMORY_MICRO(BangAllocate, MicroType::ALLOCATE, PlatformType::BANG)
 
-MEMORY_MICRO(CudaLoad)
-MEMORY_MICRO(CudaStore)
-MEMORY_MICRO(CudaAllocate)
+MEMORY_MICRO(CudaLoad, MicroType::LOAD, PlatformType::CUDA)
+MEMORY_MICRO(CudaStore, MicroType::STORE, PlatformType::CUDA )
+MEMORY_MICRO(CudaAllocate, MicroType::ALLOCATE, PlatformType::CUDA)
 
 #undef MEMORY_MICRO
 }  // namespace infini

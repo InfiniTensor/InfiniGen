@@ -3,7 +3,7 @@
 
 namespace infini {
 
-#define BINARY_MICRO(MICRO_NAME)                                             \
+#define BINARY_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)                  \
   class MICRO_NAME##Micro : public Micro {                                   \
     int64_t output, left, right, length;                                     \
     std::string output_name, left_name, right_name;                          \
@@ -19,11 +19,15 @@ namespace infini {
           left(left_offset),                                                 \
           right_name(right_name_string),                                     \
           right(right_offset),                                               \
-          length(length_value) {}                                            \
+          length(length_value) {                                             \
+      micro_type = MICRO_TYPE;                                               \
+      platform = PLATFORM_TYPE;                                              \
+    }                                                                        \
     std::string generatorCode(Cache& cache, std::string& result) override;   \
   };
 
-BINARY_MICRO(BangAdd)
-BINARY_MICRO(CudaAdd)
+BINARY_MICRO(BangAdd, MicroType::ADD, PlatformType::BANG)
+BINARY_MICRO(CudaAdd, MicroType::ADD, PlatformType::CUDA)
+
 #undef BINARY_MICRO
 }  // namespace infini
