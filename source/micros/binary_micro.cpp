@@ -28,8 +28,8 @@ std::string CudaAddMicro::generatorCode(Cache& cache, std::string& code,
                                 .generatorCode(cache, code, coreIndex);
   std::string output_cache = CudaAllocateMicro(output_name, output, length)
                                  .generatorCode(cache, code, coreIndex);
-  code += output_cache + "threadIdx.x] = " + left_cache + "threadIdx.x]" +
-          " + " + right_cache + "threadIdx.x];\n";
+  code +=
+      output_cache + "] = " + left_cache + "]" + " + " + right_cache + "];\n";
   cache.unlock();
   return "";
 }

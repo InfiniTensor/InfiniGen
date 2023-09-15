@@ -13,12 +13,12 @@ BinaryUnaryGraph::BinaryUnaryGraph(std::vector<Node*> operators_list,
 
 void BinaryUnaryGraph::generatorCode() {
   int64_t tensor_len = VECTOR_PRODUCT(inputs[0]->tensor_dimension);
-  int64_t tile_len = 1024;
+  int64_t tile_len = 1;
   int64_t loop = tensor_len / tile_len;
   int64_t rem_len = tensor_len % tile_len;
   std::vector<Node*> sorted_op = topoSort();
   LOG(INFO) << "======== Parallel =========" << loop;
-  ParallelTask task(1024 * 10, 1024 * 100, 128, "cache", loop);
+  ParallelTask task(10, 100, 1, "cache", loop);
   std::unordered_map<Data*, int64_t> temp_remain;
   for (auto data : inputs) {
     temp_remain[data] = data->remaining;
