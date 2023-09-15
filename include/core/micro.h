@@ -1,7 +1,6 @@
 #pragma once
 #include "core/type.h"
 #include "core/cache.h"
-#include <map>
 #include <string>
 
 namespace infini {

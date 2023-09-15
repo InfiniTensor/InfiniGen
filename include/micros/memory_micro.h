@@ -21,10 +21,12 @@ namespace infini {
 MEMORY_MICRO(BangLoad, MicroType::LOAD, PlatformType::BANG)
 MEMORY_MICRO(BangStore, MicroType::STORE, PlatformType::BANG)
 MEMORY_MICRO(BangAllocate, MicroType::ALLOCATE, PlatformType::BANG)
+MEMORY_MICRO(BangFree, MicroType::FREE, PlatformType::BANG)
 
 MEMORY_MICRO(CudaLoad, MicroType::LOAD, PlatformType::CUDA)
 MEMORY_MICRO(CudaStore, MicroType::STORE, PlatformType::CUDA)
 MEMORY_MICRO(CudaAllocate, MicroType::ALLOCATE, PlatformType::CUDA)
+MEMORY_MICRO(CudaFree, MicroType::FREE, PlatformType::CUDA)
 
 #undef MEMORY_MICRO
 }  // namespace infini

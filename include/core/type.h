@@ -28,7 +28,8 @@ enum class KernelType {
   SIN,
   COS,
   ALLOCATE,
-  STORE
+  STORE,
+  FREE
 };
 // PlatformType
 enum class PlatformType { CUDA, BANG };
