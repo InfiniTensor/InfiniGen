@@ -31,7 +31,8 @@ class Micro {
    * function and call generations which belongs to
    * specific platform.
    */
-  virtual std::string generatorCode(Cache &cache, std::string &result) = 0;
+  virtual std::string generatorCode(Cache &cache, std::string &result,
+                                    std::string coreIndex = "") = 0;
 
   /** @brief Information print*/
   virtual void printInformation();

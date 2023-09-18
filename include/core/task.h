@@ -21,4 +21,21 @@ class Task {
   std::string generatorCode();
 };
 
+class ParallelTask {
+ public:
+  std::vector<Micro*> micro_list;
+  Cache cache;
+  int parallel;
+
+ public:
+  // Constructor
+  ParallelTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
+               std::string cache_name, int64_t parallel_value);
+  // Destructor
+  ~ParallelTask() = default;
+  // Function
+  void pushMicro(Micro* micro);
+  std::string generatorCode();
+};
+
 }  // namespace infini

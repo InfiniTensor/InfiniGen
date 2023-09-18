@@ -18,4 +18,23 @@ std::string Task::generatorCode() {
   return result;
 }
 
+//////////////////////////////////////////////////////////////////////
+
+ParallelTask::ParallelTask(int64_t cache_length, int64_t swap_length,
+                           int64_t align_length, std::string cache_name,
+                           int64_t parallel_value)
+    : cache(cache_length, swap_length, align_length, cache_name,
+            MemoryDispatch::LRU),
+      parallel(parallel_value) {}
+
+void ParallelTask::pushMicro(Micro* micro) { micro_list.push_back(micro); }
+
+std::string ParallelTask::generatorCode() {
+  std::string result = "\n";
+  for (int i = 0; i < micro_list.size(); ++i) {
+    micro_list[i]->generatorCode(cache, result, "tasskId");
+  }
+  return result;
+}
+
 }  // namespace infini
