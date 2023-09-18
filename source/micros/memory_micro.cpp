@@ -102,9 +102,6 @@ std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
     code += "__memcpy(" + ldram_to_string + ", " + cache_from_string + ", " +
             replaced_data_length_string + ", NRAM2LDRAM);\n";
   }
-
-  code += "__memcpy(" + cache_string + ", " + data_string + ", " +
-          length_string + ", GDRAM2NRAM);\n";
   return cache_string;
 }
 
@@ -167,8 +164,6 @@ std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
   data_string +=
       (coreIndex == "" ? "" : coreIndex + " * " + length_string + " + ");
-
-  code += cache_string + "] = " + data_string + "threadIdx.x];\n";
   return cache_string;
 }
 
