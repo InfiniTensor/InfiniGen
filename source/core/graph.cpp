@@ -1,6 +1,5 @@
 #include "core/graph.h"
 #include "core/utils.h"
-#include "core/split.h"
 #include <algorithm>
 
 namespace infini {
