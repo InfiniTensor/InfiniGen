@@ -256,6 +256,65 @@ void Data::flatten(int64_t start, int64_t end) {
   }
 }
 
+TileTensor Data::tiling(const Split& split) {
+  // Check
+  CHECK_EQ(tensor_dimension.size(), split.split_dimension.size());
+  std::vector<int64_t> easy = tensor_dimension / split.split_dimension;
+  std::vector<int64_t> boundary = tensor_dimension % split.split_dimension;
+  std::vector<int64_t> heavy(tensor_dimension.size(), 0);
+  for (auto i = 0; i < heavy.size(); ++i) {
+    heavy[i] = (boundary[i] == 0 ? easy[i] : easy[i] + 1);
+  }
+  std::vector<int64_t> split_suffix(split.split_dimension.size(), 1);
+  for (int64_t i = split.split_dimension.size() - 2; i >= 0; --i) {
+    split_suffix[i] = split_suffix[i + 1] * split.split_dimension[i + 1];
+  }
+  int64_t total = VECTOR_PRODUCT(split.split_dimension);
+  TileTensor result(split.split_dimension, split_suffix, tensor_type,
+                    tensor_layout, name + "_split");
+  for (int64_t i = 0; i < total; ++i) {
+    // Local Position
+    int64_t pos = i;
+    int64_t axis = 0;
+    std::vector<int64_t> tile_local_position;
+    while (axis < split_suffix.size()) {
+      tile_local_position.push_back(pos / split_suffix[axis]);
+      pos %= split_suffix[axis];
+      ++axis;
+    }
+    // Dimension
+    std::vector<int64_t> tile_dimension(split.split_dimension.size(), 0);
+    for (auto j = 0; j < tile_dimension.size(); ++j) {
+      tile_dimension[j] =
+          (tile_local_position[j] < boundary[j] ? heavy[j] : easy[j]);
+    }
+    // Stride
+    std::vector<int64_t> tile_stride = tensor_stride;
+    // Start Position
+    std::vector<int64_t> start_position(tile_dimension.size(), 0);
+    for (auto j = 0; j < tile_dimension.size(); ++j) {
+      start_position[j] =
+          (tile_local_position[j] <= boundary[j])
+              ? (heavy[j] * tile_local_position[j])
+              : (heavy[j] * boundary[j] +
+                 (tile_local_position[j] - boundary[j]) * easy[j]);
+    }
+    // Offset
+    int64_t tile_start = 0;
+    for (auto j = 0; j < tensor_dimension.size(); ++j) {
+      tile_start += start_position[j] * tensor_stride[j];
+    }
+    std::string tile_name = TO_STRING(tile_local_position) + " tile of " +
+                            name + " with global start position " +
+                            TO_STRING(start_position);
+    Tile temp(tile_dimension, tile_local_position, tile_stride, tile_name,
+              tile_start);
+    result.addTile(temp);
+  }
+
+  return result;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,

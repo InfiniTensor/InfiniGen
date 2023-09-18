@@ -2,6 +2,8 @@
 #include "core/type.h"
 #include "core/cache.h"
 #include "core/attribute.h"
+#include "core/tile.h"
+#include "core/split.h"
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
@@ -77,6 +79,7 @@ class Data {
   void printLink();
   bool isContiguous();
   void flatten(int64_t start = 0, int64_t end = -1);
+  TileTensor tiling(const Split& split);
 };
 
 class Graph {
