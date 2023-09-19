@@ -81,11 +81,24 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
   task.setDataType(inputs[0]->tensor_datatype);
   std::string result = task.generatorCode(type, indent);
 
-  // generate function
+  // generate global function
+  result += "\n" + indentation(indent);
+  if (type == PlatformType::BANG) {
+    result += "__mlu_entry__ void ";
+  } else if (type == PlatformType::CUDA) {
+    result += "__global__ void ";
+  }
+
+  result += task.name + "_kernel(" + arguments + ") {\n";
+  result += indentation(indent + 1) + task.name;
+  result += "(" + operands + ");\n";
+  result += indentation(indent) + "}\n";
+
+  // TODO: generate final wrapper
   // TODO: tune parameters
   std::string parallel_config = "1, 64";
   result += "\n" + indentation(indent);
-  result += "void " + task.name + "(" + arguments + ") {\n";
+  result += "void " + name + "(" + arguments + ") {\n";
   result += indentation(indent + 1) + task.name + "_kernel";
   result += "<<<" + parallel_config + ">>>";
   result += "(" + operands + ");\n";

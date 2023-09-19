@@ -74,11 +74,11 @@ void ParallelTask::setDataType(TensorDatatype type) {
 std::string ParallelTask::generatorCode(PlatformType type, int64_t indent = 0) {
   std::string result = "\n" + indentation(indent);
   if (type == PlatformType::BANG) {
-    result += "__mlu_entry__ void ";
+    result += "__mlu_func__ void ";
   } else if (type == PlatformType::CUDA) {
     result += "__device__ void ";
   }
-  result += name + "_kernel";
+  result += name;
 
   result += "(" + arguments + ") {";
   result += "\n" + indentation(indent + 1);
