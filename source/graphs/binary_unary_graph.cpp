@@ -30,10 +30,6 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
   for (auto data : outputs) {
     temp_remain[data] = data->remaining;
   }
-
-  task.setInputs(inputs);
-  task.setOutputs(outputs);
-
   for (auto op : sorted_op) {
     // TODO: codegen
     for (auto input : op->inputs) {
@@ -60,18 +56,17 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
     temp += "]";
     LOG(INFO) << temp;
   }
-  std::string result = task.generatorCode(type, indent);
 
   std::string arguments = "";
-  std::string parameters = "";
+  std::string operands = "";
   for (int i = 0; i < inputs.size(); ++i) {
     arguments += datatype_string(inputs[i]->tensor_datatype);
     arguments += " *";
     arguments += inputs[i]->name;
     arguments += ", ";
 
-    parameters += inputs[i]->name;
-    parameters += ", ";
+    operands += inputs[i]->name;
+    operands += ", ";
   }
   for (int i = 0; i < outputs.size(); ++i) {
     arguments += datatype_string(outputs[i]->tensor_datatype);
@@ -79,9 +74,12 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
     arguments += outputs[i]->name;
     arguments += (i == (outputs.size() - 1) ? "" : ", ");
 
-    parameters += outputs[i]->name;
-    parameters += (i == (outputs.size() - 1) ? "" : ", ");
+    operands += outputs[i]->name;
+    operands += (i == (outputs.size() - 1) ? "" : ", ");
   }
+  task.setArguments(arguments);
+  task.setDataType(inputs[0]->tensor_datatype);
+  std::string result = task.generatorCode(type, indent);
 
   // generate function
   // TODO: tune parameters
@@ -90,7 +88,7 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
   result += "void " + task.name + "(" + arguments + ") {\n";
   result += indentation(indent + 1) + task.name + "_kernel";
   result += "<<<" + parallel_config + ">>>";
-  result += "(" + parameters + ");\n";
+  result += "(" + operands + ");\n";
   result += indentation(indent) + "}\n";
 
   LOG(WARNING) << result;

@@ -32,8 +32,8 @@ class ParallelTask {
 
  private:
   static int64_t count;
-  std::vector<Data *> inputs;
-  std::vector<Data *> outputs;
+  std::string arguments;
+  std::string data_type;
 
  public:
   // Constructor
@@ -43,8 +43,8 @@ class ParallelTask {
   ~ParallelTask() = default;
   // Function
   void pushMicro(Micro *micro);
-  void setInputs(std::vector<Data *> tensors);
-  void setOutputs(std::vector<Data *> tensors);
+  void setArguments(std::string arguments);
+  void setDataType(TensorDatatype data_type);
   std::string generatorCode(PlatformType type, int64_t indent);
 };
 
