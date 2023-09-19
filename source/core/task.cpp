@@ -7,11 +7,11 @@ int64_t Task::count = 0;
 int64_t ParallelTask::count = 0;
 
 Task::Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
-           std::string cache_name)
+           std::string cache_name, std::string name_value)
     : cache(cache_length, swap_length, align_length, cache_name,
             MemoryDispatch::LRU),
       index(count++) {
-  name = (name == "" ? "Task_" + std::to_string(index) : name);
+  name = (name_value == "" ? "Task_" + std::to_string(index) : name_value);
 }
 
 void Task::pushMicro(Micro* micro) { micro_list.push_back(micro); }
@@ -54,12 +54,13 @@ std::string Task::generatorCode(PlatformType type, int64_t indent = 0) {
 
 ParallelTask::ParallelTask(int64_t cache_length, int64_t swap_length,
                            int64_t align_length, std::string cache_name,
-                           int64_t parallel_value)
+                           int64_t parallel_value, std::string name_value)
     : cache(cache_length, swap_length, align_length, cache_name,
             MemoryDispatch::LRU),
       parallel(parallel_value),
       index(count++) {
-  name = (name == "" ? "ParallelTask_" + std::to_string(index) : name);
+  name =
+      (name_value == "" ? "ParallelTask_" + std::to_string(index) : name_value);
 }
 
 void ParallelTask::pushMicro(Micro* micro) { micro_list.push_back(micro); }

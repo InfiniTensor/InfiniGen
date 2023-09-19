@@ -20,7 +20,7 @@ class Task {
  public:
   // Constructor
   Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
-       std::string cache_name);
+       std::string cache_name, std::string name_value = "");
   // Destructor
   ~Task() = default;
   // Function
@@ -46,7 +46,8 @@ class ParallelTask {
  public:
   // Constructor
   ParallelTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
-               std::string cache_name, int64_t parallel_value);
+               std::string cache_name, int64_t parallel_value,
+               std::string name_value = "");
   // Destructor
   ~ParallelTask() = default;
   // Function
