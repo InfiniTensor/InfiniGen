@@ -338,16 +338,6 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
   }
 }
 
-// std::string Graph::generatorCode(PlatformType type, int64_t indent) {
-//   LOG(WARNING) << "Graph generatorCode Function need to be override";
-//   return "";
-// }
-
-// std::string Graph::generatorBone(PlatformType type, int64_t indent) {
-//   LOG(WARNING) << "Graph generatorBone Function need to be override";
-//   return "";
-// }
-
 std::vector<Node*> Graph::topoSort() {
   std::unordered_map<Node*, int64_t> operators_temp;
   for (auto op : operators) {
