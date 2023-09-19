@@ -109,6 +109,14 @@
   }
 #endif
 
+#ifndef VECTOR_PRINT
+#define VECTOR_PRINT(vec) \
+  for (auto i : vec){ \
+    std::cout << i << ", "; \
+  } \
+  std::cout << std::endl;
+#endif
+
 #ifndef CHECK
 #define CHECK(condition, ...)                                     \
   if (!(condition)) {                                             \
