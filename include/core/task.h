@@ -2,14 +2,20 @@
 #include <vector>
 #include "core/micro.h"
 #include "core/cache.h"
-#include "core/graph.h"
 
 namespace infini {
 
 class Task {
  public:
+  std::string name;
+  const int64_t index;
   std::vector<Micro *> micro_list;
   Cache cache;
+
+ private:
+  static int64_t count;
+  std::string arguments;
+  std::string data_type;
 
  public:
   // Constructor
@@ -19,7 +25,9 @@ class Task {
   ~Task() = default;
   // Function
   void pushMicro(Micro *micro);
-  std::string generatorCode(int64_t indent);
+  void setArguments(std::string arguments);
+  void setDataType(TensorDatatype data_type);
+  std::string generatorCode(PlatformType type, int64_t indent);
 };
 
 class ParallelTask {
