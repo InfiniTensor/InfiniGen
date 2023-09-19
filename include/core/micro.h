@@ -32,7 +32,8 @@ class Micro {
    * specific platform.
    */
   virtual std::string generatorCode(Cache &cache, std::string &result,
-                                    std::string coreIndex = "") = 0;
+                                    std::string coreIndex = "",
+                                    int64_t indent = 0) = 0;
 
   /** @brief Information print*/
   virtual void printInformation();

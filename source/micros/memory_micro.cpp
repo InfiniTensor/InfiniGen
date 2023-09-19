@@ -1,10 +1,12 @@
 #include "micros/memory_micro.h"
 #include "core/cache.h"
+#include "core/utils.h"
 
 namespace infini {
 
 std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex) {
+                                         std::string coreIndex,
+                                         int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.load(cache_data);
   std::string length_string = std::to_string(length);
@@ -27,17 +29,18 @@ std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
           cache.name + "_ldram + " + std::to_string(result.ldram_to_offset[i]);
       std::string replaced_data_length_string =
           std::to_string(result.replaced_data_size[i]);
-      code += "__memcpy(" + ldram_to_string + ", " + cache_from_string + ", " +
-              replaced_data_length_string + ", NRAM2LDRAM);\n";
+      code += indentation(indent) + "__memcpy(" + ldram_to_string + ", " +
+              cache_from_string + ", " + replaced_data_length_string +
+              ", NRAM2LDRAM);\n";
     }
 
     if (result.location == CacheHitLocation::LDRAM) {
-      code += "__memcpy(" + cache_string + ", " + ldram_from_string + ", " +
-              length_string + ", LDRAM2NRAM);\n";
+      code += indentation(indent) + "__memcpy(" + cache_string + ", " +
+              ldram_from_string + ", " + length_string + ", LDRAM2NRAM);\n";
       return cache_string;
     } else if (result.location == CacheHitLocation::NOT_FOUND) {
-      code += "__memcpy(" + cache_string + ", " + data_string + ", " +
-              length_string + ", GDRAM2NRAM);\n";
+      code += indentation(indent) + "__memcpy(" + cache_string + ", " +
+              data_string + ", " + length_string + ", GDRAM2NRAM);\n";
       return cache_string;
     } else {
       return "";
@@ -46,7 +49,8 @@ std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string BangStoreMicro::generatorCode(Cache &cache, std::string &code,
-                                          std::string coreIndex) {
+                                          std::string coreIndex,
+                                          int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.find(cache_data);
   std::string length_string = std::to_string(length);
@@ -59,12 +63,12 @@ std::string BangStoreMicro::generatorCode(Cache &cache, std::string &code,
       cache.name + "_ldram + " + std::to_string(result.ldram_from_offset);
 
   if (result.location == CacheHitLocation::CACHE) {
-    code += "__memcpy(" + data_string + ", " + cache_string + ", " +
-            length_string + ", NRAM2GDRAM);\n";
+    code += indentation(indent) + "__memcpy(" + data_string + ", " +
+            cache_string + ", " + length_string + ", NRAM2GDRAM);\n";
     return cache_string;
   } else if (result.location == CacheHitLocation::LDRAM) {
-    code += "__memcpy(" + data_string + ", " + ldram_from_string + ", " +
-            length_string + ", LDRAM2GDRAM);\n";
+    code += indentation(indent) + "__memcpy(" + data_string + ", " +
+            ldram_from_string + ", " + length_string + ", LDRAM2GDRAM);\n";
     return ldram_from_string;
   } else {
     return "";
@@ -72,14 +76,16 @@ std::string BangStoreMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string BangFreeMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex) {
+                                         std::string coreIndex,
+                                         int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.free(cache_data);
   return "";
 }
 
 std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
-                                             std::string coreIndex) {
+                                             std::string coreIndex,
+                                             int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.allocate(cache_data);
   std::string length_string = std::to_string(length);
@@ -99,14 +105,16 @@ std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
         cache.name + "_ldram + " + std::to_string(result.ldram_to_offset[i]);
     std::string replaced_data_length_string =
         std::to_string(result.replaced_data_size[i]);
-    code += "__memcpy(" + ldram_to_string + ", " + cache_from_string + ", " +
-            replaced_data_length_string + ", NRAM2LDRAM);\n";
+    code += indentation(indent) + "__memcpy(" + ldram_to_string + ", " +
+            cache_from_string + ", " + replaced_data_length_string +
+            ", NRAM2LDRAM);\n";
   }
   return cache_string;
 }
 
 std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex) {
+                                         std::string coreIndex,
+                                         int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.load(cache_data);
   std::string length_string = std::to_string(length);
@@ -125,7 +133,8 @@ std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
       // location will never be LDRAM. The same below.
       return "";
     } else if (result.location == CacheHitLocation::NOT_FOUND) {
-      code += cache_string + "] = " + data_string + "threadIdx.x];\n";
+      code += indentation(indent) + cache_string + "] = " + data_string +
+              "threadIdx.x];\n";
       return cache_string;
     } else {
       return "";
@@ -134,7 +143,8 @@ std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
-                                          std::string coreIndex) {
+                                          std::string coreIndex,
+                                          int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.find(cache_data);
   std::string length_string = std::to_string(length);
@@ -145,7 +155,8 @@ std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
       (coreIndex == "" ? "" : coreIndex + " * " + length_string + " + ");
 
   if (result.location == CacheHitLocation::CACHE) {
-    code += data_string + "threadIdx.x] = " + cache_string + "];\n";
+    code += indentation(indent) + data_string +
+            "threadIdx.x] = " + cache_string + "];\n";
     return cache_string;
   } else if (result.location == CacheHitLocation::LDRAM) {
     return "";
@@ -155,7 +166,8 @@ std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
-                                             std::string coreIndex) {
+                                             std::string coreIndex,
+                                             int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.allocate(cache_data);
   std::string length_string = std::to_string(length);
@@ -168,7 +180,8 @@ std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string CudaFreeMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex) {
+                                         std::string coreIndex,
+                                         int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.free(cache_data);
   return "";

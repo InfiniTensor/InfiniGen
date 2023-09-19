@@ -25,7 +25,7 @@ int main() {
     op->printLink();
   }
   LOG(INFO) << "========== Codegen ==========";
-  graph->generatorCode();
+  graph->generatorCode(PlatformType::CUDA);
 
   // LOG(INFO) << "===============================";
   // Data* n_a = new Data({1, 1});

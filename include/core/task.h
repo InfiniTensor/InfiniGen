@@ -2,12 +2,13 @@
 #include <vector>
 #include "core/micro.h"
 #include "core/cache.h"
+#include "core/graph.h"
 
 namespace infini {
 
 class Task {
  public:
-  std::vector<Micro*> micro_list;
+  std::vector<Micro *> micro_list;
   Cache cache;
 
  public:
@@ -17,15 +18,22 @@ class Task {
   // Destructor
   ~Task() = default;
   // Function
-  void pushMicro(Micro* micro);
-  std::string generatorCode();
+  void pushMicro(Micro *micro);
+  std::string generatorCode(int64_t indent);
 };
 
 class ParallelTask {
  public:
-  std::vector<Micro*> micro_list;
+  std::string name;
+  const int64_t index;
+  std::vector<Micro *> micro_list;
   Cache cache;
   int parallel;
+
+ private:
+  static int64_t count;
+  std::vector<Data *> inputs;
+  std::vector<Data *> outputs;
 
  public:
   // Constructor
@@ -34,8 +42,10 @@ class ParallelTask {
   // Destructor
   ~ParallelTask() = default;
   // Function
-  void pushMicro(Micro* micro);
-  std::string generatorCode();
+  void pushMicro(Micro *micro);
+  void setInputs(std::vector<Data *> tensors);
+  void setOutputs(std::vector<Data *> tensors);
+  std::string generatorCode(PlatformType type, int64_t indent);
 };
 
 }  // namespace infini

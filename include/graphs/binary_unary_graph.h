@@ -13,7 +13,7 @@ class BinaryUnaryGraph : public Graph {
   // Destructor
   ~BinaryUnaryGraph() = default;
   // Generator
-  void generatorCode() override;
+  std::string generatorCode(PlatformType type, int64_t indent) override;
 };
 
 }  // namespace infini
