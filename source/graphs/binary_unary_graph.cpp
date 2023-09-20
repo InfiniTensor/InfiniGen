@@ -57,30 +57,23 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
     LOG(INFO) << temp;
   }
 
-  std::string arguments = "";
-  std::string operands = "";
+  std::vector<std::string> arguments_list;
+  std::vector<std::string> operands_list;
   for (int i = 0; i < inputs.size(); ++i) {
     task.addArgument(inputs[i]->tensor_datatype, inputs[i]->name);
-
-    arguments += datatype_string(inputs[i]->tensor_datatype);
-    arguments += " *";
-    arguments += inputs[i]->name;
-    arguments += ", ";
-
-    operands += inputs[i]->name;
-    operands += ", ";
+    arguments_list.push_back(datatype_string(inputs[i]->tensor_datatype) +
+                             " *" + inputs[i]->name);
+    operands_list.push_back(inputs[i]->name);
   }
   for (int i = 0; i < outputs.size(); ++i) {
     task.addArgument(outputs[i]->tensor_datatype, outputs[i]->name);
-
-    arguments += datatype_string(outputs[i]->tensor_datatype);
-    arguments += " *";
-    arguments += outputs[i]->name;
-    arguments += (i == (outputs.size() - 1) ? "" : ", ");
-
-    operands += outputs[i]->name;
-    operands += (i == (outputs.size() - 1) ? "" : ", ");
+    arguments_list.push_back(datatype_string(outputs[i]->tensor_datatype) +
+                             " *" + outputs[i]->name);
+    operands_list.push_back(outputs[i]->name);
   }
+  std::string arguments = TO_STRING(arguments_list);
+  std::string operands = TO_STRING(operands_list);
+
   std::string result = task.generatorCode(type, indent);
 
   // generate global function

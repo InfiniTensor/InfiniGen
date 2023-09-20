@@ -124,6 +124,11 @@ std::string TO_STRING(std::vector<int64_t> &input) {
   return info_string;
 }
 
+std::string TO_STRING(std::vector<std::string> &input) {
+  std::string delimiter = ", ";
+  return join(input, delimiter);
+}
+
 std::string TO_STRING(OperatorType type) {
 #define CASE(NAME)         \
   case OperatorType::NAME: \
@@ -247,6 +252,20 @@ std::string left_right_pad(std::string s, size_t len, char c) {
   std::string res = std::string((len - s.length()) / 2, c) + s;
   res += std::string(len - res.length(), c);
   return res;
+}
+
+std::string join(std::vector<std::string> &strings, std::string &delimiter) {
+  std::string result;
+
+  for (size_t i = 0; i < strings.size(); ++i) {
+    result += strings[i];
+
+    if (i < strings.size() - 1) {
+      result += delimiter;
+    }
+  }
+
+  return result;
 }
 
 bool getBoolEnvironmentVariable(const std::string &str, bool default_value) {
