@@ -351,8 +351,9 @@ TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
     }
     // Tile Shape
     std::vector<int64_t> _tile_shape(tile_shape.size(), 0);
-    for (int64_t i = 0; i < tensor_dimension.size(); i++){
-      _tile_shape[i] = tile_local_position[i] < down[i] ? tile_shape[i] : left[i];
+    for (int64_t i = 0; i < tensor_dimension.size(); i++) {
+      _tile_shape[i] =
+          tile_local_position[i] < down[i] ? tile_shape[i] : left[i];
     }
     VECTOR_PRINT(_tile_shape)
     // Tile Stride

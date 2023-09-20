@@ -110,10 +110,10 @@
 #endif
 
 #ifndef VECTOR_PRINT
-#define VECTOR_PRINT(vec) \
-  for (auto i : vec){ \
+#define VECTOR_PRINT(vec)   \
+  for (auto i : vec) {      \
     std::cout << i << ", "; \
-  } \
+  }                         \
   std::cout << std::endl;
 #endif
 
