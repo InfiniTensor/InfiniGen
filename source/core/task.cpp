@@ -39,9 +39,9 @@ std::string Task::generatorCode(PlatformType type, int64_t indent = 0) {
     result += "__nram__ ";
   }
   result +=
-      "char *" + cache.name + "[" + std::to_string(cache.cache_size) + "];\n";
+      "char " + cache.name + "[" + std::to_string(cache.cache_size) + "];\n";
   if (type == PlatformType::BANG) {
-    result += indentation(indent + 1) + "__ldram__ char *" + cache.name +
+    result += indentation(indent + 1) + "__ldram__ char " + cache.name +
               "_ldram[" + std::to_string(cache.ldram_size) + "];\n";
   }
 
@@ -91,9 +91,9 @@ std::string ParallelTask::generatorCode(PlatformType type, int64_t indent = 0) {
     result += "__nram__ ";
   }
   result +=
-      "char *" + cache.name + "[" + std::to_string(cache.cache_size) + "];\n";
+      "char " + cache.name + "[" + std::to_string(cache.cache_size) + "];\n";
   if (type == PlatformType::BANG) {
-    result += indentation(indent + 1) + "__ldram__ char *" + cache.name +
+    result += indentation(indent + 1) + "__ldram__ char " + cache.name +
               "_ldram[" + std::to_string(cache.ldram_size) + "];\n";
   }
 
