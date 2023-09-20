@@ -124,11 +124,6 @@ std::string TO_STRING(std::vector<int64_t> &input) {
   return info_string;
 }
 
-std::string TO_STRING(std::vector<std::string> &input) {
-  std::string delimiter = ", ";
-  return join(input, delimiter);
-}
-
 std::string TO_STRING(OperatorType type) {
 #define CASE(NAME)         \
   case OperatorType::NAME: \
@@ -254,7 +249,8 @@ std::string left_right_pad(std::string s, size_t len, char c) {
   return res;
 }
 
-std::string join(std::vector<std::string> &strings, std::string &delimiter) {
+std::string string_gather(std::vector<std::string> &strings,
+                          const std::string &delimiter) {
   std::string result;
 
   for (size_t i = 0; i < strings.size(); ++i) {

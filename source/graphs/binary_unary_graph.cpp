@@ -71,8 +71,8 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
                              " *" + outputs[i]->name);
     operands_list.push_back(outputs[i]->name);
   }
-  std::string arguments = TO_STRING(arguments_list);
-  std::string operands = TO_STRING(operands_list);
+  std::string arguments = string_gather(arguments_list);
+  std::string operands = string_gather(operands_list);
 
   std::string result = task.generatorCode(type, indent);
 

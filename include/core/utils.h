@@ -197,8 +197,6 @@ std::string TO_STRING(TensorType type);
 
 std::string TO_STRING(std::vector<int64_t>& input);
 
-std::string TO_STRING(std::vector<std::string>& input);
-
 std::string TO_STRING(OperatorType type);
 
 std::string TO_STRING(KernelType type);
@@ -223,7 +221,8 @@ std::string right_pad(std::string s, size_t len, char c);
 
 std::string left_right_pad(std::string s, size_t len, char c);
 
-std::string join(std::vector<std::string>& strings, std::string& delimiter);
+std::string string_gather(std::vector<std::string>& strings,
+                          const std::string& delimiter = ", ");
 
 bool getBoolEnvironmentVariable(const std::string& str, bool default_value);
 
