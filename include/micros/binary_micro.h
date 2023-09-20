@@ -25,8 +25,15 @@ namespace infini {
                               std::string coreIndex = "") override;          \
   };
 
+// On BANG platform
 BINARY_MICRO(BangAdd, MicroType::ADD, PlatformType::BANG)
+BINARY_MICRO(BangSub, MicroType::SUB, PlatformType::BANG)
+BINARY_MICRO(BangMul, MicroType::MUL, PlatformType::BANG)
+
+// On Cuda platform
 BINARY_MICRO(CudaAdd, MicroType::ADD, PlatformType::CUDA)
+BINARY_MICRO(CudaSub, MicroType::SUB, PlatformType::CUDA)
+BINARY_MICRO(CudaMul, MicroType::MUL, PlatformType::CUDA)
 
 #undef BINARY_MICRO
 }  // namespace infini

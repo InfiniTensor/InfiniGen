@@ -338,7 +338,6 @@ TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
   TileTensor result(tileTensorShape, tileTensorStride, tensor_type,
                     tensor_layout, name + "_split");
   std::vector<int64_t> temp_stride = tensor_stride * tile_shape;
-  VECTOR_PRINT(temp_stride)
   for (int64_t i = 0; i < total; i++) {
     // Local pos in Tensor
     int64_t pos = i;
@@ -355,11 +354,9 @@ TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
       _tile_shape[i] =
           tile_local_position[i] < down[i] ? tile_shape[i] : left[i];
     }
-    VECTOR_PRINT(_tile_shape)
     // Tile Stride
     std::vector<int64_t> tile_stride = tensor_stride;
     // Tile start position
-    VECTOR_PRINT(tile_local_position)
     int64_t tile_offset = DOT_PRODUCT(tile_local_position, temp_stride);
     std::string tile_name = TO_STRING(tile_local_position) + " tile of " +
                             name + " with local position " +
