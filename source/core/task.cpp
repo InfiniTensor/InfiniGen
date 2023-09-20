@@ -91,7 +91,7 @@ std::string ParallelTask::generatorCode(PlatformType type, int64_t indent = 0) {
             std::to_string(cache.cache_size) + "];\n";
   if (type == PlatformType::BANG) {
     result += indentation(indent + 1) + "__ldram__ " + data_type + " " +
-              cache.name + "_ldram[" + std::to_string(cache.cache_size) +
+              cache.name + "_ldram[" + std::to_string(cache.ldram_size) +
               "];\n";
   }
 
