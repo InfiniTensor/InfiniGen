@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <utility>
 #include "core/micro.h"
 #include "core/cache.h"
 
@@ -14,8 +15,8 @@ class Task {
 
  private:
   static int64_t count;
-  std::string arguments;
-  std::string data_type;
+  // argument list, in the form of (type, name)
+  std::vector<std::pair<std::string, std::string>> arguments;
 
  public:
   // Constructor
@@ -25,8 +26,7 @@ class Task {
   ~Task() = default;
   // Function
   void pushMicro(Micro *micro);
-  void setArguments(std::string arguments);
-  void setDataType(TensorDatatype data_type);
+  void addArgument(TensorDatatype type, std::string name);
   std::string generatorCode(PlatformType type, int64_t indent);
 };
 
@@ -40,8 +40,8 @@ class ParallelTask {
 
  private:
   static int64_t count;
-  std::string arguments;
-  std::string data_type;
+  // argument list, in the form of (type, name)
+  std::vector<std::pair<std::string, std::string>> arguments;
 
  public:
   // Constructor
@@ -52,8 +52,7 @@ class ParallelTask {
   ~ParallelTask() = default;
   // Function
   void pushMicro(Micro *micro);
-  void setArguments(std::string arguments);
-  void setDataType(TensorDatatype data_type);
+  void addArgument(TensorDatatype type, std::string name);
   std::string generatorCode(PlatformType type, int64_t indent);
 };
 

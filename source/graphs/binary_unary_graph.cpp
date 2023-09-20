@@ -60,6 +60,8 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
   std::string arguments = "";
   std::string operands = "";
   for (int i = 0; i < inputs.size(); ++i) {
+    task.addArgument(inputs[i]->tensor_datatype, inputs[i]->name);
+
     arguments += datatype_string(inputs[i]->tensor_datatype);
     arguments += " *";
     arguments += inputs[i]->name;
@@ -69,6 +71,8 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
     operands += ", ";
   }
   for (int i = 0; i < outputs.size(); ++i) {
+    task.addArgument(outputs[i]->tensor_datatype, outputs[i]->name);
+
     arguments += datatype_string(outputs[i]->tensor_datatype);
     arguments += " *";
     arguments += outputs[i]->name;
@@ -77,8 +81,6 @@ std::string BinaryUnaryGraph::generatorCode(PlatformType type,
     operands += outputs[i]->name;
     operands += (i == (outputs.size() - 1) ? "" : ", ");
   }
-  task.setArguments(arguments);
-  task.setDataType(inputs[0]->tensor_datatype);
   std::string result = task.generatorCode(type, indent);
 
   // generate global function
