@@ -8,6 +8,7 @@ int64_t Node::count = 0;
 int64_t Data::count = 0;
 int64_t Graph::count = 0;
 
+// Operator implementation
 Node::Node(std::vector<Data*> inputs_list, std::vector<Data*> outputs_list,
            std::string name_value, int64_t outputs_num_value)
     : name(name_value),
@@ -121,8 +122,7 @@ void Node::deleteAttribute(std::string key) {
   }
 }
 
-//////////////////////////////////////////////////////////////////////
-
+// Tensor implementation
 Data::Data(const std::vector<int64_t>& dimension, TensorDatatype dtype,
            TensorType type, TensorLayout layout, int64_t offset,
            std::string name_value)
@@ -337,6 +337,7 @@ TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
   int64_t total = VECTOR_PRODUCT(tileTensorShape);
   TileTensor result(tileTensorShape, tileTensorStride, tensor_type,
                     tensor_layout, name + "_split");
+  // Temp stride 
   std::vector<int64_t> temp_stride = tensor_stride * tile_shape;
   for (int64_t i = 0; i < total; i++) {
     // Local pos in Tensor
@@ -368,8 +369,7 @@ TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
   return result;
 }
 
-//////////////////////////////////////////////////////////////////////
-
+// Graph implementation
 Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
              std::vector<Data*> outputs_list, std::string name_value)
     : name(name_value),
