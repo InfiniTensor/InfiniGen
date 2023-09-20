@@ -84,11 +84,15 @@ std::string ParallelTask::generatorCode(PlatformType type, int64_t indent = 0) {
   result += "\n" + indentation(indent + 1);
 
   // TODO: delcare cache
+  if (type == PlatformType::BANG) {
+    result += "__nram__ ";
+  }
   result += data_type + " " + cache.name + "[" +
             std::to_string(cache.cache_size) + "];\n";
   if (type == PlatformType::BANG) {
-    result += indentation(indent + 1) + data_type + " " + cache.name +
-              "_ldram[" + std::to_string(cache.cache_size) + "];\n";
+    result += indentation(indent + 1) + "__ldram__ " + data_type + " " +
+              cache.name + "_ldram[" + std::to_string(cache.cache_size) +
+              "];\n";
   }
 
   for (int i = 0; i < micro_list.size(); ++i) {
