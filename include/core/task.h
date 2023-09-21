@@ -12,6 +12,7 @@ class Task {
   const int64_t index;
   std::vector<Micro *> micro_list;
   Cache cache;
+  std::vector<int64_t> core_list;
 
  private:
   static int64_t count;
@@ -28,6 +29,7 @@ class Task {
   void pushMicro(Micro *micro);
   void addArgument(TensorDatatype type, std::string name);
   std::string generatorCode(PlatformType type, int64_t indent);
+  void dispatch(int64_t core);
 };
 
 class ParallelTask {

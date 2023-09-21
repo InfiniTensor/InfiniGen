@@ -34,24 +34,31 @@ std::string Task::generatorCode(PlatformType type, int64_t indent = 0) {
   }
   result += ") {\n" + indentation(indent + 1);
 
+  if (type == PlatformType::BANG) {
+    result += "if (taskId == 0) {\n";
+  } else if (type == PlatformType::CUDA) {
+    result += "if (blockId.x == 0) {\n";
+  }
   // TODO: delcare cache
   if (type == PlatformType::BANG) {
-    result += "__nram__ ";
+    result += indentation(indent + 2) + "__nram__ ";
   }
-  result +=
-      "char " + cache.name + "[" + std::to_string(cache.cache_size) + "];\n";
+  result += indentation(indent + 2) + "char " + cache.name + "[" +
+            std::to_string(cache.cache_size) + "];\n";
   if (type == PlatformType::BANG) {
-    result += indentation(indent + 1) + "__ldram__ char " + cache.name +
+    result += indentation(indent + 2) + "__ldram__ char " + cache.name +
               "_ldram[" + std::to_string(cache.ldram_size) + "];\n";
   }
 
   for (int i = 0; i < micro_list.size(); ++i) {
-    micro_list[i]->generatorCode(cache, result, indent + 1);
+    micro_list[i]->generatorCode(cache, result, indent + 2);
   }
-
+  result += indentation(indent + 1) + "}\n";
   result += indentation(indent) + "}\n";
   return result;
 }
+
+void Task::dispatch(int64_t core) { core_list.push_back(core); }
 
 //////////////////////////////////////////////////////////////////////
 
