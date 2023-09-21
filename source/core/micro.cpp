@@ -3,9 +3,18 @@
 
 namespace infini {
 
-Micro::Micro(MicroType mt, PlatformType pt) {
-  micro_type = mt;
-  platform = pt;
+Micro::Micro(MicroType mt, PlatformType pt) : micro_type(mt), platform(pt) {
+  switch (platform) {
+    case PlatformType::CUDA:
+      coreIndex = "blockIdx.x";
+      break;
+    case PlatformType::BANG:
+      coreIndex = "taskId";
+      break;
+    default:
+      coreIndex = "";
+      break;
+  }
 }
 
 void Micro::printInformation() {

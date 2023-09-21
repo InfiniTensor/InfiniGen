@@ -22,7 +22,6 @@ namespace infini {
           Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
           length(length_value) {}                                            \
     std::string generatorCode(Cache& cache, std::string& result,             \
-                              std::string coreIndex = "",                    \
                               int64_t indent = 0) override;                  \
   };
 

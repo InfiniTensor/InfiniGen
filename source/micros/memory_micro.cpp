@@ -5,7 +5,6 @@
 namespace infini {
 
 std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex,
                                          int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.load(cache_data);
@@ -49,7 +48,6 @@ std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string BangStoreMicro::generatorCode(Cache &cache, std::string &code,
-                                          std::string coreIndex,
                                           int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.find(cache_data);
@@ -76,7 +74,6 @@ std::string BangStoreMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string BangFreeMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex,
                                          int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.free(cache_data);
@@ -84,7 +81,6 @@ std::string BangFreeMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
-                                             std::string coreIndex,
                                              int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.allocate(cache_data);
@@ -113,7 +109,6 @@ std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex,
                                          int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.load(cache_data);
@@ -143,7 +138,6 @@ std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
-                                          std::string coreIndex,
                                           int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.find(cache_data);
@@ -166,7 +160,6 @@ std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
-                                             std::string coreIndex,
                                              int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.allocate(cache_data);
@@ -180,7 +173,6 @@ std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
 }
 
 std::string CudaFreeMicro::generatorCode(Cache &cache, std::string &code,
-                                         std::string coreIndex,
                                          int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.free(cache_data);

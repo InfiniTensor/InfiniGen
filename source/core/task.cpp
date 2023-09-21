@@ -46,7 +46,7 @@ std::string Task::generatorCode(PlatformType type, int64_t indent = 0) {
   }
 
   for (int i = 0; i < micro_list.size(); ++i) {
-    micro_list[i]->generatorCode(cache, result, "taskId", indent + 1);
+    micro_list[i]->generatorCode(cache, result, indent + 1);
   }
 
   result += indentation(indent) + "}\n";
@@ -98,7 +98,7 @@ std::string ParallelTask::generatorCode(PlatformType type, int64_t indent = 0) {
   }
 
   for (int i = 0; i < micro_list.size(); ++i) {
-    micro_list[i]->generatorCode(cache, result, "taskId", indent + 1);
+    micro_list[i]->generatorCode(cache, result, indent + 1);
   }
 
   result += indentation(indent) + "}\n";
