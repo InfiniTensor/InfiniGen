@@ -17,7 +17,7 @@ class Micro {
  protected:
   MicroType micro_type;
   PlatformType platform;
-  std::string coreIndex;
+  std::string core_index_name;
 
  public:
   // Constructor
