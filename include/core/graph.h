@@ -80,6 +80,7 @@ class Data {
   bool isContiguous();
   void flatten(int64_t start = 0, int64_t end = -1);
   TileTensor tiling(const Split& split);
+  TileTensor tiling(const std::vector<int64_t>& shape);
 };
 
 class Graph {

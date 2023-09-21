@@ -8,6 +8,7 @@ int64_t Node::count = 0;
 int64_t Data::count = 0;
 int64_t Graph::count = 0;
 
+// Operator implementation
 Node::Node(std::vector<Data*> inputs_list, std::vector<Data*> outputs_list,
            std::string name_value, int64_t outputs_num_value)
     : name(name_value),
@@ -121,8 +122,7 @@ void Node::deleteAttribute(std::string key) {
   }
 }
 
-//////////////////////////////////////////////////////////////////////
-
+// Tensor implementation
 Data::Data(const std::vector<int64_t>& dimension, TensorDatatype dtype,
            TensorType type, TensorLayout layout, int64_t offset,
            std::string name_value)
@@ -315,8 +315,61 @@ TileTensor Data::tiling(const Split& split) {
   return result;
 }
 
-//////////////////////////////////////////////////////////////////////
+TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
+  // Check dimensions of tensor shape and tile shape
+  CHECK_EQ(tensor_dimension.size(), tile_shape.size());
+  std::vector<int64_t> down = tensor_dimension / tile_shape;
+  std::vector<int64_t> left = tensor_dimension % tile_shape;
+  std::vector<int64_t> tileTensorShape(tensor_dimension.size(), 0);
+  std::vector<int64_t> tileTensorStride(tensor_dimension.size(), 1);
+  for (int64_t i = 0; i < tensor_dimension.size(); i++) {
+    tileTensorShape[i] = (left[i] == 0 ? down[i] : down[i] + 1);
+  }
+  std::vector<int64_t> pad(tensor_dimension.size(), 0);
+  for (auto i = 0; i < tensor_dimension.size(); i++) {
+    pad[i] = (left[i] == 0
+                  ? 0
+                  : (tileTensorShape[i] * tile_shape[i] - tensor_dimension[i]));
+  }
+  for (int64_t i = tileTensorShape.size() - 2; i >= 0; --i) {
+    tileTensorStride[i] = tileTensorStride[i + 1] * tileTensorShape[i + 1];
+  }
+  int64_t total = VECTOR_PRODUCT(tileTensorShape);
+  TileTensor result(tileTensorShape, tileTensorStride, tensor_type,
+                    tensor_layout, name + "_split");
+  // Temp stride 
+  std::vector<int64_t> temp_stride = tensor_stride * tile_shape;
+  for (int64_t i = 0; i < total; i++) {
+    // Local pos in Tensor
+    int64_t pos = i;
+    int64_t axis = 0;
+    std::vector<int64_t> tile_local_position;
+    while (axis < tileTensorShape.size()) {
+      tile_local_position.push_back(pos / tileTensorStride[axis]);
+      pos %= tileTensorStride[axis];
+      ++axis;
+    }
+    // Tile Shape
+    std::vector<int64_t> _tile_shape(tile_shape.size(), 0);
+    for (int64_t i = 0; i < tensor_dimension.size(); i++) {
+      _tile_shape[i] =
+          tile_local_position[i] < down[i] ? tile_shape[i] : left[i];
+    }
+    // Tile Stride
+    std::vector<int64_t> tile_stride = tensor_stride;
+    // Tile start position
+    int64_t tile_offset = DOT_PRODUCT(tile_local_position, temp_stride);
+    std::string tile_name = TO_STRING(tile_local_position) + " tile of " +
+                            name + " with local position " +
+                            TO_STRING(tile_local_position);
+    Tile temp(_tile_shape, tile_local_position, tile_stride, tile_name,
+              tile_offset);
+    result.addTile(temp);
+  }
+  return result;
+}
 
+// Graph implementation
 Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
              std::vector<Data*> outputs_list, std::string name_value)
     : name(name_value),
