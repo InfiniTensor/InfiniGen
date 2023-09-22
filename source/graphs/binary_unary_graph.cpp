@@ -53,7 +53,23 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
 }
 
 std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
+  // generate device function
   std::string result = "";
+  for (int i = 0; i < task_list.size(); i++) {
+    result += task_list[i]->generatorCode(platform, indent);
+  }
+  LOG(WARNING) << result;
+  return result;
+}
+
+std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
+  // generate global function
+  std::string result = "\n";
+  if (platform == PlatformType::BANG) {
+    result += "__mlu_entry__ void ";
+  } else if (platform == PlatformType::CUDA) {
+    result += "__global__ void ";
+  }
 
   std::vector<std::string> arguments_list;
   std::vector<std::string> operands_list;
@@ -70,27 +86,14 @@ std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
   std::string arguments = string_gather(arguments_list);
   std::string operands = string_gather(operands_list);
 
-  for (int i = 0; i < task_list.size(); i++) {
-    result += task_list[i]->generatorCode(platform, indent);
+  result += name + "_kernel(" + arguments + ") {\n";
+  result += indentation(indent + 1) + task_list[0]->name;
+  result += "(" + operands + ");\n";
+  result += indentation(indent) + "}\n";
 
-    // generate global function
-    result += "\n" + indentation(indent);
-    if (platform == PlatformType::BANG) {
-      result += "__mlu_entry__ void ";
-    } else if (platform == PlatformType::CUDA) {
-      result += "__global__ void ";
-    }
-
-    result += task_list[i]->name + "_kernel(" + arguments + ") {\n";
-    result += indentation(indent + 1) + task_list[i]->name;
-    result += "(" + operands + ");\n";
-    result += indentation(indent) + "}\n";
-  }
   LOG(WARNING) << result;
   return result;
 }
-
-std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) { return ""; }
 
 std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   std::vector<std::string> arguments_list;

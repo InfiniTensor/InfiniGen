@@ -49,14 +49,14 @@ std::string SingleTask::generatorCode(PlatformType type, int64_t indent = 0) {
     result += "if (";
     for (int i = 0; i < core_list.size(); ++i) {
       result += "taskId == " + std::to_string(core_list[i]);
-      result += (i == core_list.size() - 1 ? ")" : " && ");
+      result += (i == core_list.size() - 1 ? ")" : " || ");
     }
     result += "{\n";
   } else if (type == PlatformType::CUDA) {
     result += "if (";
     for (int i = 0; i < core_list.size(); ++i) {
-      result += "blockId.x == " + std::to_string(core_list[i]);
-      result += (i == core_list.size() - 1 ? ")" : " && ");
+      result += "blockId == " + std::to_string(core_list[i]);
+      result += (i == core_list.size() - 1 ? ")" : " || ");
     }
     result += "{\n";
   }
