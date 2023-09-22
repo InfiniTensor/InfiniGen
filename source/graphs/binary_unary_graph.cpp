@@ -1,5 +1,6 @@
 #include "graphs/binary_unary_graph.h"
 #include "micros/binary_micro.h"
+#include "micros/memory_micro.h"
 #include "core/task.h"
 #include "core/utils.h"
 
@@ -39,8 +40,8 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
     temp_remain[data] = data->remaining;
     task->addArgument(data->tensor_datatype, data->name);
   }
-  for (auto op : sorted_op) {
-    for (auto input : op->inputs) {
+  for (int i = 0; i < sorted_op.size(); ++i) {
+    for (auto input : sorted_op[i]->inputs) {
       temp_remain[input] -= 1;
       if (temp_remain[input] == 0) {
         temp_remain.erase(input);
@@ -48,15 +49,27 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
     }
     Micro *micro = nullptr;
     if (type == PlatformType::BANG) {
-      micro = new BangAddMicro(op->outputs[0]->name, 0, op->inputs[0]->name, 0,
-                               op->inputs[1]->name, 0,
+      micro = new BangAddMicro(sorted_op[i]->outputs[0]->name, 0,
+                               sorted_op[i]->inputs[0]->name, 0,
+                               sorted_op[i]->inputs[1]->name, 0,
                                VECTOR_PRODUCT(tiles({0}).tile_dimension));
     } else if (type == PlatformType::CUDA) {
-      micro = new CudaAddMicro(op->outputs[0]->name, 0, op->inputs[0]->name, 0,
-                               op->inputs[1]->name, 0,
+      micro = new CudaAddMicro(sorted_op[i]->outputs[0]->name, 0,
+                               sorted_op[i]->inputs[0]->name, 0,
+                               sorted_op[i]->inputs[1]->name, 0,
                                VECTOR_PRODUCT(tiles({0}).tile_dimension));
     }
     task->pushMicro(micro);
+    if (i == sorted_op.size() - 1) {
+      if (type == PlatformType::BANG) {
+        micro = new BangStoreMicro(sorted_op[i]->outputs[0]->name, 0,
+                                   VECTOR_PRODUCT(tiles({0}).tile_dimension));
+      } else if (type == PlatformType::CUDA) {
+        micro = new CudaStoreMicro(sorted_op[i]->outputs[0]->name, 0,
+                                   VECTOR_PRODUCT(tiles({0}).tile_dimension));
+      }
+      task->pushMicro(micro);
+    }
   }
   task_list.push_back(task);
 }
