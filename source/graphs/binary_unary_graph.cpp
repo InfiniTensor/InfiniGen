@@ -23,12 +23,14 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
   std::unordered_map<Data *, int64_t> temp_remain;
   for (auto data : inputs) {
     temp_remain[data] = data->remaining;
+    task->addArgument(data->tensor_datatype, data->name);
   }
   for (auto data : temps) {
     temp_remain[data] = data->remaining;
   }
   for (auto data : outputs) {
     temp_remain[data] = data->remaining;
+    task->addArgument(data->tensor_datatype, data->name);
   }
   for (auto op : sorted_op) {
     for (auto input : op->inputs) {
@@ -51,16 +53,16 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
 }
 
 std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
+  std::string result = "";
+
   std::vector<std::string> arguments_list;
   std::vector<std::string> operands_list;
   for (int i = 0; i < inputs.size(); ++i) {
-    task_list[0]->addArgument(inputs[i]->tensor_datatype, inputs[i]->name);
     arguments_list.push_back(datatype_string(inputs[i]->tensor_datatype) +
                              " *" + inputs[i]->name);
     operands_list.push_back(inputs[i]->name);
   }
   for (int i = 0; i < outputs.size(); ++i) {
-    task_list[0]->addArgument(outputs[i]->tensor_datatype, outputs[i]->name);
     arguments_list.push_back(datatype_string(outputs[i]->tensor_datatype) +
                              " *" + outputs[i]->name);
     operands_list.push_back(outputs[i]->name);
@@ -68,20 +70,22 @@ std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
   std::string arguments = string_gather(arguments_list);
   std::string operands = string_gather(operands_list);
 
-  std::string result = task_list[0]->generatorCode(platform, indent);
+  for (int i = 0; i < task_list.size(); i++) {
+    result += task_list[i]->generatorCode(platform, indent);
 
-  // generate global function
-  result += "\n" + indentation(indent);
-  if (platform == PlatformType::BANG) {
-    result += "__mlu_entry__ void ";
-  } else if (platform == PlatformType::CUDA) {
-    result += "__global__ void ";
+    // generate global function
+    result += "\n" + indentation(indent);
+    if (platform == PlatformType::BANG) {
+      result += "__mlu_entry__ void ";
+    } else if (platform == PlatformType::CUDA) {
+      result += "__global__ void ";
+    }
+
+    result += task_list[i]->name + "_kernel(" + arguments + ") {\n";
+    result += indentation(indent + 1) + task_list[i]->name;
+    result += "(" + operands + ");\n";
+    result += indentation(indent) + "}\n";
   }
-
-  result += task_list[0]->name + "_kernel(" + arguments + ") {\n";
-  result += indentation(indent + 1) + task_list[0]->name;
-  result += "(" + operands + ");\n";
-  result += indentation(indent) + "}\n";
   LOG(WARNING) << result;
   return result;
 }
