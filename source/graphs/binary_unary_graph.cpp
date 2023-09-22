@@ -72,23 +72,19 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   }
 
   std::vector<std::string> arguments_list;
-  std::vector<std::string> operands_list;
   for (int i = 0; i < inputs.size(); ++i) {
     arguments_list.push_back(datatype_string(inputs[i]->tensor_datatype) +
                              " *" + inputs[i]->name);
-    operands_list.push_back(inputs[i]->name);
   }
   for (int i = 0; i < outputs.size(); ++i) {
     arguments_list.push_back(datatype_string(outputs[i]->tensor_datatype) +
                              " *" + outputs[i]->name);
-    operands_list.push_back(outputs[i]->name);
   }
   std::string arguments = string_gather(arguments_list);
-  std::string operands = string_gather(operands_list);
 
   result += name + "_kernel(" + arguments + ") {\n";
   result += indentation(indent + 1) + task_list[0]->name;
-  result += "(" + operands + ");\n";
+  result += "(" + task_list[0]->getArguments(false) + ");\n";
   result += indentation(indent) + "}\n";
 
   LOG(WARNING) << result;
@@ -116,7 +112,7 @@ std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   std::string parallel_config = "1, 64";
   std::string result = "\n" + indentation(indent);
   result += "void " + name + "(" + arguments + ") {\n";
-  result += indentation(indent + 1) + task_list[0]->name + "_kernel";
+  result += indentation(indent + 1) + name + "_kernel";
   result += "<<<" + parallel_config + ">>>";
   result += "(" + operands + ");\n";
   result += indentation(indent) + "}\n";

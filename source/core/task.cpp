@@ -18,6 +18,18 @@ void Task::addArgument(TensorDatatype type, std::string name) {
   arguments.push_back(std::make_pair(datatype_string(type), name));
 }
 
+std::string Task::getArguments(bool with_type = true) {
+  std::vector<std::string> args;
+  for (int i = 0; i < arguments.size(); i++) {
+    if (with_type) {
+      args.push_back(arguments[i].first + " *" + arguments[i].second);
+    } else {
+      args.push_back(arguments[i].second);
+    }
+  }
+  return string_gather(args);
+}
+
 //////////////////////////////////////////////////////////////////////
 
 SingleTask::SingleTask(int64_t cache_length, int64_t swap_length,
@@ -38,12 +50,7 @@ std::string SingleTask::generatorCode(PlatformType type, int64_t indent = 0) {
   } else if (type == PlatformType::CUDA) {
     result += "__device__ void ";
   }
-  result += name + "(";
-  for (int i = 0; i < arguments.size(); i++) {
-    result += arguments[i].first + " *" + arguments[i].second;
-    result += (i == (arguments.size() - 1) ? "" : ", ");
-  }
-  result += ") {\n" + indentation(indent + 1);
+  result += name + "(" + getArguments() + ") {\n" + indentation(indent + 1);
 
   if (type == PlatformType::BANG) {
     result += "if (";
@@ -97,12 +104,7 @@ std::string ParallelTask::generatorCode(PlatformType type, int64_t indent = 0) {
   } else if (type == PlatformType::CUDA) {
     result += "__device__ void ";
   }
-  result += name + "(";
-  for (int i = 0; i < arguments.size(); i++) {
-    result += arguments[i].first + " *" + arguments[i].second;
-    result += (i == (arguments.size() - 1) ? "" : ", ");
-  }
-  result += ") {\n" + indentation(indent + 1);
+  result += name + "(" + getArguments() + ") {\n" + indentation(indent + 1);
 
   // TODO: delcare cache
   if (type == PlatformType::BANG) {

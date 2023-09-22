@@ -24,6 +24,7 @@ class Task {
  public:
   void pushMicro(Micro *micro);
   void addArgument(TensorDatatype type, std::string name);
+  std::string getArguments(bool with_type);
   virtual std::string generatorCode(PlatformType type, int64_t indent) = 0;
 };
 
