@@ -34,12 +34,31 @@ const std::string Platform::taskIdxDecl(int dim) const {
   }
 }
 
+const std::string Platform::taskIdxDecl() const {
+   switch (type) {
+    CASE(CUDA, "blockIdx");
+    CASE(BANG, "taskIdx");  
+    default:
+      return "";
+  } 
+}
+
 
 const std::string Platform::taskDimDecl(int dim) const {
   std::vector<std::string> dim_map = {".x", ".y", ".z"};
   switch (type) {
     CASE(CUDA, "blockDim" + dim_map[dim]);
     CASE(BANG, "taskDim" + dim_map[dim]);
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::taskDimDecl() const {
+  std::vector<std::string> dim_map = {".x", ".y", ".z"};
+  switch (type) {
+    CASE(CUDA, "blockDim");
+    CASE(BANG, "taskDim");
     default:
       return "";
   }
@@ -56,7 +75,7 @@ const std::string Platform::regDecl() const {
 
 const std::string Platform::ldramDecl() const {
   switch (type) {
-    CASE(CUDA, "__local__"); //不确定是不是这个
+    CASE(CUDA, ""); //不确定是不是这个
     CASE(BANG, "__ldram__");
     default:
       return "";

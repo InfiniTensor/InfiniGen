@@ -21,8 +21,10 @@ struct Platform {
   // Print platform related code
   const std::string deviceFuncDecl() const;
   const std::string globalFuncDecl() const;
-  const std::string taskIdxDecl(int dim=0) const;
-  const std::string taskDimDecl(int dim=0) const;
+  const std::string taskIdxDecl(int dim) const;
+  const std::string taskIdxDecl() const;
+  const std::string taskDimDecl(int dim) const;
+  const std::string taskDimDecl() const;
   const std::string regDecl() const;
   const std::string ldramDecl() const;
   const std::string shmemDecl() const;
