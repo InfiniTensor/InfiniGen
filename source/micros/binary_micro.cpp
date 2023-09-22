@@ -23,9 +23,9 @@ namespace infini {
                                   .generatorCode(cache, code, indent);        \
     std::string output_cache = BangAllocateMicro(output_name, output, length) \
                                    .generatorCode(cache, code, indent);       \
-    code += "__bang_" + std::string(OP_STRING) + "(" + output_cache + ", " +  \
-            left_cache + ", " + right_cache + ", " + std::to_string(length) + \
-            ");\n";                                                           \
+    code += indentation(indent) + "__bang_" + std::string(OP_STRING) + "(" +  \
+            output_cache + ", " + left_cache + ", " + right_cache + ", " +    \
+            std::to_string(length) + ");\n";                                  \
     cache.unlock();                                                           \
     return "";                                                                \
   }
@@ -41,7 +41,7 @@ namespace infini {
                                   .generatorCode(cache, code, indent);        \
     std::string output_cache = CudaAllocateMicro(output_name, output, length) \
                                    .generatorCode(cache, code, indent);       \
-    code += output_cache + "] = " + left_cache + "]" +                        \
+    code += indentation(indent) + output_cache + "] = " + left_cache + "]" +  \
             std::string(OP_STRING) + right_cache + "];\n";                    \
     cache.unlock();                                                           \
     return "";                                                                \
