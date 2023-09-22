@@ -15,14 +15,14 @@ namespace infini {
 #define BANG_BINARY_GENERATOR(OP, OP_STRING)                                  \
                                                                               \
   std::string Bang##OP##Micro::generatorCode(Cache& cache, std::string& code, \
-                                             std::string coreIndex) {         \
+                                             int64_t indent) {                \
     cache.lock();                                                             \
     std::string left_cache = BangLoadMicro(left_name, left, length)           \
-                                 .generatorCode(cache, code, coreIndex);      \
+                                 .generatorCode(cache, code, indent);         \
     std::string right_cache = BangLoadMicro(right_name, right, length)        \
-                                  .generatorCode(cache, code, coreIndex);     \
+                                  .generatorCode(cache, code, indent);        \
     std::string output_cache = BangAllocateMicro(output_name, output, length) \
-                                   .generatorCode(cache, code, coreIndex);    \
+                                   .generatorCode(cache, code, indent);       \
     code += "__bang_" + std::string(OP_STRING) + "(" + output_cache + ", " +  \
             left_cache + ", " + right_cache + ", " + std::to_string(length) + \
             ");\n";                                                           \
@@ -33,14 +33,14 @@ namespace infini {
 /* CUDA kernel implementation */
 #define CUDA_BINARY_GENERATOR(OP, OP_STRING)                                  \
   std::string Cuda##OP##Micro::generatorCode(Cache& cache, std::string& code, \
-                                             std::string coreIndex) {         \
+                                             int64_t indent) {                \
     cache.lock();                                                             \
     std::string left_cache = CudaLoadMicro(left_name, left, length)           \
-                                 .generatorCode(cache, code, coreIndex);      \
+                                 .generatorCode(cache, code, indent);         \
     std::string right_cache = CudaLoadMicro(right_name, right, length)        \
-                                  .generatorCode(cache, code, coreIndex);     \
+                                  .generatorCode(cache, code, indent);        \
     std::string output_cache = CudaAllocateMicro(output_name, output, length) \
-                                   .generatorCode(cache, code, coreIndex);    \
+                                   .generatorCode(cache, code, indent);       \
     code += output_cache + "] = " + left_cache + "]" +                        \
             std::string(OP_STRING) + right_cache + "];\n";                    \
     cache.unlock();                                                           \

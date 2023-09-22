@@ -4,13 +4,13 @@
 namespace infini {
 
 std::string BangSyncMicro::generatorCode(Cache& cache, std::string& code,
-                                         std::string coreIndex) {
+                                         int64_t indent) {
   code += "__sync_all();\n";
   return "";
 }
 
 std::string CudaSyncMicro::generatorCode(Cache& cache, std::string& code,
-                                         std::string coreIndex) {
+                                         int64_t indent) {
   code += "TODO;\n";
   return "";
 }

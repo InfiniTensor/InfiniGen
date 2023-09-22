@@ -29,7 +29,8 @@ enum class KernelType {
   COS,
   ALLOCATE,
   STORE,
-  FREE
+  FREE,
+  SYNC
 };
 // PlatformType
 enum class PlatformType { CUDA, BANG };

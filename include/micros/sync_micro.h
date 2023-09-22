@@ -3,12 +3,12 @@
 
 namespace infini {
 
-#define SYNC_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)           \
-  class MICRO_NAME##Micro : public Micro {                          \
-   public:                                                          \
-    MICRO_NAME##Micro() {}                                          \
-    std::string generatorCode(Cache& cache, std::string& result,    \
-                              std::string coreIndex = "") override; \
+#define SYNC_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)        \
+  class MICRO_NAME##Micro : public Micro {                       \
+   public:                                                       \
+    MICRO_NAME##Micro() : Micro(MICRO_TYPE, PLATFORM_TYPE) {}    \
+    std::string generatorCode(Cache& cache, std::string& result, \
+                              int64_t indent = 0) override;      \
   };
 
 SYNC_MICRO(BangSync, MicroType::SYNC, PlatformType::BANG)
