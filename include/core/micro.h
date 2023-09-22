@@ -17,10 +17,11 @@ class Micro {
  protected:
   MicroType micro_type;
   PlatformType platform;
+  std::string core_index_name;
 
  public:
   // Constructor
-  Micro(){};
+  Micro() = delete;
   Micro(const Micro &) = delete;
   Micro(MicroType mt, PlatformType pt);
   // Destructor
@@ -32,7 +33,7 @@ class Micro {
    * specific platform.
    */
   virtual std::string generatorCode(Cache &cache, std::string &result,
-                                    std::string coreIndex = "") = 0;
+                                    int64_t indent = 0) = 0;
 
   /** @brief Information print*/
   virtual void printInformation();

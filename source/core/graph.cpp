@@ -391,10 +391,6 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
   }
 }
 
-void Graph::generatorCode() {
-  LOG(WARNING) << "Graph generatorCode Function need to be override";
-}
-
 std::vector<Node*> Graph::topoSort() {
   std::unordered_map<Node*, int64_t> operators_temp;
   for (auto op : operators) {

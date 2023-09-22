@@ -221,6 +221,9 @@ std::string right_pad(std::string s, size_t len, char c);
 
 std::string left_right_pad(std::string s, size_t len, char c);
 
+std::string string_gather(std::vector<std::string>& strings,
+                          const std::string& delimiter = ", ");
+
 bool getBoolEnvironmentVariable(const std::string& str, bool default_value);
 
 int64_t getLevelEnvironmentVariable(const std::string& str,

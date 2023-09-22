@@ -11,12 +11,12 @@ namespace infini {
    public:                                                               \
     MICRO_NAME##Micro(std::string data_name_string, int64_t data_offset, \
                       int64_t length_value)                              \
-        : data_name(data_name_string),                                   \
+        : Micro(MICRO_TYPE, PLATFORM_TYPE),                              \
+          data_name(data_name_string),                                   \
           data(data_offset),                                             \
-          Micro(MICRO_TYPE, PLATFORM_TYPE),                              \
           length(length_value) {}                                        \
     std::string generatorCode(Cache &cache, std::string &result,         \
-                              std::string coreIndex = "") override;      \
+                              int64_t indent = 0) override;              \
   };
 
 MEMORY_MICRO(BangLoad, MicroType::LOAD, PlatformType::BANG)

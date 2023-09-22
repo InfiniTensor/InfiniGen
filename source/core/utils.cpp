@@ -249,6 +249,21 @@ std::string left_right_pad(std::string s, size_t len, char c) {
   return res;
 }
 
+std::string string_gather(std::vector<std::string> &strings,
+                          const std::string &delimiter) {
+  std::string result;
+
+  for (size_t i = 0; i < strings.size(); ++i) {
+    result += strings[i];
+
+    if (i < strings.size() - 1) {
+      result += delimiter;
+    }
+  }
+
+  return result;
+}
+
 bool getBoolEnvironmentVariable(const std::string &str, bool default_value) {
   const char *pointer = std::getenv(str.c_str());
   if (pointer == NULL) {

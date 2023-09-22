@@ -13,16 +13,16 @@ namespace infini {
                       std::string left_name_string, int64_t left_offset,     \
                       std::string right_name_string, int64_t right_offset,   \
                       int64_t length_value)                                  \
-        : output_name(output_name_string),                                   \
+        : Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
+          output_name(output_name_string),                                   \
           output(output_offset),                                             \
           left_name(left_name_string),                                       \
           left(left_offset),                                                 \
           right_name(right_name_string),                                     \
           right(right_offset),                                               \
-          Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
           length(length_value) {}                                            \
     std::string generatorCode(Cache& cache, std::string& result,             \
-                              std::string coreIndex = "") override;          \
+                              int64_t indent = 0) override;                  \
   };
 
 // On BANG platform

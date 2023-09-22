@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <utility>
 #include "core/micro.h"
 #include "core/cache.h"
 
@@ -7,35 +8,54 @@ namespace infini {
 
 class Task {
  public:
-  std::vector<Micro*> micro_list;
+  std::string name;
+  const int64_t index;
+  std::vector<Micro *> micro_list;
   Cache cache;
+
+  Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
+       std::string cache_name, std::string name_value = "");
+  ~Task() = default;
+
+ protected:
+  static int64_t count;
+  std::vector<std::pair<std::string, std::string>> arguments;
+
+ public:
+  void pushMicro(Micro *micro);
+  void addArgument(TensorDatatype type, std::string name);
+  std::string getArguments(bool with_type);
+  virtual std::string generatorCode(PlatformType type, int64_t indent) = 0;
+};
+
+class SingleTask : public Task {
+ public:
+  std::vector<int64_t> core_list;
 
  public:
   // Constructor
-  Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
-       std::string cache_name);
+  SingleTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
+             std::string cache_name, std::string name_value = "");
   // Destructor
-  ~Task() = default;
+  ~SingleTask() = default;
   // Function
-  void pushMicro(Micro* micro);
-  std::string generatorCode();
+  std::string generatorCode(PlatformType type, int64_t indent) override;
+  void dispatch(int64_t core);
 };
 
-class ParallelTask {
+class ParallelTask : public Task {
  public:
-  std::vector<Micro*> micro_list;
-  Cache cache;
-  int parallel;
+  int64_t parallel;
 
  public:
   // Constructor
   ParallelTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
-               std::string cache_name, int64_t parallel_value);
+               std::string cache_name, int64_t parallel_value,
+               std::string name_value = "");
   // Destructor
   ~ParallelTask() = default;
   // Function
-  void pushMicro(Micro* micro);
-  std::string generatorCode();
+  std::string generatorCode(PlatformType type, int64_t indent) override;
 };
 
 }  // namespace infini
