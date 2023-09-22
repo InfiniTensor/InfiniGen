@@ -19,7 +19,7 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
   int64_t rem_len = tensor_len % tile_len;
   std::vector<Node *> sorted_op = topoSort();
   Task *task = nullptr;
-  task = new ParallelTask(1024 * 10, 1024 * 100, 1024, "cache");
+  task = new ParallelTask(1024 * 10, 1024 * 100, 1024, "cache", loop);
   std::unordered_map<Data *, int64_t> temp_remain;
   for (auto data : inputs) {
     temp_remain[data] = data->remaining;

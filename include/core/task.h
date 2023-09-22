@@ -45,9 +45,13 @@ class SingleTask : public Task {
 
 class ParallelTask : public Task {
  public:
+  int64_t parallel;
+
+ public:
   // Constructor
   ParallelTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
-               std::string cache_name, std::string name_value = "");
+               std::string cache_name, int64_t parallel_value,
+               std::string name_value = "");
   // Destructor
   ~ParallelTask() = default;
   // Function

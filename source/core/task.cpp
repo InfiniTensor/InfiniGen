@@ -91,8 +91,9 @@ void SingleTask::dispatch(int64_t core) { core_list.push_back(core); }
 
 ParallelTask::ParallelTask(int64_t cache_length, int64_t swap_length,
                            int64_t align_length, std::string cache_name,
-                           std::string name_value)
-    : Task(cache_length, swap_length, align_length, cache_name, name_value) {
+                           int64_t parallel_value, std::string name_value)
+    : Task(cache_length, swap_length, align_length, cache_name, name_value),
+      parallel(parallel_value) {
   name =
       (name_value == "" ? "ParallelTask_" + std::to_string(index) : name_value);
 }
