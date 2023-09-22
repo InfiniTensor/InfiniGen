@@ -1,8 +1,13 @@
 #pragma once
 #include "core/type.h"
 #include "core/cache.h"
+#include "core/attribute.h"
+#include "core/tile.h"
+#include "core/split.h"
+#include "core/task.h"
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 
 namespace infini {
 
@@ -21,19 +26,20 @@ class Node {
   std::vector<Data*> outputs;
   std::vector<Node*> predecessors;
   std::vector<Node*> successors;
+  std::unordered_map<std::string, Attribute> attributes;
 
  public:
-  // Constructor
   Node(std::vector<Data*> inputs_list = {},
        std::vector<Data*> outputs_list = {}, std::string name_value = "",
        int64_t outputs_num_value = 1);
-  // Destructor
   ~Node() = default;
-  // Function
   Data* getOutput(int64_t index);
   std::vector<Data*> getOutputs();
-  // Information
-  void printInformation();
+  void printNode();
+  void printLink();
+  void setAttribute(std::string key, Attribute attribute);
+  Attribute getAttribute(std::string key);
+  void deleteAttribute(std::string key);
 };
 
 class Data {
@@ -46,17 +52,36 @@ class Data {
   int remaining;
   Node* producer;
   std::vector<Node*> consumers;
+  TensorDatatype tensor_datatype;
+  TensorType tensor_type;
+  TensorLayout tensor_layout;
+  std::vector<int64_t> tensor_dimension;
+  std::vector<int64_t> tensor_stride;
+  int64_t data_offset;
+  bool is_contiguous;
 
  public:
-  // Constructor
-  Data(std::string name_value = "");
-  // Destructor
+  Data() = delete;
+  Data(const std::vector<int64_t>& dimension,
+       TensorDatatype dtype = TensorDatatype::FLOAT,
+       TensorType type = TensorType::VARIABLE,
+       TensorLayout layout = TensorLayout::ARRAY, int64_t offset = 0,
+       std::string name_value = "");
+  Data(const std::vector<int64_t>& dimension,
+       const std::vector<int64_t>& stride,
+       TensorDatatype dtype = TensorDatatype::FLOAT,
+       TensorType type = TensorType::VARIABLE,
+       TensorLayout layout = TensorLayout::ARRAY, int64_t offset = 0,
+       std::string name_value = "");
   ~Data() = default;
-  // Function
   void setProducer(Node* producer_value);
   void addConsumer(Node* consumer_value);
-  // Information
-  void printInformation();
+  void printData();
+  void printLink();
+  bool isContiguous();
+  void flatten(int64_t start = 0, int64_t end = -1);
+  TileTensor tiling(const Split& split);
+  TileTensor tiling(const std::vector<int64_t>& shape);
 };
 
 class Graph {
@@ -71,23 +96,21 @@ class Graph {
   std::vector<Data*> outputs;
   std::vector<Data*> temps;
   std::unordered_set<Data*> remaining_data;
-
-  Cache cache_info;
-  int64_t worker_num;
+  // Device
+  PlatformType platform;
+  std::vector<Task*> task_list;
 
  public:
-  // Constructor
   Graph(std::vector<Node*> operators_list = {},
         std::vector<Data*> inputs_list = {},
         std::vector<Data*> outputs_list = {}, std::string name_value = "");
-  // Destructor
   ~Graph() = default;
-  // Function
   std::vector<Node*> topoSort();
-  void generatorCode();
-  void setDevice(int64_t& worker, Cache& cache);
-  // Information
-  void printInformation();
+  virtual std::string generatorTask(int64_t indent = 0) = 0;
+  virtual std::string generatorHost(int64_t indent = 0) = 0;
+  virtual std::string generatorCode(int64_t indent = 0) = 0;
+  virtual void applyPlatform(PlatformType type) = 0;
+  void printGraph();
 };
 
 }  // namespace infini

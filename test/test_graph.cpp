@@ -2,78 +2,69 @@
 
 int main() {
   using namespace infini;
-  Data* a = new Data();
-  Data* b = new Data();
+  Data* a = new Data({2, 1024});
+  Data* b = new Data({2, 1024});
   Node* add = new Node({a, b});
   Data* temp = add->getOutput(0);
   Node* mul = new Node({b, temp});
   Data* d = mul->getOutput(0);
-  Node* com = new Node({d, temp}, {}, "", 3);
-  Data* e = com->getOutput(0);
-  Data* f = com->getOutput(1);
-  Data* g = com->getOutput(2);
 
-  add->printInformation();
-  mul->printInformation();
-  com->printInformation();
+  add->printNode();
+  mul->printNode();
 
-  a->printInformation();
-  b->printInformation();
-  temp->printInformation();
-  d->printInformation();
-  e->printInformation();
-  f->printInformation();
-  g->printInformation();
+  a->printData();
+  b->printData();
+  temp->printData();
+  d->printData();
 
-  Graph* graph = new Graph({add, mul, com}, {a, b}, {e, f, g});
-  graph->printInformation();
+  Graph* graph = new BinaryUnaryGraph({add, mul}, {a, b}, {d});
+  graph->printGraph();
   LOG(INFO) << "========== Topo Sort ==========";
   auto topo = graph->topoSort();
   for (auto op : topo) {
-    op->printInformation();
+    op->printLink();
   }
   LOG(INFO) << "========== Codegen ==========";
+  graph->applyPlatform(PlatformType::BANG);
+  graph->generatorTask();
+  graph->generatorHost();
   graph->generatorCode();
 
-  LOG(INFO) << "===============================";
-  Data* n_a = new Data();
-  Data* n_b = new Data();
-  Node* in2out2 = new Node({n_a, n_b}, {}, "", 2);
-  Data* n_e = in2out2->getOutput(0);
-  Data* n_f = in2out2->getOutput(1);
-  Node* in2out1 = new Node({n_e, n_f});
-  Data* n_g = in2out1->getOutput(0);
+  // LOG(INFO) << "===============================";
+  // Data* n_a = new Data({1, 1});
+  // Data* n_b = new Data({1, 1});
+  // Node* in2out2 = new Node({n_a, n_b}, {}, "", 2);
+  // Data* n_e = in2out2->getOutput(0);
+  // Data* n_f = in2out2->getOutput(1);
+  // Node* in2out1 = new Node({n_e, n_f});
+  // Data* n_g = in2out1->getOutput(0);
 
-  Graph* graph2 = new Graph({in2out2, in2out1}, {n_a, n_b}, {n_g});
-  graph2->printInformation();
-  LOG(INFO) << "========== Topo Sort ==========";
-  topo = graph2->topoSort();
-  for (auto op : topo) {
-    op->printInformation();
-  }
-  LOG(INFO) << "========== Codegen ==========";
-  graph2->generatorCode();
+  // Graph* graph2 = new Graph({in2out2, in2out1}, {n_a, n_b}, {n_g});
+  // graph2->printGraph();
+  // LOG(INFO) << "========== Topo Sort ==========";
+  // topo = graph2->topoSort();
+  // for (auto op : topo) {
+  //   op->printLink();
+  // }
+  // LOG(INFO) << "========== Codegen ==========";
+  // graph2->generatorCode();
 
   delete a;
   delete b;
   delete temp;
   delete d;
-  delete e;
-  delete f;
-  delete g;
   delete add;
   delete mul;
-  delete com;
   delete graph;
 
-  delete n_a;
-  delete n_b;
-  delete n_e;
-  delete n_f;
-  delete n_g;
-  delete in2out2;
-  delete in2out1;
-  delete graph2;
+  // delete n_a;
+  // delete n_b;
+  // delete n_e;
+  // delete n_f;
+  // delete n_g;
+  // delete in2out2;
+  // delete in2out1;
+  // delete graph2;
 
   return 0;
 }

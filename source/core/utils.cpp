@@ -52,141 +52,6 @@ int64_t DOT_PRODUCT(const std::vector<int64_t> &left,
   return result;
 }
 
-std::vector<int64_t> operator+(const std::vector<int64_t> &left,
-                               const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  std::vector<int64_t> result(left.size(), 0);
-  for (auto i = 0; i < left.size(); ++i) {
-    result[i] = left[i] + right[i];
-  }
-  return std::move(result);
-}
-
-std::vector<int64_t> operator-(const std::vector<int64_t> &left,
-                               const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  std::vector<int64_t> result(left.size(), 0);
-  for (auto i = 0; i < left.size(); ++i) {
-    result[i] = left[i] - right[i];
-  }
-  return std::move(result);
-}
-
-std::vector<int64_t> operator*(const std::vector<int64_t> &left,
-                               const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  std::vector<int64_t> result(left.size(), 0);
-  for (auto i = 0; i < left.size(); ++i) {
-    result[i] = left[i] * right[i];
-  }
-  return std::move(result);
-}
-
-std::vector<int64_t> operator/(const std::vector<int64_t> &left,
-                               const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  std::vector<int64_t> result(left.size(), 0);
-  for (auto i = 0; i < left.size(); ++i) {
-    result[i] = left[i] / right[i];
-  }
-  return std::move(result);
-}
-
-std::vector<int64_t> operator%(const std::vector<int64_t> &left,
-                               const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  std::vector<int64_t> result(left.size(), 0);
-  for (auto i = 0; i < left.size(); ++i) {
-    result[i] = left[i] % right[i];
-  }
-  return std::move(result);
-}
-
-std::vector<int64_t> &operator+=(std::vector<int64_t> &left,
-                                 const int64_t &right) {
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] += right;
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator-=(std::vector<int64_t> &left,
-                                 const int64_t &right) {
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] -= right;
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator*=(std::vector<int64_t> &left,
-                                 const int64_t &right) {
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] *= right;
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator/=(std::vector<int64_t> &left,
-                                 const int64_t &right) {
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] /= right;
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator%=(std::vector<int64_t> &left,
-                                 const int64_t &right) {
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] %= right;
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator+=(std::vector<int64_t> &left,
-                                 const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] = left[i] + right[i];
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator-=(std::vector<int64_t> &left,
-                                 const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] = left[i] - right[i];
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator*=(std::vector<int64_t> &left,
-                                 const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] = left[i] * right[i];
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator/=(std::vector<int64_t> &left,
-                                 const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] = left[i] / right[i];
-  }
-  return left;
-}
-
-std::vector<int64_t> &operator%=(std::vector<int64_t> &left,
-                                 const std::vector<int64_t> &right) {
-  CHECK_EQ(left.size(), right.size());
-  for (auto i = 0; i < left.size(); ++i) {
-    left[i] = left[i] % right[i];
-  }
-  return left;
-}
-
 std::string operator*(const std::string &left, const int64_t &right) {
   std::string result = "";
   for (auto i = 0; i < right; ++i) {
@@ -382,6 +247,21 @@ std::string left_right_pad(std::string s, size_t len, char c) {
   std::string res = std::string((len - s.length()) / 2, c) + s;
   res += std::string(len - res.length(), c);
   return res;
+}
+
+std::string string_gather(std::vector<std::string> &strings,
+                          const std::string &delimiter) {
+  std::string result;
+
+  for (size_t i = 0; i < strings.size(); ++i) {
+    result += strings[i];
+
+    if (i < strings.size() - 1) {
+      result += delimiter;
+    }
+  }
+
+  return result;
 }
 
 bool getBoolEnvironmentVariable(const std::string &str, bool default_value) {

@@ -97,16 +97,6 @@ TileTensor Tensor::tiling(const Split& split) {
   return result;
 }
 
-// TileTensor Tensor::tiling(const Tile & t){
-//   CHECK_EQ(tensor_dimension.size(), t.tile_dimension.size());
-//   // This stride means every k step in this dimmension
-//   std::vector<int64_t> tile_stride = t.tile_stride;
-//   std::vector<int64_t> split_dim = tensor_dimension / t.tile_dimension;
-//   // Tile stride restrict
-//   ASSERT(ALL_EQLESS(tile_stride, split_dim));
-
-// }
-
 void Tensor::printInformation() {
   std::string info_string = "";
   info_string += "—— Tensor ";

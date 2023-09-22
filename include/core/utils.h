@@ -55,8 +55,8 @@
 #define DLOG(level) DEVELOPLOG(Codegen, level)
 #endif
 
-#ifndef VEC_CAMPARE
-#define VEC_CAMPARE(OP)                                        \
+#ifndef VECTOR_COMPARE
+#define VECTOR_COMPARE(OP)                                     \
   template <class T>                                           \
   std::vector<bool> operator OP(const std::vector<T>& left,    \
                                 const std::vector<T>& right) { \
@@ -66,7 +66,46 @@
     for (size_t i = 0; i < (left).size(); i++) {               \
       result.push_back(left[i] OP right[i]);                   \
     }                                                          \
-    return result;                                             \
+    return std::move(result);                                  \
+  }
+#endif
+
+#ifndef VECTOR_COMPUTE
+#define VECTOR_COMPUTE(OP)                                  \
+  template <class T>                                        \
+  std::vector<T> operator OP(const std::vector<T>& left,    \
+                             const std::vector<T>& right) { \
+    ASSERT((left).size() == (right).size());                \
+    std::vector<T> result;                                  \
+    result.reserve((left).size());                          \
+    for (size_t i = 0; i < (left).size(); i++) {            \
+      result.push_back(left[i] OP right[i]);                \
+    }                                                       \
+    return std::move(result);                               \
+  }
+#endif
+
+#ifndef VECTOR_INPLACE_COMPUTE
+#define VECTOR_INPLACE_COMPUTE(OP)                           \
+  template <class T>                                         \
+  std::vector<T>& operator OP(std::vector<T>& left,          \
+                              const std::vector<T>& right) { \
+    ASSERT((left).size() == (right).size());                 \
+    for (size_t i = 0; i < (left).size(); i++) {             \
+      left[i] OP right[i];                                   \
+    }                                                        \
+    return left;                                             \
+  }
+#endif
+
+#ifndef VECTOR_INPLACE_COMPUTE_SCALAR
+#define VECTOR_INPLACE_COMPUTE_SCALAR(OP)                             \
+  template <class T>                                                  \
+  std::vector<T>& operator OP(std::vector<T>& left, const T& right) { \
+    for (size_t i = 0; i < (left).size(); i++) {                      \
+      left[i] OP right;                                               \
+    }                                                                 \
+    return left;                                                      \
   }
 #endif
 
@@ -103,12 +142,30 @@
 
 namespace infini {
 
-VEC_CAMPARE(<)
-VEC_CAMPARE(>)
-VEC_CAMPARE(==)
-VEC_CAMPARE(<=)
-VEC_CAMPARE(>=)
-VEC_CAMPARE(!=)
+VECTOR_COMPARE(<)
+VECTOR_COMPARE(>)
+VECTOR_COMPARE(==)
+VECTOR_COMPARE(<=)
+VECTOR_COMPARE(>=)
+VECTOR_COMPARE(!=)
+
+VECTOR_COMPUTE(+)
+VECTOR_COMPUTE(-)
+VECTOR_COMPUTE(*)
+VECTOR_COMPUTE(/)
+VECTOR_COMPUTE(%)
+
+VECTOR_INPLACE_COMPUTE(+=)
+VECTOR_INPLACE_COMPUTE(-=)
+VECTOR_INPLACE_COMPUTE(*=)
+VECTOR_INPLACE_COMPUTE(/=)
+VECTOR_INPLACE_COMPUTE(%=)
+
+VECTOR_INPLACE_COMPUTE_SCALAR(+=)
+VECTOR_INPLACE_COMPUTE_SCALAR(-=)
+VECTOR_INPLACE_COMPUTE_SCALAR(*=)
+VECTOR_INPLACE_COMPUTE_SCALAR(/=)
+VECTOR_INPLACE_COMPUTE_SCALAR(%=)
 
 bool ANY(const std::vector<bool>& boolvec);
 bool ALL(const std::vector<bool>& boolvec);
@@ -127,37 +184,6 @@ int64_t VECTOR_PRODUCT(const std::vector<int64_t>& left);
 
 int64_t DOT_PRODUCT(const std::vector<int64_t>& left,
                     const std::vector<int64_t>& right);
-
-std::vector<int64_t> operator+(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right);
-std::vector<int64_t> operator-(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right);
-std::vector<int64_t> operator*(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right);
-std::vector<int64_t> operator/(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right);
-std::vector<int64_t> operator%(const std::vector<int64_t>& left,
-                               const std::vector<int64_t>& right);
-std::vector<int64_t>& operator+=(std::vector<int64_t>& left,
-                                 const int64_t& right);
-std::vector<int64_t>& operator-=(std::vector<int64_t>& left,
-                                 const int64_t& right);
-std::vector<int64_t>& operator*=(std::vector<int64_t>& left,
-                                 const int64_t& right);
-std::vector<int64_t>& operator/=(std::vector<int64_t>& left,
-                                 const int64_t& right);
-std::vector<int64_t>& operator%=(std::vector<int64_t>& left,
-                                 const int64_t& right);
-std::vector<int64_t>& operator+=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right);
-std::vector<int64_t>& operator-=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right);
-std::vector<int64_t>& operator*=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right);
-std::vector<int64_t>& operator/=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right);
-std::vector<int64_t>& operator%=(std::vector<int64_t>& left,
-                                 const std::vector<int64_t>& right);
 
 std::string operator*(const std::string& left, const int64_t& right);
 
@@ -194,6 +220,9 @@ std::string left_pad(std::string s, size_t len, char c);
 std::string right_pad(std::string s, size_t len, char c);
 
 std::string left_right_pad(std::string s, size_t len, char c);
+
+std::string string_gather(std::vector<std::string>& strings,
+                          const std::string& delimiter = ", ");
 
 bool getBoolEnvironmentVariable(const std::string& str, bool default_value);
 
