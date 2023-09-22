@@ -12,18 +12,20 @@ Task::Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
       name(name_value),
       index(count++) {}
 
+void Task::pushMicro(Micro *micro) { micro_list.push_back(micro); }
+
+void Task::addArgument(TensorDatatype type, std::string name) {
+  arguments.push_back(std::make_pair(datatype_string(type), name));
+}
+
+//////////////////////////////////////////////////////////////////////
+
 SingleTask::SingleTask(int64_t cache_length, int64_t swap_length,
                        int64_t align_length, std::string cache_name,
                        std::string name_value)
     : Task(cache_length, swap_length, align_length, cache_name, name_value) {
   name =
       (name_value == "" ? "SingleTask_" + std::to_string(index) : name_value);
-}
-
-void SingleTask::pushMicro(Micro *micro) { micro_list.push_back(micro); }
-
-void SingleTask::addArgument(TensorDatatype type, std::string name) {
-  arguments.push_back(std::make_pair(datatype_string(type), name));
 }
 
 std::string SingleTask::generatorCode(PlatformType type, int64_t indent = 0) {
@@ -73,12 +75,6 @@ ParallelTask::ParallelTask(int64_t cache_length, int64_t swap_length,
     : Task(cache_length, swap_length, align_length, cache_name, name_value) {
   name =
       (name_value == "" ? "ParallelTask_" + std::to_string(index) : name_value);
-}
-
-void ParallelTask::pushMicro(Micro *micro) { micro_list.push_back(micro); }
-
-void ParallelTask::addArgument(TensorDatatype type, std::string name) {
-  arguments.push_back(std::make_pair(datatype_string(type), name));
 }
 
 std::string ParallelTask::generatorCode(PlatformType type, int64_t indent = 0) {

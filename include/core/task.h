@@ -22,8 +22,8 @@ class Task {
   std::vector<std::pair<std::string, std::string>> arguments;
 
  public:
-  virtual void pushMicro(Micro *micro) = 0;
-  virtual void addArgument(TensorDatatype type, std::string name) = 0;
+  void pushMicro(Micro *micro);
+  void addArgument(TensorDatatype type, std::string name);
   virtual std::string generatorCode(PlatformType type, int64_t indent) = 0;
 };
 
@@ -38,8 +38,6 @@ class SingleTask : public Task {
   // Destructor
   ~SingleTask() = default;
   // Function
-  void pushMicro(Micro *micro) override;
-  void addArgument(TensorDatatype type, std::string name) override;
   std::string generatorCode(PlatformType type, int64_t indent) override;
   void dispatch(int64_t core);
 };
@@ -52,8 +50,6 @@ class ParallelTask : public Task {
   // Destructor
   ~ParallelTask() = default;
   // Function
-  void pushMicro(Micro *micro) override;
-  void addArgument(TensorDatatype type, std::string name) override;
   std::string generatorCode(PlatformType type, int64_t indent) override;
 };
 
