@@ -4,6 +4,7 @@
 #include "core/attribute.h"
 #include "core/tile.h"
 #include "core/split.h"
+#include "core/task.h"
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
@@ -94,6 +95,9 @@ class Graph {
   std::vector<Data*> outputs;
   std::vector<Data*> temps;
   std::unordered_set<Data*> remaining_data;
+  // Device
+  PlatformType platform;
+  std::vector<Task*> task_list;
 
  public:
   Graph(std::vector<Node*> operators_list = {},
@@ -101,7 +105,10 @@ class Graph {
         std::vector<Data*> outputs_list = {}, std::string name_value = "");
   ~Graph() = default;
   std::vector<Node*> topoSort();
-  virtual std::string generatorCode(PlatformType type, int64_t indent = 0) = 0;
+  virtual std::string generatorTask(int64_t indent = 0) = 0;
+  virtual std::string generatorHost(int64_t indent = 0) = 0;
+  virtual std::string generatorCode(int64_t indent = 0) = 0;
+  virtual void applyPlatform(PlatformType type) = 0;
   void printGraph();
 };
 

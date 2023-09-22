@@ -4,23 +4,29 @@
 namespace infini {
 
 int64_t Task::count = 0;
-int64_t ParallelTask::count = 0;
 
 Task::Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
            std::string cache_name, std::string name_value)
     : cache(cache_length, swap_length, align_length, cache_name,
             MemoryDispatch::LRU),
-      index(count++) {
-  name = (name_value == "" ? "Task_" + std::to_string(index) : name_value);
+      name(name_value),
+      index(count++) {}
+
+SingleTask::SingleTask(int64_t cache_length, int64_t swap_length,
+                       int64_t align_length, std::string cache_name,
+                       std::string name_value)
+    : Task(cache_length, swap_length, align_length, cache_name, name_value) {
+  name =
+      (name_value == "" ? "SingleTask_" + std::to_string(index) : name_value);
 }
 
-void Task::pushMicro(Micro *micro) { micro_list.push_back(micro); }
+void SingleTask::pushMicro(Micro *micro) { micro_list.push_back(micro); }
 
-void Task::addArgument(TensorDatatype type, std::string name) {
+void SingleTask::addArgument(TensorDatatype type, std::string name) {
   arguments.push_back(std::make_pair(datatype_string(type), name));
 }
 
-std::string Task::generatorCode(PlatformType type, int64_t indent = 0) {
+std::string SingleTask::generatorCode(PlatformType type, int64_t indent = 0) {
   std::string result = "\n" + indentation(indent);
   if (type == PlatformType::BANG) {
     result += "__mlu_func__ void ";
@@ -39,7 +45,6 @@ std::string Task::generatorCode(PlatformType type, int64_t indent = 0) {
   } else if (type == PlatformType::CUDA) {
     result += "if (blockId.x == 0) {\n";
   }
-  // TODO: delcare cache
   if (type == PlatformType::BANG) {
     result += indentation(indent + 2) + "__nram__ ";
   }
@@ -58,17 +63,14 @@ std::string Task::generatorCode(PlatformType type, int64_t indent = 0) {
   return result;
 }
 
-void Task::dispatch(int64_t core) { core_list.push_back(core); }
+void SingleTask::dispatch(int64_t core) { core_list.push_back(core); }
 
 //////////////////////////////////////////////////////////////////////
 
 ParallelTask::ParallelTask(int64_t cache_length, int64_t swap_length,
                            int64_t align_length, std::string cache_name,
-                           int64_t parallel_value, std::string name_value)
-    : cache(cache_length, swap_length, align_length, cache_name,
-            MemoryDispatch::LRU),
-      parallel(parallel_value),
-      index(count++) {
+                           std::string name_value)
+    : Task(cache_length, swap_length, align_length, cache_name, name_value) {
   name =
       (name_value == "" ? "ParallelTask_" + std::to_string(index) : name_value);
 }

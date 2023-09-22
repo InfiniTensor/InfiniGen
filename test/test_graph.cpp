@@ -25,7 +25,10 @@ int main() {
     op->printLink();
   }
   LOG(INFO) << "========== Codegen ==========";
-  graph->generatorCode(PlatformType::BANG);
+  graph->applyPlatform(PlatformType::BANG);
+  graph->generatorTask();
+  graph->generatorHost();
+  graph->generatorCode();
 
   // LOG(INFO) << "===============================";
   // Data* n_a = new Data({1, 1});

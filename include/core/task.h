@@ -12,50 +12,49 @@ class Task {
   const int64_t index;
   std::vector<Micro *> micro_list;
   Cache cache;
-  std::vector<int64_t> core_list;
 
- private:
+  Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
+       std::string cache_name, std::string name_value = "");
+  ~Task() = default;
+
+ protected:
   static int64_t count;
-  // argument list, in the form of (type, name)
   std::vector<std::pair<std::string, std::string>> arguments;
 
  public:
+  virtual void pushMicro(Micro *micro) = 0;
+  virtual void addArgument(TensorDatatype type, std::string name) = 0;
+  virtual std::string generatorCode(PlatformType type, int64_t indent) = 0;
+};
+
+class SingleTask : public Task {
+ public:
+  std::vector<int64_t> core_list;
+
+ public:
   // Constructor
-  Task(int64_t cache_length, int64_t swap_length, int64_t align_length,
-       std::string cache_name, std::string name_value = "");
+  SingleTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
+             std::string cache_name, std::string name_value = "");
   // Destructor
-  ~Task() = default;
+  ~SingleTask() = default;
   // Function
-  void pushMicro(Micro *micro);
-  void addArgument(TensorDatatype type, std::string name);
-  std::string generatorCode(PlatformType type, int64_t indent);
+  void pushMicro(Micro *micro) override;
+  void addArgument(TensorDatatype type, std::string name) override;
+  std::string generatorCode(PlatformType type, int64_t indent) override;
   void dispatch(int64_t core);
 };
 
-class ParallelTask {
- public:
-  std::string name;
-  const int64_t index;
-  std::vector<Micro *> micro_list;
-  Cache cache;
-  int parallel;
-
- private:
-  static int64_t count;
-  // argument list, in the form of (type, name)
-  std::vector<std::pair<std::string, std::string>> arguments;
-
+class ParallelTask : public Task {
  public:
   // Constructor
   ParallelTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
-               std::string cache_name, int64_t parallel_value,
-               std::string name_value = "");
+               std::string cache_name, std::string name_value = "");
   // Destructor
   ~ParallelTask() = default;
   // Function
-  void pushMicro(Micro *micro);
-  void addArgument(TensorDatatype type, std::string name);
-  std::string generatorCode(PlatformType type, int64_t indent);
+  void pushMicro(Micro *micro) override;
+  void addArgument(TensorDatatype type, std::string name) override;
+  std::string generatorCode(PlatformType type, int64_t indent) override;
 };
 
 }  // namespace infini
