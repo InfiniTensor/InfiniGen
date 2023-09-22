@@ -30,6 +30,9 @@ SingleTask::SingleTask(int64_t cache_length, int64_t swap_length,
 
 std::string SingleTask::generatorCode(PlatformType type, int64_t indent = 0) {
   std::string result = "\n" + indentation(indent);
+  if (core_list.empty()) {
+    return "";
+  }
   if (type == PlatformType::BANG) {
     result += "__mlu_func__ void ";
   } else if (type == PlatformType::CUDA) {
@@ -43,9 +46,15 @@ std::string SingleTask::generatorCode(PlatformType type, int64_t indent = 0) {
   result += ") {\n" + indentation(indent + 1);
 
   if (type == PlatformType::BANG) {
-    result += "if (taskId == 0) {\n";
+    result += "if (";
+    for (int i = 0; i < core_list.size(); ++i) {
+      result += "taskId == " + std::to_string(core_list[i]);
+      result += (i == core_list.size() - 1 ? ")" : " && ");
+    }
+    result += "{\n";
   } else if (type == PlatformType::CUDA) {
-    result += "if (blockId.x == 0) {\n";
+    result += "if (blockId.x == ";
+    result += "{\n";
   }
   if (type == PlatformType::BANG) {
     result += indentation(indent + 2) + "__nram__ ";
