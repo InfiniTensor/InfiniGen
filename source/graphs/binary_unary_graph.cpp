@@ -3,6 +3,7 @@
 #include "micros/memory_micro.h"
 #include "core/task.h"
 #include "core/utils.h"
+#include <algorithm>
 
 namespace infini {
 
@@ -41,34 +42,52 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
     task->addArgument(data->tensor_datatype, data->name);
   }
   for (int i = 0; i < sorted_op.size(); ++i) {
+    Micro *micro = nullptr;
+    if (type == PlatformType::BANG) {
+      micro = new BangAddMicro(
+          sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
+          sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
+          sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
+          VECTOR_PRODUCT(tiles({0}).tile_dimension));
+    } else if (type == PlatformType::CUDA) {
+      micro = new CudaAddMicro(
+          sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
+          sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
+          sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
+          VECTOR_PRODUCT(tiles({0}).tile_dimension));
+    }
+    task->pushMicro(micro);
+
+    // Update remain data
     for (auto input : sorted_op[i]->inputs) {
       temp_remain[input] -= 1;
       if (temp_remain[input] == 0) {
         temp_remain.erase(input);
+        // Free
+        if (type == PlatformType::BANG) {
+          micro = new BangFreeMicro(input->name, input->data_offset,
+                                    VECTOR_PRODUCT(tiles({0}).tile_dimension));
+        } else if (type == PlatformType::CUDA) {
+          micro = new CudaFreeMicro(input->name, input->data_offset,
+                                    VECTOR_PRODUCT(tiles({0}).tile_dimension));
+        }
+        task->pushMicro(micro);
       }
     }
-    Micro *micro = nullptr;
-    if (type == PlatformType::BANG) {
-      micro = new BangAddMicro(sorted_op[i]->outputs[0]->name, 0,
-                               sorted_op[i]->inputs[0]->name, 0,
-                               sorted_op[i]->inputs[1]->name, 0,
-                               VECTOR_PRODUCT(tiles({0}).tile_dimension));
-    } else if (type == PlatformType::CUDA) {
-      micro = new CudaAddMicro(sorted_op[i]->outputs[0]->name, 0,
-                               sorted_op[i]->inputs[0]->name, 0,
-                               sorted_op[i]->inputs[1]->name, 0,
-                               VECTOR_PRODUCT(tiles({0}).tile_dimension));
-    }
-    task->pushMicro(micro);
-    if (i == sorted_op.size() - 1) {
-      if (type == PlatformType::BANG) {
-        micro = new BangStoreMicro(sorted_op[i]->outputs[0]->name, 0,
-                                   VECTOR_PRODUCT(tiles({0}).tile_dimension));
-      } else if (type == PlatformType::CUDA) {
-        micro = new CudaStoreMicro(sorted_op[i]->outputs[0]->name, 0,
-                                   VECTOR_PRODUCT(tiles({0}).tile_dimension));
+
+    // Store
+    for (auto output : sorted_op[i]->outputs) {
+      auto it = std::find(outputs.begin(), outputs.end(), output);
+      if (it != outputs.end()) {
+        if (type == PlatformType::BANG) {
+          micro = new BangStoreMicro(output->name, output->data_offset,
+                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
+        } else if (type == PlatformType::CUDA) {
+          micro = new CudaStoreMicro(output->name, output->data_offset,
+                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
+        }
+        task->pushMicro(micro);
       }
-      task->pushMicro(micro);
     }
   }
   task_list.push_back(task);

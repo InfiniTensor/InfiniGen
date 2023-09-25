@@ -2,8 +2,8 @@
 
 namespace infini {
 
-#define CASE(TYPE, STR)    \
-  case Platform::TYPE: \
+#define CASE(TYPE, STR) \
+  case Platform::TYPE:  \
     return STR
 
 const std::string Platform::deviceFuncDecl() const {
@@ -28,21 +28,20 @@ const std::string Platform::taskIdxDecl(int dim) const {
   std::vector<std::string> dim_map = {".x", ".y", ".z"};
   switch (type) {
     CASE(CUDA, "blockIdx" + dim_map[dim]);
-    CASE(BANG, "taskIdx" + dim_map[dim]);  
+    CASE(BANG, "taskIdx" + dim_map[dim]);
     default:
       return "";
   }
 }
 
 const std::string Platform::taskIdxDecl() const {
-   switch (type) {
+  switch (type) {
     CASE(CUDA, "blockIdx");
-    CASE(BANG, "taskIdx");  
+    CASE(BANG, "taskIdx");
     default:
       return "";
-  } 
+  }
 }
-
 
 const std::string Platform::taskDimDecl(int dim) const {
   std::vector<std::string> dim_map = {".x", ".y", ".z"};
@@ -74,7 +73,7 @@ const std::string Platform::regDecl() const {
 
 const std::string Platform::ldramDecl() const {
   switch (type) {
-    CASE(CUDA, ""); //不确定是不是这个
+    CASE(CUDA, "");  //不确定是不是这个
     CASE(BANG, "__ldram__");
     default:
       return "";
@@ -91,12 +90,12 @@ const std::string Platform::shmemDecl() const {
 }
 
 const std::string Platform::glmemDecl() const {
-   switch (type) {
+  switch (type) {
     CASE(CUDA, "__device__");
     CASE(BANG, "__mlu_device__");
     default:
       return "";
-  }  
+  }
 }
 
 const char* Platform::toString() const {

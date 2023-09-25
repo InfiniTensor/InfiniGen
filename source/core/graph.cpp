@@ -337,7 +337,7 @@ TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
   int64_t total = VECTOR_PRODUCT(tileTensorShape);
   TileTensor result(tileTensorShape, tileTensorStride, tensor_type,
                     tensor_layout, name + "_split");
-  // Temp stride 
+  // Temp stride
   std::vector<int64_t> temp_stride = tensor_stride * tile_shape;
   for (int64_t i = 0; i < total; i++) {
     // Local pos in Tensor
