@@ -10,8 +10,7 @@ struct Platform {
   enum : underlying_t { CUDA, BANG } type;
 
   constexpr Platform(decltype(type) t) : type(t) {}
-  constexpr explicit Platform(underlying_t val)
-      : type((decltype(type))val) {}
+  constexpr explicit Platform(underlying_t val) : type((decltype(type))val) {}
   constexpr underlying_t underlying() const { return type; }
 
   bool operator==(Platform others) const { return type == others.type; }

@@ -65,10 +65,10 @@ class TileTensor {
   bool empty();
   // num tiles
   int64_t numTiles();
-  
-  bool isNeat();
 
-  std::vector<int64_t>  neatRange();
+  bool isNeat();
+  // TileTensor coord under the range is neat
+  std::vector<int64_t> neatRange();
 
   // print
   void printInformation();
