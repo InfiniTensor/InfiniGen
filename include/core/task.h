@@ -3,6 +3,7 @@
 #include <utility>
 #include "core/micro.h"
 #include "core/cache.h"
+#include "core/platform.h"
 
 namespace infini {
 
@@ -25,7 +26,7 @@ class Task {
   void pushMicro(Micro *micro);
   void addArgument(TensorDatatype type, std::string name);
   std::string getArguments(bool with_type);
-  virtual std::string generatorCode(PlatformType type, int64_t indent) = 0;
+  virtual std::string generatorCode(Platform platform, int64_t indent) = 0;
 };
 
 class SingleTask : public Task {
@@ -39,7 +40,7 @@ class SingleTask : public Task {
   // Destructor
   ~SingleTask() = default;
   // Function
-  std::string generatorCode(PlatformType type, int64_t indent) override;
+  std::string generatorCode(Platform platform, int64_t indent) override;
   void dispatch(int64_t core);
 };
 
@@ -55,7 +56,7 @@ class ParallelTask : public Task {
   // Destructor
   ~ParallelTask() = default;
   // Function
-  std::string generatorCode(PlatformType type, int64_t indent) override;
+  std::string generatorCode(Platform platform, int64_t indent) override;
 };
 
 }  // namespace infini

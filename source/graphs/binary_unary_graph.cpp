@@ -13,8 +13,8 @@ BinaryUnaryGraph::BinaryUnaryGraph(std::vector<Node *> operators_list,
                                    std::string name_value)
     : Graph(operators_list, inputs_list, outputs_list, name_value) {}
 
-void BinaryUnaryGraph::applyPlatform(PlatformType type) {
-  platform = type;
+void BinaryUnaryGraph::applyPlatform(Platform platform) {
+  this->platform = platform;
   for (auto data : inputs) {
     data->flatten();
   }
@@ -43,13 +43,16 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
   }
   for (int i = 0; i < sorted_op.size(); ++i) {
     Micro *micro = nullptr;
-    if (type == PlatformType::BANG) {
+    if (platform == Platform::BANG)
+    {
       micro = new BangAddMicro(
           sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
           sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
           sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
           VECTOR_PRODUCT(tiles({0}).tile_dimension));
-    } else if (type == PlatformType::CUDA) {
+    }
+    else if (platform == Platform::CUDA)
+    {
       micro = new CudaAddMicro(
           sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
           sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
@@ -64,10 +67,13 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
       if (temp_remain[input] == 0) {
         temp_remain.erase(input);
         // Free
-        if (type == PlatformType::BANG) {
+        if (platform == Platform::BANG)
+        {
           micro = new BangFreeMicro(input->name, input->data_offset,
                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
-        } else if (type == PlatformType::CUDA) {
+        }
+        else if (platform == Platform::CUDA)
+        {
           micro = new CudaFreeMicro(input->name, input->data_offset,
                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
         }
@@ -79,10 +85,13 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
     for (auto output : sorted_op[i]->outputs) {
       auto it = std::find(outputs.begin(), outputs.end(), output);
       if (it != outputs.end()) {
-        if (type == PlatformType::BANG) {
+        if (platform == Platform::BANG)
+        {
           micro = new BangStoreMicro(output->name, output->data_offset,
                                      VECTOR_PRODUCT(tiles({0}).tile_dimension));
-        } else if (type == PlatformType::CUDA) {
+        }
+        else if (platform == Platform::CUDA)
+        {
           micro = new CudaStoreMicro(output->name, output->data_offset,
                                      VECTOR_PRODUCT(tiles({0}).tile_dimension));
         }
@@ -106,11 +115,7 @@ std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
 std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   // generate global function
   std::string result = "\n";
-  if (platform == PlatformType::BANG) {
-    result += "__mlu_entry__ void ";
-  } else if (platform == PlatformType::CUDA) {
-    result += "__global__ void ";
-  }
+  result += platform.globalFuncDecl();
 
   std::vector<std::string> arguments_list;
   for (int i = 0; i < inputs.size(); ++i) {

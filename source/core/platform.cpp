@@ -8,8 +8,8 @@ namespace infini {
 
 const std::string Platform::deviceFuncDecl() const {
   switch (type) {
-    CASE(CUDA, "__device__ void");
-    CASE(BANG, "__mlu_func__ void");
+    CASE(CUDA, "__device__ void ");
+    CASE(BANG, "__mlu_func__ void ");
     default:
       return "";
   }
@@ -17,8 +17,8 @@ const std::string Platform::deviceFuncDecl() const {
 
 const std::string Platform::globalFuncDecl() const {
   switch (type) {
-    CASE(CUDA, "__global__ void");
-    CASE(BANG, "__mlu_entry__ void");
+    CASE(CUDA, "__global__ void ");
+    CASE(BANG, "__mlu_entry__ void ");
     default:
       return "";
   }
@@ -65,7 +65,7 @@ const std::string Platform::taskDimDecl() const {
 const std::string Platform::regDecl() const {
   switch (type) {
     CASE(CUDA, "");
-    CASE(BANG, "__nram__");
+    CASE(BANG, "__nram__ ");
     default:
       return "";
   }
@@ -74,7 +74,7 @@ const std::string Platform::regDecl() const {
 const std::string Platform::ldramDecl() const {
   switch (type) {
     CASE(CUDA, "");  //不确定是不是这个
-    CASE(BANG, "__ldram__");
+    CASE(BANG, "__ldram__ ");
     default:
       return "";
   }
@@ -82,8 +82,8 @@ const std::string Platform::ldramDecl() const {
 
 const std::string Platform::shmemDecl() const {
   switch (type) {
-    CASE(CUDA, "__shared__");
-    CASE(BANG, "__mlu_shared__");
+    CASE(CUDA, "__shared__ ");
+    CASE(BANG, "__mlu_shared__ ");
     default:
       return "";
   }
@@ -91,8 +91,8 @@ const std::string Platform::shmemDecl() const {
 
 const std::string Platform::glmemDecl() const {
   switch (type) {
-    CASE(CUDA, "__device__");
-    CASE(BANG, "__mlu_device__");
+    CASE(CUDA, "__device__ ");
+    CASE(BANG, "__mlu_device__ ");
     default:
       return "";
   }
