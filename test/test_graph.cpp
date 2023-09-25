@@ -25,7 +25,7 @@ int main() {
     op->printLink();
   }
   LOG(INFO) << "========== Codegen ==========";
-  graph->applyPlatform(PlatformType::BANG);
+  graph->applyPlatform(Platform::BANG);
   graph->generatorTask();
   graph->generatorHost();
   graph->generatorCode();
