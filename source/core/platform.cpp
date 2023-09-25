@@ -55,7 +55,6 @@ const std::string Platform::taskDimDecl(int dim) const {
 }
 
 const std::string Platform::taskDimDecl() const {
-  std::vector<std::string> dim_map = {".x", ".y", ".z"};
   switch (type) {
     CASE(CUDA, "blockDim");
     CASE(BANG, "taskDim");
