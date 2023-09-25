@@ -98,6 +98,36 @@ bool TileTensor::empty() { return tiles.empty(); }
 
 int64_t TileTensor::numTiles() { return tiles.size(); }
 
+bool TileTensor::isNeat() {
+  if (tiles.empty()){
+    return true;
+  }
+  for (size_t i = 1; i < tiles.size(); i++) {
+    if (ANY(tiles[i].tile_dimension != tiles[i - 1].tile_dimension) ||
+        ANY(tiles[i].tile_stride != tiles[i - 1].tile_stride)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+std::vector<int64_t> TileTensor::neatRange() {
+  std::vector<int64_t> res(shape.size(), 0);
+  for (size_t axis = 0; axis < shape.size(); axis++){
+    std::vector<int64_t> coord(shape.size(), 0);
+    std::vector<int64_t> coord_pre(shape.size(), 0);
+    for (size_t i = 1; i < shape[axis]; i++){
+      coord[axis] = i;
+      coord_pre[axis] = i - 1;
+      if (ALL((*this)(coord).tile_dimension == (*this)(coord_pre).tile_dimension) && ALL((*this)(coord).tile_stride == (*this)(coord_pre).tile_stride)) {
+        continue;
+      }
+      res[axis] = i;
+    }
+  }
+  return res;
+}
+
 void TileTensor::printInformation() {
   std::string info_string = "";
   info_string += "—— TileTensor ";

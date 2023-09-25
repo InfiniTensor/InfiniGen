@@ -55,6 +55,7 @@ class TileTensor {
   // Get tiles
   std::vector<Tile> getTiles();
   // Delete tile
+  // FIXME: delete tile may cause the missing of finding
   Tile deleteTile(const std::vector<int64_t>& coord);
   // Get tile by multi-dimension coord
   Tile operator()(const std::vector<int64_t>& coord);
@@ -64,6 +65,10 @@ class TileTensor {
   bool empty();
   // num tiles
   int64_t numTiles();
+  
+  bool isNeat();
+
+  std::vector<int64_t>  neatRange();
 
   // print
   void printInformation();
