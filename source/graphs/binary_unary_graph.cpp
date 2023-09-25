@@ -1,5 +1,6 @@
 #include "graphs/binary_unary_graph.h"
 #include "micros/binary_micro.h"
+#include "micros/memory_micro.h"
 #include "core/task.h"
 #include "core/utils.h"
 
@@ -13,13 +14,20 @@ BinaryUnaryGraph::BinaryUnaryGraph(std::vector<Node *> operators_list,
 
 void BinaryUnaryGraph::applyPlatform(PlatformType type) {
   platform = type;
-  int64_t tensor_len = VECTOR_PRODUCT(inputs[0]->tensor_dimension);
-  int64_t tile_len = 1024;
-  int64_t loop = tensor_len / tile_len;
-  int64_t rem_len = tensor_len % tile_len;
+  for (auto data : inputs) {
+    data->flatten();
+  }
+  for (auto data : outputs) {
+    data->flatten();
+  }
+  for (auto data : temps) {
+    data->flatten();
+  }
+  auto tiles = inputs[0]->tiling({1024});
+  int64_t parallel = tiles.numTiles();
   std::vector<Node *> sorted_op = topoSort();
   Task *task = nullptr;
-  task = new ParallelTask(1024 * 10, 1024 * 100, 1024, "cache", loop);
+  task = new ParallelTask(1024 * 10, 1024 * 100, 1024, "cache", parallel);
   std::unordered_map<Data *, int64_t> temp_remain;
   for (auto data : inputs) {
     temp_remain[data] = data->remaining;
@@ -32,8 +40,8 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
     temp_remain[data] = data->remaining;
     task->addArgument(data->tensor_datatype, data->name);
   }
-  for (auto op : sorted_op) {
-    for (auto input : op->inputs) {
+  for (int i = 0; i < sorted_op.size(); ++i) {
+    for (auto input : sorted_op[i]->inputs) {
       temp_remain[input] -= 1;
       if (temp_remain[input] == 0) {
         temp_remain.erase(input);
@@ -41,13 +49,27 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
     }
     Micro *micro = nullptr;
     if (type == PlatformType::BANG) {
-      micro = new BangAddMicro(op->outputs[0]->name, 0, op->inputs[0]->name, 0,
-                               op->inputs[1]->name, 0, tile_len);
+      micro = new BangAddMicro(sorted_op[i]->outputs[0]->name, 0,
+                               sorted_op[i]->inputs[0]->name, 0,
+                               sorted_op[i]->inputs[1]->name, 0,
+                               VECTOR_PRODUCT(tiles({0}).tile_dimension));
     } else if (type == PlatformType::CUDA) {
-      micro = new CudaAddMicro(op->outputs[0]->name, 0, op->inputs[0]->name, 0,
-                               op->inputs[1]->name, 0, tile_len);
+      micro = new CudaAddMicro(sorted_op[i]->outputs[0]->name, 0,
+                               sorted_op[i]->inputs[0]->name, 0,
+                               sorted_op[i]->inputs[1]->name, 0,
+                               VECTOR_PRODUCT(tiles({0}).tile_dimension));
     }
     task->pushMicro(micro);
+    if (i == sorted_op.size() - 1) {
+      if (type == PlatformType::BANG) {
+        micro = new BangStoreMicro(sorted_op[i]->outputs[0]->name, 0,
+                                   VECTOR_PRODUCT(tiles({0}).tile_dimension));
+      } else if (type == PlatformType::CUDA) {
+        micro = new CudaStoreMicro(sorted_op[i]->outputs[0]->name, 0,
+                                   VECTOR_PRODUCT(tiles({0}).tile_dimension));
+      }
+      task->pushMicro(micro);
+    }
   }
   task_list.push_back(task);
 }
