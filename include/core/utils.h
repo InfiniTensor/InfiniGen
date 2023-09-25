@@ -7,6 +7,7 @@
 #include "core/log.h"
 #include "core/type.h"
 #include "core/cache.h"
+#include "core/platform.h"
 
 #ifndef TOKENPASTE
 #define _TOKENPASTE(x, y, z) x##y##z
@@ -210,6 +211,8 @@ std::string TO_STRING(CacheType type);
 std::string TO_STRING(CacheHitLocation location);
 
 std::string TO_STRING(PlatformType type);
+
+std::string TO_STRING(Platform p);
 
 std::string datatype_string(TensorDatatype type);
 

@@ -168,6 +168,17 @@ std::string TO_STRING(PlatformType type) {
   }
 }
 
+std::string TO_STRING(Platform p) {
+  switch (p.underlying()){
+    case Platform::CUDA:
+      return "CUDA";
+    case Platform::BANG:
+      return "BANG";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 std::string datatype_string(TensorDatatype datatype) {
   switch (datatype) {
     case TensorDatatype::HALF:
