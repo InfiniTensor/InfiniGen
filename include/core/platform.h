@@ -1,7 +1,6 @@
 #pragma once
-#include "core/api.h"
 #include <string>
-#include <tuple>
+#include <vector>
 
 namespace infini {
 
