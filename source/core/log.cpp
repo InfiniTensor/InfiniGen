@@ -25,13 +25,14 @@ static const int32_t dlog_level =
                : getLevelEnvironment("CODEGEN_DLOG_LEVEL", 0));
 
 Log::Log(std::string file, int32_t line, int32_t severity, int32_t module,
-         std::string name) {
+         std::string name, std::string log_file_path) {
   log_file = file;
   log_line = line;
   log_severity = severity;
   log_module =
       module < 0 ? 0 : (module > dlog_total_level ? dlog_total_level : module);
   module_name = name;
+  file_path = log_file_path;
 }
 
 Log::~Log() {
@@ -43,6 +44,12 @@ Log::~Log() {
       print_stream << print_string.str();
       print_stream << std::endl;
     }
+  } else if (log_severity == LOG_FILE) {
+    file_string << context_string.str();
+    std::ofstream fout;
+    fout.open(file_path, std::ios::app | std::ios::out);
+    fout << file_string.str();
+    fout.close();
   } else {
     if (log_severity != LOG_PURE) {
       printHead();
