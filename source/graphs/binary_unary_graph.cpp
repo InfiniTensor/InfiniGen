@@ -43,16 +43,13 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
   }
   for (int i = 0; i < sorted_op.size(); ++i) {
     Micro *micro = nullptr;
-    if (platform == Platform::BANG)
-    {
+    if (platform == Platform::BANG) {
       micro = new BangAddMicro(
           sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
           sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
           sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
           VECTOR_PRODUCT(tiles({0}).tile_dimension));
-    }
-    else if (platform == Platform::CUDA)
-    {
+    } else if (platform == Platform::CUDA) {
       micro = new CudaAddMicro(
           sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
           sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
@@ -67,13 +64,10 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
       if (temp_remain[input] == 0) {
         temp_remain.erase(input);
         // Free
-        if (platform == Platform::BANG)
-        {
+        if (platform == Platform::BANG) {
           micro = new BangFreeMicro(input->name, input->data_offset,
                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
-        }
-        else if (platform == Platform::CUDA)
-        {
+        } else if (platform == Platform::CUDA) {
           micro = new CudaFreeMicro(input->name, input->data_offset,
                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
         }
@@ -85,13 +79,10 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
     for (auto output : sorted_op[i]->outputs) {
       auto it = std::find(outputs.begin(), outputs.end(), output);
       if (it != outputs.end()) {
-        if (platform == Platform::BANG)
-        {
+        if (platform == Platform::BANG) {
           micro = new BangStoreMicro(output->name, output->data_offset,
                                      VECTOR_PRODUCT(tiles({0}).tile_dimension));
-        }
-        else if (platform == Platform::CUDA)
-        {
+        } else if (platform == Platform::CUDA) {
           micro = new CudaStoreMicro(output->name, output->data_offset,
                                      VECTOR_PRODUCT(tiles({0}).tile_dimension));
         }

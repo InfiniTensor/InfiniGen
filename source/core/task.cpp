@@ -47,7 +47,7 @@ std::string SingleTask::generatorCode(Platform platform, int64_t indent = 0) {
   }
   result += platform.deviceFuncDecl(name);
   result += "(" + getArguments() + ") {\n";
- 
+
   result += indentation(indent + 1);
   result += "if (";
   for (int i = 0; i < core_list.size(); ++i) {
@@ -66,7 +66,7 @@ std::string SingleTask::generatorCode(Platform platform, int64_t indent = 0) {
   for (int i = 0; i < micro_list.size(); ++i) {
     micro_list[i]->generatorCode(cache, result, indent + 2);
   }
-  
+
   result += indentation(indent + 1) + "}\n";
   result += indentation(indent) + "}\n";
   return result;
