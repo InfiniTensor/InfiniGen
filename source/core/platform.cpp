@@ -24,38 +24,46 @@ const std::string Platform::globalFuncDecl(std::string name) const {
   }
 }
 
-const std::string Platform::taskIdx(int dim) const {
-  std::vector<std::string> dim_map = {".x", ".y", ".z"};
+const std::string Platform::taskId(int dim) const {
+  // Coordinates of block/task on device
+  std::vector<std::string> dim_map_cuda = {".x", ".y", ".z"};
+  std::vector<std::string> dim_map_bang = {"X", "Y", "Z"};
   switch (type) {
-    CASE(CUDA, "blockIdx" + dim_map[dim]);
-    CASE(BANG, "taskIdx" + dim_map[dim]);
+    CASE(CUDA, "blockIdx" + dim_map_cuda[dim]);
+    CASE(BANG, "taskId" + dim_map_bang[dim]);
     default:
       return "";
   }
 }
 
-const std::string Platform::taskIdx() const {
+const std::string Platform::taskId() const {
+  // Linear ID of block/task on device
   switch (type) {
-    CASE(CUDA, "blockIdx");
-    CASE(BANG, "taskIdx");
+    CASE(CUDA,
+         "(blockIdx.x + blockIdx.y * gridDim.x + blockIdx.z * gridDim.x * "
+         "gridDim.y)");
+    CASE(BANG, "taskId");
     default:
       return "";
   }
 }
 
 const std::string Platform::taskDim(int dim) const {
-  std::vector<std::string> dim_map = {".x", ".y", ".z"};
+  // Number of blocks/tasks on each dimension
+  std::vector<std::string> dim_map_cuda = {".x", ".y", ".z"};
+  std::vector<std::string> dim_map_bang = {"X", "Y", "Z"};
   switch (type) {
-    CASE(CUDA, "blockDim" + dim_map[dim]);
-    CASE(BANG, "taskDim" + dim_map[dim]);
+    CASE(CUDA, "gridDim" + dim_map_cuda[dim]);
+    CASE(BANG, "taskDim" + dim_map_bang[dim]);
     default:
       return "";
   }
 }
 
 const std::string Platform::taskDim() const {
+  // Total number of blocks/tasks
   switch (type) {
-    CASE(CUDA, "blockDim");
+    CASE(CUDA, "(gridDim.x * gridDim.y * gridDim.z)");
     CASE(BANG, "taskDim");
     default:
       return "";

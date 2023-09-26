@@ -51,7 +51,7 @@ std::string SingleTask::generatorCode(Platform platform, int64_t indent = 0) {
   result += indentation(indent + 1);
   result += "if (";
   for (int i = 0; i < core_list.size(); ++i) {
-    result += platform.taskIdx() + " == " + std::to_string(core_list[i]);
+    result += platform.taskId() + " == " + std::to_string(core_list[i]);
     result += (i == core_list.size() - 1 ? ")" : " || ");
   }
   result += "{\n";
