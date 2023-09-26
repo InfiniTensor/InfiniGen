@@ -47,7 +47,7 @@ std::string SingleTask::generatorCode(Platform platform, int64_t indent = 0) {
   }
   result += platform.deviceFuncDecl(name);
   result += "(" + getArguments() + ") {\n";
- 
+
   result += indentation(indent + 1);
   result += "if (";
   for (int i = 0; i < core_list.size(); ++i) {
@@ -66,7 +66,7 @@ std::string SingleTask::generatorCode(Platform platform, int64_t indent = 0) {
   for (int i = 0; i < micro_list.size(); ++i) {
     micro_list[i]->generatorCode(cache, result, indent + 2);
   }
-  
+
   result += indentation(indent + 1) + "}\n";
   result += indentation(indent) + "}\n";
   return result;
@@ -78,9 +78,9 @@ void SingleTask::dispatch(int64_t core) { core_list.push_back(core); }
 
 ParallelTask::ParallelTask(int64_t cache_length, int64_t swap_length,
                            int64_t align_length, std::string cache_name,
-                           int64_t parallel_value, std::string name_value)
+                           TileTensor tiles, std::string name_value)
     : Task(cache_length, swap_length, align_length, cache_name, name_value),
-      parallel(parallel_value) {
+      tile_tensor(tiles) {
   name =
       (name_value == "" ? "ParallelTask_" + std::to_string(index) : name_value);
 }
