@@ -376,7 +376,8 @@ Graph::Graph(std::vector<Node*> operators_list, std::vector<Data*> inputs_list,
       index(count++),
       operators(operators_list),
       inputs(inputs_list),
-      outputs(outputs_list) {
+      outputs(outputs_list),
+      platform(Platform::CUDA) {
   name = (name == "" ? "Graph_" + std::to_string(index) : name);
   for (auto op : operators) {
     for (auto data : op->inputs) {

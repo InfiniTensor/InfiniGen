@@ -196,7 +196,7 @@ std::string TO_STRING(TensorLayout layout);
 
 std::string TO_STRING(TensorType type);
 
-std::string TO_STRING(std::vector<int64_t>& input);
+std::string TO_STRING(const std::vector<int64_t>& input);
 
 std::string TO_STRING(OperatorType type);
 

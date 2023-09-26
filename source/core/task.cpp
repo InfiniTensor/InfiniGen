@@ -45,27 +45,28 @@ std::string SingleTask::generatorCode(Platform platform, int64_t indent = 0) {
   if (core_list.empty()) {
     return "";
   }
-  result += platform.deviceFuncDecl();
-  result += name + "(" + getArguments() + ") {\n" + indentation(indent + 1);
-
-    result += "if (";
-    for (int i = 0; i < core_list.size(); ++i) {
-      result += platform.taskIdxDecl() + " == " + std::to_string(core_list[i]);
-      result += (i == core_list.size() - 1 ? ")" : " || ");
-    }
-    result += "{\n";
-
-    result += indentation(indent + 2) + platform.regDecl();
-  result += indentation(indent + 2) + "char " + cache.name + "[" +
-            std::to_string(cache.cache_size) + "];\n";
-  if (platform == Platform::BANG) {
-    result += indentation(indent + 2) + platform.ldramDecl() + "char " + cache.name +
-              "_ldram[" + std::to_string(cache.ldram_size) + "];\n";
+  result += platform.deviceFuncDecl(name);
+  result += "(" + getArguments() + ") {\n";
+ 
+  result += indentation(indent + 1);
+  result += "if (";
+  for (int i = 0; i < core_list.size(); ++i) {
+    result += platform.taskIdx() + " == " + std::to_string(core_list[i]);
+    result += (i == core_list.size() - 1 ? ")" : " || ");
   }
+  result += "{\n";
+
+  result += indentation(indent + 2) + platform.regDecl("char", cache.name) +
+            "[" + std::to_string(cache.cache_size) + "];\n";
+
+  result += indentation(indent + 2) +
+            platform.ldramDecl("char", cache.name + "_ldram") + "[" +
+            std::to_string(cache.ldram_size) + "];\n";
 
   for (int i = 0; i < micro_list.size(); ++i) {
     micro_list[i]->generatorCode(cache, result, indent + 2);
   }
+  
   result += indentation(indent + 1) + "}\n";
   result += indentation(indent) + "}\n";
   return result;
@@ -86,15 +87,16 @@ ParallelTask::ParallelTask(int64_t cache_length, int64_t swap_length,
 
 std::string ParallelTask::generatorCode(Platform platform, int64_t indent = 0) {
   std::string result = "\n" + indentation(indent);
-  result += platform.deviceFuncDecl();
-  result += name + "(" + getArguments() + ") {\n" + indentation(indent + 1);
+  result += platform.deviceFuncDecl(name);
+  result += "(" + getArguments() + ") {\n";
 
   // TODO: delcare cache
-      result += platform.regDecl() + "char " + cache.name + "[" + std::to_string(cache.cache_size) + "];\n";
-  if (platform == Platform::BANG) {
-    result += indentation(indent + 1) + platform.ldramDecl() + "char " + cache.name +
-              "_ldram[" + std::to_string(cache.ldram_size) + "];\n";
-  }
+  result += indentation(indent + 1) + platform.regDecl("char", cache.name) +
+            "[" + std::to_string(cache.cache_size) + "];\n";
+
+  result += indentation(indent + 1) +
+            platform.ldramDecl("char", cache.name + "_ldram") + "[" +
+            std::to_string(cache.ldram_size) + "];\n";
 
   for (int i = 0; i < micro_list.size(); ++i) {
     micro_list[i]->generatorCode(cache, result, indent + 1);
