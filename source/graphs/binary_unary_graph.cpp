@@ -12,8 +12,8 @@ BinaryUnaryGraph::BinaryUnaryGraph(std::vector<Node *> operators_list,
                                    std::string name_value)
     : Graph(operators_list, inputs_list, outputs_list, name_value) {}
 
-void BinaryUnaryGraph::applyPlatform(PlatformType type) {
-  platform = type;
+void BinaryUnaryGraph::applyPlatform(Platform platform) {
+  this->platform = platform;
   for (auto data : inputs) {
     data->flatten();
   }
@@ -48,12 +48,12 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
       }
     }
     Micro *micro = nullptr;
-    if (type == PlatformType::BANG) {
+    if (platform == Platform::BANG) {
       micro = new BangAddMicro(sorted_op[i]->outputs[0]->name, 0,
                                sorted_op[i]->inputs[0]->name, 0,
                                sorted_op[i]->inputs[1]->name, 0,
                                VECTOR_PRODUCT(tiles({0}).tile_dimension));
-    } else if (type == PlatformType::CUDA) {
+    } else if (platform == Platform::CUDA) {
       micro = new CudaAddMicro(sorted_op[i]->outputs[0]->name, 0,
                                sorted_op[i]->inputs[0]->name, 0,
                                sorted_op[i]->inputs[1]->name, 0,
@@ -61,10 +61,10 @@ void BinaryUnaryGraph::applyPlatform(PlatformType type) {
     }
     task->pushMicro(micro);
     if (i == sorted_op.size() - 1) {
-      if (type == PlatformType::BANG) {
+      if (platform == Platform::BANG) {
         micro = new BangStoreMicro(sorted_op[i]->outputs[0]->name, 0,
                                    VECTOR_PRODUCT(tiles({0}).tile_dimension));
-      } else if (type == PlatformType::CUDA) {
+      } else if (platform == Platform::CUDA) {
         micro = new CudaStoreMicro(sorted_op[i]->outputs[0]->name, 0,
                                    VECTOR_PRODUCT(tiles({0}).tile_dimension));
       }
@@ -87,11 +87,7 @@ std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
 std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   // generate global function
   std::string result = "\n";
-  if (platform == PlatformType::BANG) {
-    result += "__mlu_entry__ void ";
-  } else if (platform == PlatformType::CUDA) {
-    result += "__global__ void ";
-  }
+  result += platform.globalFuncDecl(name + "_kernel");
 
   std::vector<std::string> arguments_list;
   for (int i = 0; i < inputs.size(); ++i) {
@@ -104,7 +100,7 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   }
   std::string arguments = string_gather(arguments_list);
 
-  result += name + "_kernel(" + arguments + ") {\n";
+  result += "(" + arguments + ") {\n";
   result += indentation(indent + 1) + task_list[0]->name;
   result += "(" + task_list[0]->getArguments(false) + ");\n";
   result += indentation(indent) + "}\n";
@@ -131,6 +127,7 @@ std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   std::string arguments = string_gather(arguments_list);
   std::string operands = string_gather(operands_list);
 
+  // TODO
   std::string parallel_config = "1, 64";
   std::string result = "\n" + indentation(indent);
   result += "void " + name + "(" + arguments + ") {\n";

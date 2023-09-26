@@ -16,7 +16,7 @@ class BinaryUnaryGraph : public Graph {
   std::string generatorTask(int64_t indent) override;
   std::string generatorHost(int64_t indent) override;
   std::string generatorCode(int64_t indent) override;
-  void applyPlatform(PlatformType type) override;
+  void applyPlatform(Platform platform) override;
 };
 
 }  // namespace infini

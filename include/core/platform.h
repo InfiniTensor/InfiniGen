@@ -17,16 +17,16 @@ struct Platform {
   bool operator!=(Platform others) const { return type != others.type; }
 
   // Print platform related code
-  const std::string deviceFuncDecl() const;
-  const std::string globalFuncDecl() const;
-  const std::string taskIdxDecl(int dim) const;
-  const std::string taskIdxDecl() const;
-  const std::string taskDimDecl(int dim) const;
-  const std::string taskDimDecl() const;
-  const std::string regDecl() const;
-  const std::string ldramDecl() const;
-  const std::string shmemDecl() const;
-  const std::string glmemDecl() const;
+  const std::string deviceFuncDecl(std::string name) const;
+  const std::string globalFuncDecl(std::string name) const;
+  const std::string taskIdx(int dim) const;
+  const std::string taskIdx() const;
+  const std::string taskDim(int dim) const;
+  const std::string taskDim() const;
+  const std::string regDecl(std::string datatype, std::string name) const;
+  const std::string ldramDecl(std::string datatype, std::string name) const;
+  const std::string shmemDecl(std::string datatype, std::string name) const;
+  const std::string glmemDecl(std::string datatype, std::string name) const;
 
   const char *toString() const;
   bool isCUDA() const;

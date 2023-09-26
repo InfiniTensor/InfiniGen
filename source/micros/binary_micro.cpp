@@ -41,8 +41,8 @@ namespace infini {
                                   .generatorCode(cache, code, indent);        \
     std::string output_cache = CudaAllocateMicro(output_name, output, length) \
                                    .generatorCode(cache, code, indent);       \
-    code += indentation(indent) + output_cache + "] = " + left_cache + "]" +  \
-            std::string(OP_STRING) + right_cache + "];\n";                    \
+    code += indentation(indent) + output_cache + "] = " + left_cache + "] " + \
+            std::string(OP_STRING) + " " + right_cache + "];\n";              \
     cache.unlock();                                                           \
     return "";                                                                \
   }
