@@ -114,7 +114,7 @@ std::string TO_STRING(TensorType type) {
   }
 }
 
-std::string TO_STRING(std::vector<int64_t> &input) {
+std::string TO_STRING(const std::vector<int64_t> &input) {
   std::string info_string = "[";
   for (auto i = 0; i < input.size(); ++i) {
     info_string += std::to_string(input[i]);
@@ -169,7 +169,7 @@ std::string TO_STRING(PlatformType type) {
 }
 
 std::string TO_STRING(Platform p) {
-  switch (p.underlying()){
+  switch (p.underlying()) {
     case Platform::CUDA:
       return "CUDA";
     case Platform::BANG:
