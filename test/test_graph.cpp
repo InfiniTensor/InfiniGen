@@ -27,6 +27,7 @@ int main() {
   LOG(INFO) << "========== Codegen ==========";
   std::string code;
   graph->applyPlatform(Platform::BANG);
+  code += graph->generatorHead();
   code += graph->generatorTask();
   code += graph->generatorHost();
   code += graph->generatorCode();

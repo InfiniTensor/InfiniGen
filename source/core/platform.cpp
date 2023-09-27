@@ -119,6 +119,15 @@ const std::string Platform::queue() const {
   }
 }
 
+const std::string Platform::head() const {
+  switch (type) {
+    CASE(CUDA, "#include <cuda.h>");
+    CASE(BANG, "#include <bang.h>");
+    default:
+      return "";
+  }
+}
+
 const char* Platform::toString() const {
   switch (type) {
     CASE(CUDA, "CUDA");

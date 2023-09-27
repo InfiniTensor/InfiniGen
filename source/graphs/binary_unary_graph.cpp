@@ -98,9 +98,17 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
   task_list.push_back(task);
 }
 
+std::string BinaryUnaryGraph::generatorHead(int64_t indent = 0) {
+  // generate device function
+  std::string result = "\n";
+  result += platform.head();
+  LOG(WARNING) << result;
+  return result;
+}
+
 std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
   // generate device function
-  std::string result = "";
+  std::string result = "\n";
   for (int i = 0; i < task_list.size(); i++) {
     result += task_list[i]->generatorCode(platform, indent);
   }
