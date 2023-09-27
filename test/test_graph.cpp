@@ -30,8 +30,7 @@ int main() {
   code += graph->generatorTask();
   code += graph->generatorHost();
   code += graph->generatorCode();
-  LOG_FILE("abs.mlu") << code;
-  LOG_FILE("abc.mlu") << code;
+  LOG_FILE("test.mlu") << code;
 
   delete a;
   delete b;
