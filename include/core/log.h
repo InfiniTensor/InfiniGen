@@ -23,6 +23,8 @@
 
 namespace infini {
 
+static std::ofstream log_stream;
+
 class Log {
  public:
   std::string log_file;

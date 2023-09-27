@@ -1,6 +1,12 @@
 #include "core/utils.h"
 #include <algorithm>
 
+std::ofstream &LOG_WRITE(std::string file_path) {
+  infini::log_stream.close();
+  infini::log_stream.open(file_path, std::ios::app | std::ios::out);
+  return infini::log_stream;
+}
+
 namespace infini {
 
 std::vector<std::string> STRING_SPLIT(const std::string &input,
