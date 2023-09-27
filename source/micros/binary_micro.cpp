@@ -26,7 +26,9 @@ namespace infini {
         BangAllocateMicro(output_name, output, length, data_type)              \
             .generatorCode(cache, code, indent);                               \
     code += indentation(indent) + "__bang_" + std::string(OP_STRING) + "(" +   \
-            output_cache + ", " + left_cache + ", " + right_cache + ", " +     \
+            "(" + datatype_string(data_type) + " *)(" + output_cache + "), " + \
+            "(" + datatype_string(data_type) + " *)(" + left_cache + "), " +   \
+            "(" + datatype_string(data_type) + " *)(" + right_cache + "), " +  \
             std::to_string(length) + ");\n";                                   \
     cache.unlock();                                                            \
     return "";                                                                 \

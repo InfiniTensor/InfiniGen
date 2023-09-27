@@ -201,6 +201,11 @@ std::string datatype_string(TensorDatatype datatype) {
   }
 }
 
+std::string size_in_bytes(int64_t size, TensorDatatype type) {
+  return "(" + std::to_string(size) + " * sizeof(" + datatype_string(type) +
+         "))";
+}
+
 std::string TO_STRING(CacheType type) {
   switch (type) {
     case CacheType::CACHE:
