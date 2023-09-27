@@ -8,7 +8,7 @@ std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
                                          int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.load(cache_data);
-  std::string length_string = std::to_string(length);
+  std::string length_string = size_in_bytes(length, data_type);
   std::string cache_string =
       cache.name + " + " + std::to_string(result.cache_offset);
   std::string data_string = data_name + " + " + std::to_string(data);
@@ -26,7 +26,7 @@ std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
       std::string ldram_to_string =
           cache.name + "_ldram + " + std::to_string(result.ldram_to_offset[i]);
       std::string replaced_data_length_string =
-          std::to_string(result.replaced_data_size[i]);
+          size_in_bytes(result.replaced_data_size[i], data_type);
       code += indentation(indent) + "__memcpy(" + ldram_to_string + ", " +
               cache_from_string + ", " + replaced_data_length_string +
               ", NRAM2LDRAM);\n";
@@ -50,7 +50,7 @@ std::string BangStoreMicro::generatorCode(Cache &cache, std::string &code,
                                           int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.find(cache_data);
-  std::string length_string = std::to_string(length);
+  std::string length_string = size_in_bytes(length, data_type);
   std::string cache_string =
       cache.name + " + " + std::to_string(result.cache_offset);
   std::string data_string = data_name + " + " + std::to_string(data);
@@ -82,7 +82,7 @@ std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
                                              int64_t indent) {
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.allocate(cache_data);
-  std::string length_string = std::to_string(length);
+  std::string length_string = size_in_bytes(length, data_type);
   std::string cache_string =
       cache.name + " + " + std::to_string(result.cache_offset);
   std::string data_string = data_name + " + " + std::to_string(data);
@@ -97,7 +97,7 @@ std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
     std::string ldram_to_string =
         cache.name + "_ldram + " + std::to_string(result.ldram_to_offset[i]);
     std::string replaced_data_length_string =
-        std::to_string(result.replaced_data_size[i]);
+        size_in_bytes(result.replaced_data_size[i], data_type);
     code += indentation(indent) + "__memcpy(" + ldram_to_string + ", " +
             cache_from_string + ", " + replaced_data_length_string +
             ", NRAM2LDRAM);\n";
