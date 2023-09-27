@@ -31,7 +31,6 @@ class Log {
   std::stringstream context_string;
   std::stringstream print_string;
   std::stringstream file_string;
-  std::string file_path;
 
  public:
   // 构造与析构
