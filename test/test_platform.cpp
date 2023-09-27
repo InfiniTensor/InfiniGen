@@ -11,7 +11,7 @@ int main() {
   LOG(INFO) << "Test CUDA codegen";
   LOG(INFO) << cuda.deviceFuncDecl("foo");
   LOG(INFO) << cuda.globalFuncDecl("func");
-  LOG(INFO) << cuda.taskIdx();
+  LOG(INFO) << cuda.taskId();
   LOG(INFO) << cuda.taskDim();
   LOG(INFO) << cuda.regDecl("float", "*cache");
   LOG(INFO) << cuda.ldramDecl("half", "*array_ldram");
@@ -21,7 +21,7 @@ int main() {
   LOG(INFO) << "Test BANG codegen";
   LOG(INFO) << bang.deviceFuncDecl("foo");
   LOG(INFO) << bang.globalFuncDecl("func");
-  LOG(INFO) << bang.taskIdx();
+  LOG(INFO) << bang.taskId();
   LOG(INFO) << bang.taskDim();
   LOG(INFO) << bang.regDecl("float", "*cache");
   LOG(INFO) << bang.ldramDecl("half", "*array_ldram");
