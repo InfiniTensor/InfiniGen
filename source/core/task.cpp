@@ -56,13 +56,11 @@ std::string SingleTask::generatorCode(Platform platform, int64_t indent = 0) {
   }
   result += "{\n";
 
-  // TODO: cache array data type
-  std::string data_type = arguments[0].first;
-  result += indentation(indent + 2) + platform.regDecl(data_type, cache.name) +
+  result += indentation(indent + 2) + platform.regDecl("char", cache.name) +
             "[" + std::to_string(cache.cache_size) + "];\n";
 
   result += indentation(indent + 2) +
-            platform.ldramDecl(data_type, cache.name + "_ldram") + "[" +
+            platform.ldramDecl("char", cache.name + "_ldram") + "[" +
             std::to_string(cache.ldram_size) + "];\n";
 
   for (int i = 0; i < micro_list.size(); ++i) {
@@ -92,13 +90,12 @@ std::string ParallelTask::generatorCode(Platform platform, int64_t indent = 0) {
   result += platform.deviceFuncDecl(name);
   result += "(" + getArguments() + ") {\n";
 
-  // TODO: cache array data type
-  std::string data_type = arguments[0].first;
-  result += indentation(indent + 1) + platform.regDecl(data_type, cache.name) +
+  // TODO: delcare cache
+  result += indentation(indent + 1) + platform.regDecl("char", cache.name) +
             "[" + std::to_string(cache.cache_size) + "];\n";
 
   result += indentation(indent + 1) +
-            platform.ldramDecl(data_type, cache.name + "_ldram") + "[" +
+            platform.ldramDecl("char", cache.name + "_ldram") + "[" +
             std::to_string(cache.ldram_size) + "];\n";
 
   for (int i = 0; i < micro_list.size(); ++i) {
