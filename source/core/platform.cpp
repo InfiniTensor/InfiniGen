@@ -110,6 +110,15 @@ const std::string Platform::glmemDecl(std::string datatype,
   }
 }
 
+const std::string Platform::queue() const {
+  switch (type) {
+    CASE(CUDA, "cudaStream_t");
+    CASE(BANG, "cnrtQueue_t");
+    default:
+      return "";
+  }
+}
+
 const char* Platform::toString() const {
   switch (type) {
     CASE(CUDA, "CUDA");

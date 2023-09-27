@@ -27,6 +27,7 @@ struct Platform {
   const std::string ldramDecl(std::string datatype, std::string name) const;
   const std::string shmemDecl(std::string datatype, std::string name) const;
   const std::string glmemDecl(std::string datatype, std::string name) const;
+  const std::string queue() const;
 
   const char *toString() const;
   bool isCUDA() const;
