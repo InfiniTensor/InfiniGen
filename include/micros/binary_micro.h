@@ -7,12 +7,13 @@ namespace infini {
   class MICRO_NAME##Micro : public Micro {                                   \
     int64_t output, left, right, length;                                     \
     std::string output_name, left_name, right_name;                          \
+    TensorDatatype data_type;                                                \
                                                                              \
    public:                                                                   \
     MICRO_NAME##Micro(std::string output_name_string, int64_t output_offset, \
                       std::string left_name_string, int64_t left_offset,     \
                       std::string right_name_string, int64_t right_offset,   \
-                      int64_t length_value)                                  \
+                      int64_t length_value, TensorDatatype dtype)            \
         : Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
           output_name(output_name_string),                                   \
           output(output_offset),                                             \
@@ -20,7 +21,8 @@ namespace infini {
           left(left_offset),                                                 \
           right_name(right_name_string),                                     \
           right(right_offset),                                               \
-          length(length_value) {}                                            \
+          length(length_value),                                              \
+          data_type(dtype) {}                                                \
     std::string generatorCode(Cache& cache, std::string& result,             \
                               int64_t indent = 0) override;                  \
   };

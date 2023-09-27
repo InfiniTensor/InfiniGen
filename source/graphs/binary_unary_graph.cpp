@@ -47,13 +47,15 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
           sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
           sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
           sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
-          VECTOR_PRODUCT(tiles({0}).tile_dimension));
+          VECTOR_PRODUCT(tiles({0}).tile_dimension),
+          sorted_op[i]->inputs[0]->tensor_datatype);
     } else if (platform == Platform::CUDA) {
       micro = new CudaAddMicro(
           sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
           sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
           sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
-          VECTOR_PRODUCT(tiles({0}).tile_dimension));
+          VECTOR_PRODUCT(tiles({0}).tile_dimension),
+          sorted_op[i]->inputs[0]->tensor_datatype);
     }
     task->pushMicro(micro);
 
@@ -65,10 +67,12 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
         // Free
         if (platform == Platform::BANG) {
           micro = new BangFreeMicro(input->name, input->data_offset,
-                                    VECTOR_PRODUCT(tiles({0}).tile_dimension));
+                                    VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                                    input->tensor_datatype);
         } else if (platform == Platform::CUDA) {
           micro = new CudaFreeMicro(input->name, input->data_offset,
-                                    VECTOR_PRODUCT(tiles({0}).tile_dimension));
+                                    VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                                    input->tensor_datatype);
         }
         task->pushMicro(micro);
       }
@@ -80,10 +84,12 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
       if (it != outputs.end()) {
         if (platform == Platform::BANG) {
           micro = new BangStoreMicro(output->name, output->data_offset,
-                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
+                                     VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                                     output->tensor_datatype);
         } else if (platform == Platform::CUDA) {
           micro = new CudaStoreMicro(output->name, output->data_offset,
-                                     VECTOR_PRODUCT(tiles({0}).tile_dimension));
+                                     VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                                     output->tensor_datatype);
         }
         task->pushMicro(micro);
       }
