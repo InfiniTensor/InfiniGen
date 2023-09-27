@@ -56,7 +56,7 @@
 #define DLOG(level) DEVELOPLOG(Codegen, level)
 #endif
 
-std::ofstream& LOG_WRITE(std::string file_path);
+std::ofstream& LOG_FILE(std::string file_path);
 
 #ifndef VECTOR_COMPARE
 #define VECTOR_COMPARE(OP)                                     \

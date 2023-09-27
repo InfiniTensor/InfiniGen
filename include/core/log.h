@@ -10,16 +10,12 @@
 #define LOG_ERROR 3
 #define LOG_FATAL 4
 #define LOG_DLOG 5
-#define LOG_FILE 6
 
 #define PRINTLOG(name, severity) \
   infini::Log(__FILE__, __LINE__, LOG_##severity, 0, #name).stream()
 
 #define DEVELOPLOG(name, level) \
   infini::Log(__FILE__, __LINE__, LOG_DLOG, level, #name).stream()
-
-#define LOG_CODE(file_string) \
-  infini::Log(__FILE__, __LINE__, LOG_FILE, 0, "Codegen", #file_string).stream()
 
 namespace infini {
 
@@ -41,7 +37,7 @@ class Log {
   // 构造与析构
   Log() = delete;
   Log(std::string file, int32_t line, int32_t severity, int32_t module,
-      std::string name, std::string log_file_path = "");
+      std::string name);
   ~Log();
   // 时间
   std::string getTime();

@@ -1,7 +1,8 @@
 #include "core/utils.h"
 #include <algorithm>
 
-std::ofstream &LOG_WRITE(std::string file_path) {
+std::ofstream &LOG_FILE(std::string file_path) {
+  infini::log_stream.flush();
   infini::log_stream.close();
   infini::log_stream.open(file_path, std::ios::app | std::ios::out);
   return infini::log_stream;
