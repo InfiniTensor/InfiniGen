@@ -154,7 +154,8 @@ std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   // TODO
   std::string parallel_config = "1, 64";
   std::string result = "\n" + indentation(indent);
-  result += "void " + name + "(" + arguments + ") {\n";
+  result += "void " + name + "(" + platform.queue() + " queue, " + arguments +
+            ") {\n";
   result += indentation(indent + 1) + name + "_kernel";
   result += "<<<" + parallel_config + ">>>";
   result += "(" + operands + ");\n";
