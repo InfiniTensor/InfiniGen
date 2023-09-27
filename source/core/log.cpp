@@ -14,7 +14,6 @@
 namespace infini {
 
 static std::ostream print_stream(std::cout.rdbuf());
-static std::ofstream log_stream;
 static const int32_t dlog_total_level = 4;
 static const bool dlog_switch = getBoolEnvironment("CODEGEN_DLOG", false);
 static const int32_t dlog_level =
