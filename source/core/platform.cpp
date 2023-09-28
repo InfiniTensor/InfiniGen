@@ -1,4 +1,5 @@
 #include "core/platform.h"
+#include "core/utils.h"
 
 namespace infini {
 
@@ -134,6 +135,49 @@ const char* Platform::toString() const {
     CASE(BANG, "BANG");
     default:
       return "Unknown";
+  }
+}
+
+const std::string Platform::taskScaleDecl(int64_t num_tiles) const {
+  switch (type) {
+    CASE(CUDA, "int numBlocks = " + std::to_string(num_tiles) +
+                   ", threadsPerBlock = 512;");
+    CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_tiles, 4)) +
+                   ", 1, 1};");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::syntacticSugar() const {
+  switch (type) {
+    CASE(CUDA, "<<<numBlocks, threadsPerBlock, 0, queue>>>");
+    CASE(BANG, "<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
+                                      std::string datatype) const {
+  switch (type) {
+    CASE(CUDA, datatype + " " + name + "[" + std::to_string(cache_size) +
+                   " / sizeof(" + datatype + ")];");
+    CASE(BANG,
+         "__nram__ char " + name + "[" + std::to_string(cache_size) + "];");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::ldramDecl(std::string name,
+                                      int64_t ldram_size) const {
+  switch (type) {
+    CASE(CUDA, "");
+    CASE(BANG, "__ldram__ char " + name + "_ldram[" +
+                   std::to_string(ldram_size) + "];");
+    default:
+      return "";
   }
 }
 

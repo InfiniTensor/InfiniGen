@@ -13,7 +13,7 @@ struct CacheData {
   std::string name;
   // Offset in tensor for this data tile
   int64_t offset;
-  // Size of data tile
+  // Size of data tile(in bytes)
   int64_t size;
 
  public:
@@ -128,8 +128,10 @@ class Cache {
  public:
   // Cache configurations
   std::string name;
+  // Cache Size (in Bytes)
   int64_t cache_size;
   int64_t cache_align_size;
+  // LDRAM Size (in Bytes)
   int64_t ldram_size;
   MemoryDispatch cache_dispatch;
 

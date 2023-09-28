@@ -218,6 +218,8 @@ std::string TO_STRING(Platform p);
 
 std::string datatype_string(TensorDatatype type);
 
+int64_t datatype_size(TensorDatatype type);
+
 std::string size_in_bytes(int64_t size, TensorDatatype type);
 
 std::string indentation(int64_t num);
