@@ -24,7 +24,7 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
   for (auto data : temps) {
     data->flatten();
   }
-  auto tiles = inputs[0]->tiling({1024});
+  tiles = inputs[0]->tiling({1024});
   std::vector<Node *> sorted_op = topoSort();
   Task *task = nullptr;
   task = new ParallelTask(1024 * 10, 1024 * 100, 1024, "cache", tiles);
@@ -160,13 +160,13 @@ std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   std::string operands = string_gather(operands_list);
 
   // TODO
-  std::string parallel_config = "dim, CNRT_FUNC_TYPE_UNION1, queue";
   std::string result = "\n" + indentation(indent);
   result += "void " + name + "(" + platform.queue() + " queue, " + arguments +
             ") {\n";
-  result += indentation(indent + 1) + "cnrtDim3_t dim = {4,1,1};\n";
+  result +=
+      indentation(indent + 1) + platform.taskScaleDecl(tiles.numTiles()) + "\n";
   result += indentation(indent + 1) + name + "_kernel";
-  result += "<<<" + parallel_config + ">>>";
+  result += platform.syntacticSugar();
   result += "(" + operands + ");\n";
   result += indentation(indent) + "}\n";
 

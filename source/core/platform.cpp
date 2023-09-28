@@ -1,4 +1,5 @@
 #include "core/platform.h"
+#include "core/utils.h"
 
 namespace infini {
 
@@ -134,6 +135,26 @@ const char* Platform::toString() const {
     CASE(BANG, "BANG");
     default:
       return "Unknown";
+  }
+}
+
+const std::string Platform::taskScaleDecl(int64_t num_tiles) const {
+  switch (type) {
+    CASE(CUDA, "int numBlocks = " + std::to_string(num_tiles) +
+                   ", threadsPerBlock = 512;");
+    CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_tiles, 4)) +
+                   ", 1, 1};");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::syntacticSugar() const {
+  switch (type) {
+    CASE(CUDA, "<<<numBlocks, threadsPerBlock, 0, queue>>>");
+    CASE(BANG, "<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>");
+    default:
+      return "";
   }
 }
 

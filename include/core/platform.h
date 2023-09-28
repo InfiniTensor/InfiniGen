@@ -29,6 +29,8 @@ struct Platform {
   const std::string glmemDecl(std::string datatype, std::string name) const;
   const std::string queue() const;
   const std::string head() const;
+  const std::string taskScaleDecl(int64_t num_tiles) const;
+  const std::string syntacticSugar() const;
 
   const char *toString() const;
   bool isCUDA() const;
