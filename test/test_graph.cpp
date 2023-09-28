@@ -25,13 +25,13 @@ int main() {
     op->printLink();
   }
   LOG(INFO) << "========== Codegen ==========";
-  std::string code;
-  graph->applyPlatform(Platform::CUDA);
-  code += graph->generatorHead();
-  code += graph->generatorTask();
-  code += graph->generatorHost();
-  code += graph->generatorCode();
-  LOG_FILE("test.mlu") << code;
+  std::string source_code;
+  std::string head_code;
+  graph->applyPlatform(Platform::BANG);
+  source_code = graph->generatorSourceFile();
+  head_code = graph->generatorHeadFile();
+  LOG_FILE("../code/test.mlu") << source_code;
+  LOG_FILE("../code/test.h") << head_code;
 
   delete a;
   delete b;

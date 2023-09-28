@@ -20,6 +20,8 @@ class BinaryUnaryGraph : public Graph {
   std::string generatorTask(int64_t indent) override;
   std::string generatorHost(int64_t indent) override;
   std::string generatorCode(int64_t indent) override;
+  std::string generatorHeadFile(int64_t indent) override;
+  std::string generatorSourceFile(int64_t indent) override;
   void applyPlatform(Platform platform) override;
 };
 
