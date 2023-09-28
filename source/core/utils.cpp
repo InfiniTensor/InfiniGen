@@ -201,6 +201,21 @@ std::string datatype_string(TensorDatatype datatype) {
   }
 }
 
+int64_t datatype_size(TensorDatatype datatype) {
+  switch (datatype) {
+    case TensorDatatype::HALF:
+      return sizeof(float) / 2;  // NEED CHECK
+    case TensorDatatype::FLOAT:
+      return sizeof(float);
+    case TensorDatatype::DOUBLE:
+      return sizeof(double);
+    case TensorDatatype::INT32:
+      return sizeof(int);
+    default:
+      return 0;
+  }
+}
+
 std::string size_in_bytes(int64_t size, TensorDatatype type) {
   return "(" + std::to_string(size) + " * sizeof(" + datatype_string(type) +
          "))";
