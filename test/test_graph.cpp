@@ -2,8 +2,8 @@
 
 int main() {
   using namespace infini;
-  Data* a = new Data({2, 1024});
-  Data* b = new Data({2, 1024});
+  Data* a = new Data({4, 1024});
+  Data* b = new Data({4, 1024});
   Node* add = new Node({a, b});
   Data* temp = add->getOutput(0);
   Node* mul = new Node({b, temp});
@@ -27,6 +27,7 @@ int main() {
   LOG(INFO) << "========== Codegen ==========";
   std::string code;
   graph->applyPlatform(Platform::BANG);
+  code += graph->generatorHead();
   code += graph->generatorTask();
   code += graph->generatorHost();
   code += graph->generatorCode();

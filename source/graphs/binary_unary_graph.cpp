@@ -98,9 +98,17 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
   task_list.push_back(task);
 }
 
+std::string BinaryUnaryGraph::generatorHead(int64_t indent = 0) {
+  // generate device function
+  std::string result = "\n";
+  result += platform.head();
+  LOG(WARNING) << result;
+  return result;
+}
+
 std::string BinaryUnaryGraph::generatorTask(int64_t indent = 0) {
   // generate device function
-  std::string result = "";
+  std::string result = "\n";
   for (int i = 0; i < task_list.size(); i++) {
     result += task_list[i]->generatorCode(platform, indent);
   }
@@ -152,10 +160,11 @@ std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   std::string operands = string_gather(operands_list);
 
   // TODO
-  std::string parallel_config = "1, 64";
+  std::string parallel_config = "dim, CNRT_FUNC_TYPE_UNION1, queue";
   std::string result = "\n" + indentation(indent);
   result += "void " + name + "(" + platform.queue() + " queue, " + arguments +
             ") {\n";
+  result += indentation(indent + 1) + "cnrtDim3_t dim = {4,1,1};\n";
   result += indentation(indent + 1) + name + "_kernel";
   result += "<<<" + parallel_config + ">>>";
   result += "(" + operands + ");\n";

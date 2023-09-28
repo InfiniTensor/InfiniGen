@@ -13,6 +13,7 @@ class BinaryUnaryGraph : public Graph {
   // Destructor
   ~BinaryUnaryGraph() = default;
   // Generator
+  std::string generatorHead(int64_t indent) override;
   std::string generatorTask(int64_t indent) override;
   std::string generatorHost(int64_t indent) override;
   std::string generatorCode(int64_t indent) override;
