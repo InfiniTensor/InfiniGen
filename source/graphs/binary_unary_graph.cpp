@@ -175,4 +175,39 @@ std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   return result;
 }
 
+std::string BinaryUnaryGraph::generatorHeadFile(int64_t indent = 0) {
+  std::vector<std::string> arguments_list;
+  std::vector<std::string> operands_list;
+  for (int i = 0; i < inputs.size(); ++i) {
+    task_list[0]->addArgument(inputs[i]->tensor_datatype, inputs[i]->name);
+    arguments_list.push_back(datatype_string(inputs[i]->tensor_datatype) +
+                             " *" + inputs[i]->name);
+    operands_list.push_back(inputs[i]->name);
+  }
+  for (int i = 0; i < outputs.size(); ++i) {
+    task_list[0]->addArgument(outputs[i]->tensor_datatype, outputs[i]->name);
+    arguments_list.push_back(datatype_string(outputs[i]->tensor_datatype) +
+                             " *" + outputs[i]->name);
+    operands_list.push_back(outputs[i]->name);
+  }
+  std::string arguments = string_gather(arguments_list);
+  std::string operands = string_gather(operands_list);
+
+  std::string result;
+
+  result +=
+      "void " + name + "(" + platform.queue() + " queue, " + arguments + ");\n";
+  LOG(WARNING) << result;
+  return result;
+}
+
+std::string BinaryUnaryGraph::generatorSourceFile(int64_t indent = 0) {
+  std::string result;
+  result += generatorHead();
+  result += generatorTask();
+  result += generatorHost();
+  result += generatorCode();
+  return result;
+}
+
 }  // namespace infini

@@ -111,6 +111,8 @@ class Graph {
   virtual std::string generatorTask(int64_t indent = 0) = 0;
   virtual std::string generatorHost(int64_t indent = 0) = 0;
   virtual std::string generatorCode(int64_t indent = 0) = 0;
+  virtual std::string generatorHeadFile(int64_t indent = 0) = 0;
+  virtual std::string generatorSourceFile(int64_t indent = 0) = 0;
   virtual void applyPlatform(Platform platform) = 0;
   void printGraph();
 };
