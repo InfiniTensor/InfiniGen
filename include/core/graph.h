@@ -97,7 +97,6 @@ class Graph {
   std::vector<Data*> outputs;
   std::vector<Data*> temps;
   std::unordered_set<Data*> remaining_data;
-  TileTensor tiles;
   // Device
   Platform platform;
   std::vector<Task*> task_list;
