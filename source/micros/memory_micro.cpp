@@ -10,8 +10,9 @@ std::string BangLoadMicro::generatorCode(Cache &cache, std::string &code,
   CacheData cache_data = CacheData(data_name, data, length_in_bytes);
   auto result = cache.load(cache_data);
   std::string length_string = std::to_string(length_in_bytes);
-  std::string cache_string =
-      cache.name + " + " + std::to_string(result.cache_offset);
+  std::string cache_string = "(" + datatype_string(data_type) + " *)(" +
+                             cache.name + " + " +
+                             std::to_string(result.cache_offset) + ")";
   std::string data_string = data_name + " + " + std::to_string(data);
   data_string += " + " + core_index_name + " * " + std::to_string(length);
   std::string ldram_from_string =
@@ -53,8 +54,9 @@ std::string BangStoreMicro::generatorCode(Cache &cache, std::string &code,
   CacheData cache_data = CacheData(data_name, data, length_in_bytes);
   auto result = cache.find(cache_data);
   std::string length_string = std::to_string(length_in_bytes);
-  std::string cache_string =
-      cache.name + " + " + std::to_string(result.cache_offset);
+  std::string cache_string = "(" + datatype_string(data_type) + " *)(" +
+                             cache.name + " + " +
+                             std::to_string(result.cache_offset) + ")";
   std::string data_string = data_name + " + " + std::to_string(data);
   data_string += " + " + core_index_name + " * " + std::to_string(length);
   std::string ldram_from_string =
@@ -87,8 +89,9 @@ std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
   CacheData cache_data = CacheData(data_name, data, length_in_bytes);
   auto result = cache.allocate(cache_data);
   std::string length_string = std::to_string(length_in_bytes);
-  std::string cache_string =
-      cache.name + " + " + std::to_string(result.cache_offset);
+  std::string cache_string = "(" + datatype_string(data_type) + " *)(" +
+                             cache.name + " + " +
+                             std::to_string(result.cache_offset) + ")";
   std::string data_string = data_name + " + " + std::to_string(data);
   data_string += " + " + core_index_name + " * " + std::to_string(length);
   std::string ldram_from_string =
@@ -116,7 +119,7 @@ std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
   auto result = cache.load(cache_data);
   std::string length_string = std::to_string(length);
   std::string cache_string =
-      cache.name + "[" +
+      "((" + datatype_string(data_type) + "*)" + "(" + cache.name + "))" + "[" +
       std::to_string(result.cache_offset / datatype_size(data_type));
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
   data_string += core_index_name + " * " + length_string + " + ";
@@ -146,7 +149,7 @@ std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
   auto result = cache.find(cache_data);
   std::string length_string = std::to_string(length);
   std::string cache_string =
-      cache.name + "[" +
+      "((" + datatype_string(data_type) + "*)" + "(" + cache.name + "))" + "[" +
       std::to_string(result.cache_offset / datatype_size(data_type));
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
   data_string += core_index_name + " * " + length_string + " + ";
@@ -169,7 +172,7 @@ std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
   auto result = cache.allocate(cache_data);
   std::string length_string = std::to_string(length);
   std::string cache_string =
-      cache.name + "[" +
+      "((" + datatype_string(data_type) + "*)" + "(" + cache.name + "))" + "[" +
       std::to_string(result.cache_offset / datatype_size(data_type));
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
   data_string += core_index_name + " * " + length_string + " + ";

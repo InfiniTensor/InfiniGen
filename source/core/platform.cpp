@@ -161,8 +161,7 @@ const std::string Platform::syntacticSugar() const {
 const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
                                       std::string datatype) const {
   switch (type) {
-    CASE(CUDA, datatype + " " + name + "[" + std::to_string(cache_size) +
-                   " / sizeof(" + datatype + ")];");
+    CASE(CUDA, "char " + name + "[" + std::to_string(cache_size) + "];");
     CASE(BANG,
          "__nram__ char " + name + "[" + std::to_string(cache_size) + "];");
     default:
