@@ -158,6 +158,29 @@ const std::string Platform::syntacticSugar() const {
   }
 }
 
+const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
+                                      std::string datatype) const {
+  switch (type) {
+    CASE(CUDA, datatype + " " + name + "[" + std::to_string(cache_size) +
+                   " / sizeof(" + datatype + ")];");
+    CASE(BANG,
+         "__nram__ char " + name + "[" + std::to_string(cache_size) + "];");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::ldramDecl(std::string name,
+                                      int64_t ldram_size) const {
+  switch (type) {
+    CASE(CUDA, "");
+    CASE(BANG, "__ldram__ char " + name + "_ldram[" +
+                   std::to_string(ldram_size) + "];");
+    default:
+      return "";
+  }
+}
+
 bool Platform::isCUDA() const { return type == Platform::CUDA; }
 
 bool Platform::isBANG() const { return type == Platform::BANG; }

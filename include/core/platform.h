@@ -32,6 +32,10 @@ struct Platform {
   const std::string taskScaleDecl(int64_t num_tiles) const;
   const std::string syntacticSugar() const;
 
+  const std::string cacheDecl(std::string name, int64_t cache_size,
+                              std::string datatype) const;
+  const std::string ldramDecl(std::string name, int64_t ldram_size) const;
+
   const char *toString() const;
   bool isCUDA() const;
   bool isBANG() const;
