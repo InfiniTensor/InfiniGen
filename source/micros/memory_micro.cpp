@@ -112,8 +112,9 @@ std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.load(cache_data);
   std::string length_string = std::to_string(length);
-  std::string cache_string =
-      cache.name + "[" + std::to_string(result.cache_offset);
+  std::string cache_string = "((" + datatype_string(data_type) + "*)" + "(" +
+                             cache.name + "))" + "[" +
+                             std::to_string(result.cache_offset);
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
   data_string += core_index_name + " * " + length_string + " + ";
 
@@ -140,8 +141,9 @@ std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.find(cache_data);
   std::string length_string = std::to_string(length);
-  std::string cache_string =
-      cache.name + "[" + std::to_string(result.cache_offset);
+  std::string cache_string = "((" + datatype_string(data_type) + "*)" + "(" +
+                             cache.name + "))" + "[" +
+                             std::to_string(result.cache_offset);
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
   data_string += core_index_name + " * " + length_string + " + ";
 
@@ -161,8 +163,9 @@ std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
   CacheData cache_data = CacheData(data_name, data, length);
   auto result = cache.allocate(cache_data);
   std::string length_string = std::to_string(length);
-  std::string cache_string =
-      cache.name + "[" + std::to_string(result.cache_offset);
+  std::string cache_string = "((" + datatype_string(data_type) + "*)" + "(" +
+                             cache.name + "))" + "[" +
+                             std::to_string(result.cache_offset);
   std::string data_string = data_name + "[" + std::to_string(data) + " + ";
   data_string += core_index_name + " * " + length_string + " + ";
   return cache_string;

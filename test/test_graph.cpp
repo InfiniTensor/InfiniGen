@@ -26,12 +26,12 @@ int main() {
   }
   LOG(INFO) << "========== Codegen ==========";
   std::string code;
-  graph->applyPlatform(Platform::BANG);
+  graph->applyPlatform(Platform::CUDA);
   code += graph->generatorHead();
   code += graph->generatorTask();
   code += graph->generatorHost();
   code += graph->generatorCode();
-  LOG_FILE("test.mlu") << code;
+  LOG_FILE("test.cu") << code;
 
   delete a;
   delete b;
