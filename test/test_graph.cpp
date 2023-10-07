@@ -32,6 +32,7 @@ int main() {
   head_code = graph->generatorHeadFile();
   LOG_FILE("../code/test.cu") << source_code;
   LOG_FILE("../code/test.h") << head_code;
+  COMPILE("../code/test.cu", "../binary", Platform::CUDA);
 
   delete a;
   delete b;

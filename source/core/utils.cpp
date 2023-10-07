@@ -1,4 +1,5 @@
 #include "core/utils.h"
+#include <cstdlib>
 #include <algorithm>
 
 std::ofstream &LOG_FILE(std::string file_path) {
@@ -9,6 +10,23 @@ std::ofstream &LOG_FILE(std::string file_path) {
 }
 
 namespace infini {
+
+void COMPILE(std::string input_file_path, std::string output_binary_directory,
+             Platform platform) {
+  if (platform == Platform::BANG) {
+  } else if (platform == Platform::CUDA) {
+  }
+  return;
+}
+
+bool ENVIRONMENT_CHECK(Platform platform) {
+  if (platform == Platform::BANG) {
+    return true;
+  } else if (platform == Platform::CUDA) {
+    return true;
+  }
+  return false;
+}
 
 std::vector<std::string> STRING_SPLIT(const std::string &input,
                                       char delimiter) {
