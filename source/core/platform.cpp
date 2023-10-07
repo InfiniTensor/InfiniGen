@@ -146,6 +146,7 @@ const std::string Platform::taskScaleDecl(TileTensor tiles) const {
              ", threadsPerBlock = " +
              std::to_string(VECTOR_PRODUCT(tiles.tiles[0].tile_dimension)) +
              ";");
+
     CASE(BANG, "cnrtDim3_t dim = {" +
                    std::to_string(PAD_UP(tiles.numTiles(), 4)) + ", 1, 1};");
     default:
