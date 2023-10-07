@@ -1,39 +1,31 @@
-#pragma once
+#pragma
 #include "core/micro.h"
+#include "core/utils.h"
 
 namespace infini {
 
-#define BINARY_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)                  \
-  class MICRO_NAME##Micro : public Micro {                                   \
-    int64_t output, left, right, length;                                     \
-    std::string output_name, left_name, right_name;                          \
-                                                                             \
-   public:                                                                   \
-    MICRO_NAME##Micro(std::string output_name_string, int64_t output_offset, \
-                      std::string left_name_string, int64_t left_offset,     \
-                      std::string right_name_string, int64_t right_offset,   \
-                      int64_t length_value)                                  \
-        : Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
-          output_name(output_name_string),                                   \
-          output(output_offset),                                             \
-          left_name(left_name_string),                                       \
-          left(left_offset),                                                 \
-          right_name(right_name_string),                                     \
-          right(right_offset),                                               \
-          length(length_value) {}                                            \
-    std::string generatorCode(Cache& cache, std::string& result,             \
-                              int64_t indent = 0) override;                  \
+#define BINARY_MICRO(PLATFORM_NAME, MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE) \
+  class MICRO_NAME##PLATFORM_NAME : public Micro {                         \
+   private:                                                                \
+    std::string left_name, right_name, output_name;                        \
+    int64_t left_offset, right_offset, output_offset;                      \
+    int64_t length;                                                        \
+                                                                           \
+   public:                                                                 \
+    MICRO_NAME##PLATFORM_NAME(const std::vector<OperandType>& operands)    \
+        : Micro(MICRO_TYPE, PLATFORM_TYPE),                                \
+          output_name(std::get<0>(operands[0])),                           \
+          left_name(std::get<0>(operands[1])),                             \
+          right_name(std::get<0>(operands[2])),                            \
+          output_offset(std::get<1>(operands[0])),                         \
+          left_offset(std::get<1>(operands[1])),                           \
+          right_offset(std::get<1>(operands[2])),                          \
+          length(std::get<2>(operands[0])) {}                              \
+    std::string generatorCode(Cache& cache, std::string& result,           \
+                              int64_t indent = 0) override;                \
+    static Micro* makeObj(const std::vector<OperandType>& operands) {      \
+      return new MICRO_NAME##PLATFORM_NAME(operands);                      \
+    }                                                                      \
   };
 
-// On BANG platform
-BINARY_MICRO(BangAdd, MicroType::ADD, PlatformType::BANG)
-BINARY_MICRO(BangSub, MicroType::SUB, PlatformType::BANG)
-BINARY_MICRO(BangMul, MicroType::MUL, PlatformType::BANG)
-
-// On Cuda platform
-BINARY_MICRO(CudaAdd, MicroType::ADD, PlatformType::CUDA)
-BINARY_MICRO(CudaSub, MicroType::SUB, PlatformType::CUDA)
-BINARY_MICRO(CudaMul, MicroType::MUL, PlatformType::CUDA)
-
-#undef BINARY_MICRO
 }  // namespace infini
