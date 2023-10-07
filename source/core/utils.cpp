@@ -5,7 +5,7 @@
 std::ofstream &LOG_FILE(std::string file_path) {
   infini::log_stream.flush();
   infini::log_stream.close();
-  infini::log_stream.open(file_path, std::ios::app | std::ios::out);
+  infini::log_stream.open(file_path, std::ios::out);
   return infini::log_stream;
 }
 
@@ -13,8 +13,20 @@ namespace infini {
 
 void COMPILE(std::string input_file_path, std::string output_binary_directory,
              Platform platform) {
+  auto file_path_split = STRING_SPLIT(input_file_path, '/');
+  std::string file = file_path_split[file_path_split.size() - 1];
+  std::string file_name = STRING_SPLIT(file, '.')[0];
+  std::string shell = "";
   if (platform == Platform::BANG) {
+    shell += "cncc -shared --compiler-options '-fPIC' -o " +
+             output_binary_directory + "lib" + file_name + ".so -i " +
+             input_file_path + " --bang-mlu-arch=mtp_372 -O3";
+    system(shell.c_str());
   } else if (platform == Platform::CUDA) {
+    shell += "nvcc -shared --compiler-options '-fPIC' -o " +
+             output_binary_directory + "lib" + file_name + ".so " +
+             input_file_path + " -O3";
+    system(shell.c_str());
   }
   return;
 }
