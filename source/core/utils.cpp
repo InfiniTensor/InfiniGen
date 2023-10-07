@@ -18,9 +18,9 @@ void COMPILE(std::string input_file_path, std::string output_binary_directory,
   std::string file_name = STRING_SPLIT(file, '.')[0];
   std::string shell = "";
   if (platform == Platform::BANG) {
-    shell += "cncc -shared --compiler-options '-fPIC' -o " +
-             output_binary_directory + "lib" + file_name + ".so -i " +
-             input_file_path + " --bang-mlu-arch=mtp_372 -O3";
+    shell += "cncc -shared -fPIC -o " + output_binary_directory + "lib" +
+             file_name + ".so " + input_file_path +
+             " --bang-mlu-arch=mtp_372 -O3";
     system(shell.c_str());
   } else if (platform == Platform::CUDA) {
     shell += "nvcc -shared --compiler-options '-fPIC' -o " +
