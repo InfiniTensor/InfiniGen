@@ -164,9 +164,11 @@ const std::string Platform::syntacticSugar() const {
 
 const std::string Platform::workingCoreCond(TileTensor tiles) const {
   switch (type) {
-    CASE(CUDA, "true");
-    CASE(BANG, "taskId < " + std::to_string(tiles.numTiles() -
-                                            tiles.unneat_tiles.size()));
+    CASE(CUDA, "");
+    CASE(BANG,
+         "if (taskId > " +
+             std::to_string(tiles.numTiles() - tiles.unneat_tiles.size()) +
+             ") { return; }");
     default:
       return "";
   }

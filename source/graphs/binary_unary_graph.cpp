@@ -219,16 +219,19 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   std::string arguments = string_gather(arguments_list);
 
   result += "(" + arguments + ") {\n";
-  result += indentation(indent + 1) + "if (" + platform.workingCoreCond(tiles) +
-            ") {\n";
-  result += indentation(indent + 2) + task_list[0]->name;
+  if ((tiles.numTiles() - tiles.unneat_tiles.size()) % 4 != 0) {
+    result += indentation(indent + 1) + platform.workingCoreCond(tiles) + "\n";
+  }
+  result += indentation(indent + 1) + task_list[0]->name;
   result += "(" + task_list[0]->getArguments(false) + ");\n";
-  result += indentation(indent + 1) + "}\n";
-  result += indentation(indent + 1) + "if (" + platform.taskId() + " < " +
-            std::to_string(tiles.unneat_tiles.size()) + ") {\n";
-  result += indentation(indent + 2) + task_list[1]->name;
-  result += "(" + task_list[1]->getArguments(false) + ");\n";
-  result += indentation(indent + 1) + "}\n";
+
+  if (task_list.size() > 1) {
+    result += indentation(indent + 1) + "if (" + platform.taskId() + " < " +
+              std::to_string(tiles.unneat_tiles.size()) + ") {\n";
+    result += indentation(indent + 2) + task_list[1]->name;
+    result += "(" + task_list[1]->getArguments(false) + ");\n";
+    result += indentation(indent + 1) + "}\n";
+  }
 
   result += indentation(indent) + "}\n";
 
