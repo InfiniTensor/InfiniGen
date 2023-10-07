@@ -141,7 +141,8 @@ const char* Platform::toString() const {
 const std::string Platform::taskScaleDecl(TileTensor tiles) const {
   switch (type) {
     CASE(CUDA,
-         "int numBlocks = " + std::to_string(tiles.numTiles()) +
+         "int numBlocks = " +
+             std::to_string(tiles.numTiles() - tiles.unneat_tiles.size()) +
              ", threadsPerBlock = " +
              std::to_string(VECTOR_PRODUCT(tiles.tiles[0].tile_dimension)) +
              ";");
@@ -156,6 +157,16 @@ const std::string Platform::syntacticSugar() const {
   switch (type) {
     CASE(CUDA, "<<<numBlocks, threadsPerBlock, 0, queue>>>");
     CASE(BANG, "<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::workingCoreCond(TileTensor tiles) const {
+  switch (type) {
+    CASE(CUDA, "true");
+    CASE(BANG, "taskId < " + std::to_string(tiles.numTiles() -
+                                            tiles.unneat_tiles.size()));
     default:
       return "";
   }

@@ -27,7 +27,7 @@ int main() {
   LOG(INFO) << "========== Codegen ==========";
   std::string source_code;
   std::string head_code;
-  graph->applyPlatform(Platform::BANG);
+  graph->applyPlatform(Platform::CUDA);
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
   LOG_FILE("../code/test.cu") << source_code;
