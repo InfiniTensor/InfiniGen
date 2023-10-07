@@ -138,12 +138,12 @@ const char* Platform::toString() const {
   }
 }
 
-const std::string Platform::taskScaleDecl(int64_t num_tiles) const {
+const std::string Platform::taskScaleDecl(TileTensor tiles) const {
   switch (type) {
-    CASE(CUDA, "int numBlocks = " + std::to_string(num_tiles) +
+    CASE(CUDA, "int numBlocks = " + std::to_string(tiles.numTiles()) +
                    ", threadsPerBlock = 512;");
-    CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_tiles, 4)) +
-                   ", 1, 1};");
+    CASE(BANG, "cnrtDim3_t dim = {" +
+                   std::to_string(PAD_UP(tiles.numTiles(), 4)) + ", 1, 1};");
     default:
       return "";
   }

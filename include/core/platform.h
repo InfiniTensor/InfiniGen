@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "core/tile.h"
 
 namespace infini {
 
@@ -29,7 +30,7 @@ struct Platform {
   const std::string glmemDecl(std::string datatype, std::string name) const;
   const std::string queue() const;
   const std::string head() const;
-  const std::string taskScaleDecl(int64_t num_tiles) const;
+  const std::string taskScaleDecl(TileTensor tiles) const;
   const std::string syntacticSugar() const;
 
   const std::string cacheDecl(std::string name, int64_t cache_size,

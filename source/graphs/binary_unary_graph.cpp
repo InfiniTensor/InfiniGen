@@ -163,8 +163,7 @@ std::string BinaryUnaryGraph::generatorCode(int64_t indent = 0) {
   std::string result = "\n" + indentation(indent);
   result += "void " + name + "(" + platform.queue() + " queue, " + arguments +
             ") {\n";
-  result +=
-      indentation(indent + 1) + platform.taskScaleDecl(tiles.numTiles()) + "\n";
+  result += indentation(indent + 1) + platform.taskScaleDecl(tiles) + "\n";
   result += indentation(indent + 1) + name + "_kernel";
   result += platform.syntacticSugar();
   result += "(" + operands + ");\n";
