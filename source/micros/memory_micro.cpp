@@ -114,7 +114,7 @@ std::string BangAllocateMicro::generatorCode(Cache &cache, std::string &code,
 
 std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
                                          int64_t indent) {
-  int64_t length_in_bytes = length * datatype_size(data_type);
+  int64_t length_in_bytes = 1 * datatype_size(data_type);
   CacheData cache_data = CacheData(data_name, data, length_in_bytes);
   auto result = cache.load(cache_data);
   std::string length_string = std::to_string(length);
@@ -144,7 +144,7 @@ std::string CudaLoadMicro::generatorCode(Cache &cache, std::string &code,
 
 std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
                                           int64_t indent) {
-  int64_t length_in_bytes = length * datatype_size(data_type);
+  int64_t length_in_bytes = 1 * datatype_size(data_type);
   CacheData cache_data = CacheData(data_name, data, length_in_bytes);
   auto result = cache.find(cache_data);
   std::string length_string = std::to_string(length);
@@ -167,7 +167,7 @@ std::string CudaStoreMicro::generatorCode(Cache &cache, std::string &code,
 
 std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
                                              int64_t indent) {
-  int64_t length_in_bytes = length * datatype_size(data_type);
+  int64_t length_in_bytes = 1 * datatype_size(data_type);
   CacheData cache_data = CacheData(data_name, data, length_in_bytes);
   auto result = cache.allocate(cache_data);
   std::string length_string = std::to_string(length);
@@ -181,7 +181,7 @@ std::string CudaAllocateMicro::generatorCode(Cache &cache, std::string &code,
 
 std::string CudaFreeMicro::generatorCode(Cache &cache, std::string &code,
                                          int64_t indent) {
-  int64_t length_in_bytes = length * datatype_size(data_type);
+  int64_t length_in_bytes = 1 * datatype_size(data_type);
   CacheData cache_data = CacheData(data_name, data, length_in_bytes);
   auto result = cache.free(cache_data);
   return "";
