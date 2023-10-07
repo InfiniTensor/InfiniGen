@@ -2,8 +2,8 @@
 
 int main() {
   using namespace infini;
-  Data* a = new Data({4, 1024});
-  Data* b = new Data({4, 1024});
+  Data* a = new Data({1, 2050});
+  Data* b = new Data({1, 2050});
   Node* add = new Node({a, b});
   Data* temp = add->getOutput(0);
   Node* mul = new Node({b, temp});
@@ -27,7 +27,7 @@ int main() {
   LOG(INFO) << "========== Codegen ==========";
   std::string source_code;
   std::string head_code;
-  graph->applyPlatform(Platform::CUDA);
+  graph->applyPlatform(Platform::BANG);
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
   LOG_FILE("../code/test.cu") << source_code;

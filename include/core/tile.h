@@ -37,6 +37,7 @@ class TileTensor {
    */
  public:
   std::vector<Tile> tiles;
+  std::vector<Tile> unneat_tiles;
   std::vector<int64_t> stride;
   std::vector<int64_t> shape;
   TensorLayout layout;

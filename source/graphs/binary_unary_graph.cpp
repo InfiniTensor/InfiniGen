@@ -96,6 +96,92 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
     }
   }
   task_list.push_back(task);
+
+  // Remainder part task
+  // Assume 1-d
+  if (!tiles.isNeat()) {
+    Task *remainder_task = nullptr;
+    remainder_task = new ParallelTask(1024 * 20, 1024 * 100, 4, "cache", tiles);
+    for (auto data : inputs) {
+      temp_remain[data] = data->remaining;
+      remainder_task->addArgument(data->tensor_datatype, data->name);
+    }
+    for (auto data : temps) {
+      temp_remain[data] = data->remaining;
+    }
+    for (auto data : outputs) {
+      temp_remain[data] = data->remaining;
+      remainder_task->addArgument(data->tensor_datatype, data->name);
+    }
+    int64_t offset = (tiles.numTiles() - tiles.unneat_tiles.size()) *
+                     VECTOR_PRODUCT(tiles.tiles[0].tile_dimension);
+    for (int i = 0; i < sorted_op.size(); ++i) {
+      Micro *remainder_micro = nullptr;
+      if (platform == Platform::BANG) {
+        remainder_micro = new BangAddMicro(
+            sorted_op[i]->outputs[0]->name,
+            sorted_op[i]->outputs[0]->data_offset + offset,
+            sorted_op[i]->inputs[0]->name,
+            sorted_op[i]->inputs[0]->data_offset + offset,
+            sorted_op[i]->inputs[1]->name,
+            sorted_op[i]->inputs[1]->data_offset + offset,
+            VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+            sorted_op[i]->inputs[0]->tensor_datatype);
+      } else if (platform == Platform::CUDA) {
+        remainder_micro = new CudaAddMicro(
+            sorted_op[i]->outputs[0]->name,
+            sorted_op[i]->outputs[0]->data_offset + offset,
+            sorted_op[i]->inputs[0]->name,
+            sorted_op[i]->inputs[0]->data_offset + offset,
+            sorted_op[i]->inputs[1]->name,
+            sorted_op[i]->inputs[1]->data_offset + offset,
+            VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+            sorted_op[i]->inputs[0]->tensor_datatype);
+      }
+      remainder_task->pushMicro(remainder_micro);
+
+      // Update remain data
+      for (auto input : sorted_op[i]->inputs) {
+        temp_remain[input] -= 1;
+        if (temp_remain[input] == 0) {
+          temp_remain.erase(input);
+          // Free
+          if (platform == Platform::BANG) {
+            remainder_micro = new BangFreeMicro(
+                input->name, input->data_offset + offset,
+                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                input->tensor_datatype);
+          } else if (platform == Platform::CUDA) {
+            remainder_micro = new CudaFreeMicro(
+                input->name, input->data_offset + offset,
+                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                input->tensor_datatype);
+          }
+          remainder_task->pushMicro(remainder_micro);
+        }
+      }
+
+      // Store
+      for (auto output : sorted_op[i]->outputs) {
+        auto it = std::find(outputs.begin(), outputs.end(), output);
+        if (it != outputs.end()) {
+          if (platform == Platform::BANG) {
+            remainder_micro = new BangStoreMicro(
+                output->name, output->data_offset + offset,
+                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                output->tensor_datatype);
+          } else if (platform == Platform::CUDA) {
+            remainder_micro = new CudaStoreMicro(
+                output->name, output->data_offset + offset,
+                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                output->tensor_datatype);
+          }
+          remainder_task->pushMicro(remainder_micro);
+        }
+      }
+    }
+    task_list.push_back(remainder_task);
+  }
 }
 
 std::string BinaryUnaryGraph::generatorHead(int64_t indent = 0) {
@@ -135,6 +221,13 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   result += "(" + arguments + ") {\n";
   result += indentation(indent + 1) + task_list[0]->name;
   result += "(" + task_list[0]->getArguments(false) + ");\n";
+
+  result += indentation(indent + 1) + "if (" + platform.taskId() + " < " +
+            std::to_string(tiles.unneat_tiles.size()) + ") {\n";
+  result += indentation(indent + 2) + task_list[1]->name;
+  result += "(" + task_list[1]->getArguments(false) + ");\n";
+  result += indentation(indent + 1) + "}\n";
+
   result += indentation(indent) + "}\n";
 
   LOG(WARNING) << result;
