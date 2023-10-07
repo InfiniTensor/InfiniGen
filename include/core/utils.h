@@ -145,6 +145,11 @@ std::ofstream& LOG_FILE(std::string file_path);
 
 namespace infini {
 
+void COMPILE(std::string input_file_path, std::string output_binary_directory,
+             Platform platform);
+
+bool ENVIRONMENT_CHECK(Platform platform);
+
 VECTOR_COMPARE(<)
 VECTOR_COMPARE(>)
 VECTOR_COMPARE(==)
