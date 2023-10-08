@@ -70,7 +70,6 @@ class TileTensor {
   // TileTensor coord under the range is neat
   std::vector<int64_t> neatRange();
 
-  
   // print
   void printInformation();
   void printSummary();

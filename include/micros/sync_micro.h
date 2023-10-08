@@ -7,16 +7,16 @@ namespace infini {
 #define MAKEOBJ(MICRO)                                              \
   static Micro* makeObj(const std::vector<OperandType>& operands) { \
     ASSERT(operands.empty());                                       \
-    return new MICRO();                                     \
+    return new MICRO();                                             \
   }
 
-#define SYNC_DEF(OP, PLName, PL)                                  \
-  class CAT(OP, PLName) : public SyncMicro {                      \
-   public:                                                        \
-    CAT(OP, PLName)() : SyncMicro(PL) {} \
-    std::string generatorCode(Cache& cache, std::string& code,    \
-                              int64_t indent) override;           \
-    MAKEOBJ(CAT(OP, PLName))                                      \
+#define SYNC_DEF(OP, PLName, PL)                               \
+  class CAT(OP, PLName) : public SyncMicro {                   \
+   public:                                                     \
+    CAT(OP, PLName)() : SyncMicro(PL) {}                       \
+    std::string generatorCode(Cache& cache, std::string& code, \
+                              int64_t indent) override;        \
+    MAKEOBJ(CAT(OP, PLName))                                   \
   }
 
 class SyncMicro : public Micro {
@@ -38,7 +38,7 @@ SYNC_DEF(Sync, Bang, Platform::BANG);
 
 /**
  * Register Sync micros
-*/
+ */
 REGISTER_MICRO(OperatorType::SYNC, Platform::CUDA, SyncCuda::makeObj)
 REGISTER_MICRO(OperatorType::SYNC, Platform::BANG, SyncBang::makeObj)
 

@@ -14,7 +14,7 @@ std::string LoadCuda::generatorCode(Cache& cache, std::string& code,
       "((" + datatype_string(data_type) + "*)" + "(" + cache.name + "))" + "[" +
       std::to_string(result.cache_offset / datatype_size(data_type));
   std::string data_string = name + "[" + std::to_string(offset) + " + ";
-  data_string += platform.taskIdx() + " * " + length_string + " + ";
+  data_string += platform.taskId() + " * " + length_string + " + ";
 
   if (result.location == CacheHitLocation::CACHE) {
     return cache_string;
@@ -44,7 +44,7 @@ std::string StoreCuda::generatorCode(Cache& cache, std::string& code,
       "((" + datatype_string(data_type) + "*)" + "(" + cache.name + "))" + "[" +
       std::to_string(result.cache_offset / datatype_size(data_type));
   std::string data_string = name + "[" + std::to_string(offset) + " + ";
-  data_string += platform.taskIdx() + " * " + length_string + " + ";
+  data_string += platform.taskId() + " * " + length_string + " + ";
 
   if (result.location == CacheHitLocation::CACHE) {
     code += indentation(indent) + data_string +
@@ -67,7 +67,7 @@ std::string StoreCuda::generatorCode(Cache& cache, std::string& code,
       "((" + datatype_string(data_type) + "*)" + "(" + cache.name + "))" + "[" +
       std::to_string(result.cache_offset / datatype_size(data_type));
   std::string data_string = name + "[" + std::to_string(offset) + " + ";
-  data_string += platform.taskIdx() + " * " + length_string + " + ";
+  data_string += platform.taskId() + " * " + length_string + " + ";
   return cache_string;
 }
 

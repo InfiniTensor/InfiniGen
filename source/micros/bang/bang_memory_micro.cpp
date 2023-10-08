@@ -14,7 +14,7 @@ std::string LoadBang::generatorCode(Cache& cache, std::string& code,
                              cache.name + " + " +
                              std::to_string(result.cache_offset) + ")";
   std::string data_string = name + " + " + std::to_string(offset);
-  data_string += " + " + platform.taskIdx() + " * " + std::to_string(length);
+  data_string += " + " + platform.taskId() + " * " + std::to_string(length);
   std::string ldram_from_string =
       cache.name + "_ldram + " + std::to_string(result.ldram_from_offset);
 
@@ -58,7 +58,7 @@ std::string StoreBang::generatorCode(Cache& cache, std::string& code,
                              cache.name + " + " +
                              std::to_string(result.cache_offset) + ")";
   std::string data_string = name + " + " + std::to_string(offset);
-  data_string += " + " + platform.taskIdx() + " * " + std::to_string(length);
+  data_string += " + " + platform.taskId() + " * " + std::to_string(length);
   std::string ldram_from_string =
       cache.name + "_ldram + " + std::to_string(result.ldram_from_offset);
 
@@ -93,7 +93,7 @@ std::string AllocateBang::generatorCode(Cache& cache, std::string& code,
                              cache.name + " + " +
                              std::to_string(result.cache_offset) + ")";
   std::string data_string = name + " + " + std::to_string(offset);
-  data_string += " + " + platform.taskIdx() + " * " + std::to_string(length);
+  data_string += " + " + platform.taskId() + " * " + std::to_string(length);
   std::string ldram_from_string =
       cache.name + "_ldram + " + std::to_string(result.ldram_from_offset);
 

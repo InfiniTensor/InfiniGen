@@ -64,7 +64,7 @@ BINARY_DEF(Mul, Bang, Platform::BANG);
 
 /**
  * Register Micros
-*/
+ */
 // CUDA
 REGISTER_MICRO(OperatorType::ADD, Platform::CUDA, AddCuda::makeObj)
 REGISTER_MICRO(OperatorType::SUB, Platform::CUDA, SubCuda::makeObj)
