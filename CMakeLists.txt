@@ -21,7 +21,7 @@ if(BUILD_ASAN)
 endif()
 
 include_directories(include)
-file(GLOB_RECURSE SOURCE source/core/*.cpp source/operators/*.cpp source/kernels/*.cpp source/micros/*.cpp source/graphs/*.cpp)
+file(GLOB_RECURSE SOURCE source/core/*.cpp source/operators/*.cpp source/kernels/*.cpp source/micros/*.cpp source/graphs/*.cpp source/micros/bang/*.cpp source/micro/cuda/*.cpp)
 add_library(Thread SHARED ${SOURCE})
 
 if(BUILD_TEST)

@@ -46,7 +46,7 @@ class Micro {
   virtual void printInformation();
 };
 
-using MicroAttrs = std::tuple<OperatorType, Platform>;
+using MicroAttrs = std::tuple<OperatorType, Platform::underlying_t>;
 using MicroConstructor =
     std::function<Micro *(const std::vector<OperandType> &)>;
 
@@ -74,7 +74,7 @@ class MicroRegistry {
 };
 
 #define REGISTER_MICRO(optype, platform, constructor)                          \
-  static const bool _register_micro_constructor_##__COUNTER__ =                \
+  static const bool CAT(_register_micro_constructor_, __COUNTER__) =           \
       MicroRegistry::getInstance().registerMicro(MicroAttrs{optype, platform}, \
                                                  constructor);
 
