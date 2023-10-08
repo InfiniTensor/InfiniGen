@@ -61,6 +61,8 @@
 #define DLOG(level) DEVELOPLOG(Codegen, level)
 #endif
 
+std::ofstream& LOG_FILE(std::string file_path);
+
 #ifndef VECTOR_COMPARE
 #define VECTOR_COMPARE(OP)                                     \
   template <class T>                                           \
@@ -148,6 +150,11 @@
 
 namespace infini {
 
+void COMPILE(std::string input_file_path, std::string output_binary_directory,
+             Platform platform);
+
+bool ENVIRONMENT_CHECK(Platform platform);
+
 VECTOR_COMPARE(<)
 VECTOR_COMPARE(>)
 VECTOR_COMPARE(==)
@@ -222,6 +229,10 @@ std::string TO_STRING(Platform p);
 int64_t datatype_size(TensorDatatype type);
 
 std::string datatype_string(TensorDatatype type);
+
+int64_t datatype_size(TensorDatatype type);
+
+std::string size_in_bytes(int64_t size, TensorDatatype type);
 
 std::string indentation(int64_t num);
 

@@ -1,4 +1,5 @@
 #include "core/platform.h"
+#include "core/utils.h"
 
 namespace infini {
 
@@ -24,38 +25,46 @@ const std::string Platform::globalFuncDecl(std::string name) const {
   }
 }
 
-const std::string Platform::taskIdx(int dim) const {
-  std::vector<std::string> dim_map = {".x", ".y", ".z"};
+const std::string Platform::taskId(int dim) const {
+  // Coordinates of block/task on device
+  std::vector<std::string> dim_map_cuda = {".x", ".y", ".z"};
+  std::vector<std::string> dim_map_bang = {"X", "Y", "Z"};
   switch (type) {
-    CASE(CUDA, "blockIdx" + dim_map[dim]);
-    CASE(BANG, "taskIdx" + dim_map[dim]);
+    CASE(CUDA, "blockIdx" + dim_map_cuda[dim]);
+    CASE(BANG, "taskId" + dim_map_bang[dim]);
     default:
       return "";
   }
 }
 
-const std::string Platform::taskIdx() const {
+const std::string Platform::taskId() const {
+  // Linear ID of block/task on device
   switch (type) {
-    CASE(CUDA, "blockIdx");
-    CASE(BANG, "taskIdx");
+    CASE(CUDA,
+         "(blockIdx.x + blockIdx.y * gridDim.x + blockIdx.z * gridDim.x * "
+         "gridDim.y)");
+    CASE(BANG, "taskId");
     default:
       return "";
   }
 }
 
 const std::string Platform::taskDim(int dim) const {
-  std::vector<std::string> dim_map = {".x", ".y", ".z"};
+  // Number of blocks/tasks on each dimension
+  std::vector<std::string> dim_map_cuda = {".x", ".y", ".z"};
+  std::vector<std::string> dim_map_bang = {"X", "Y", "Z"};
   switch (type) {
-    CASE(CUDA, "blockDim" + dim_map[dim]);
-    CASE(BANG, "taskDim" + dim_map[dim]);
+    CASE(CUDA, "gridDim" + dim_map_cuda[dim]);
+    CASE(BANG, "taskDim" + dim_map_bang[dim]);
     default:
       return "";
   }
 }
 
 const std::string Platform::taskDim() const {
+  // Total number of blocks/tasks
   switch (type) {
-    CASE(CUDA, "blockDim");
+    CASE(CUDA, "(gridDim.x * gridDim.y * gridDim.z)");
     CASE(BANG, "taskDim");
     default:
       return "";
@@ -102,12 +111,72 @@ const std::string Platform::glmemDecl(std::string datatype,
   }
 }
 
+const std::string Platform::queue() const {
+  switch (type) {
+    CASE(CUDA, "cudaStream_t");
+    CASE(BANG, "cnrtQueue_t");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::head() const {
+  switch (type) {
+    CASE(CUDA, "#include <cuda.h>");
+    CASE(BANG, "#include <bang.h>");
+    default:
+      return "";
+  }
+}
+
 const char* Platform::toString() const {
   switch (type) {
     CASE(CUDA, "CUDA");
     CASE(BANG, "BANG");
     default:
       return "Unknown";
+  }
+}
+
+const std::string Platform::taskScaleDecl(TileTensor tiles) const {
+  switch (type) {
+    CASE(CUDA, "int numBlocks = " + std::to_string(tiles.numTiles()) +
+                   ", threadsPerBlock = 1024;");
+    CASE(BANG, "cnrtDim3_t dim = {" +
+                   std::to_string(PAD_UP(tiles.numTiles(), 4)) + ", 1, 1};");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::syntacticSugar() const {
+  switch (type) {
+    CASE(CUDA, "<<<numBlocks, threadsPerBlock, 0, queue>>>");
+    CASE(BANG, "<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
+                                      std::string datatype) const {
+  switch (type) {
+    CASE(CUDA, "char " + name + "[" + std::to_string(cache_size) + "];");
+    CASE(BANG,
+         "__nram__ char " + name + "[" + std::to_string(cache_size) + "];");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::ldramDecl(std::string name,
+                                      int64_t ldram_size) const {
+  switch (type) {
+    CASE(CUDA, "");
+    CASE(BANG, "__ldram__ char " + name + "_ldram[" +
+                   std::to_string(ldram_size) + "];");
+    default:
+      return "";
   }
 }
 

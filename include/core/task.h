@@ -3,6 +3,7 @@
 #include <utility>
 #include "core/micro.h"
 #include "core/cache.h"
+#include "core/tile.h"
 #include "core/platform.h"
 
 namespace infini {
@@ -46,12 +47,12 @@ class SingleTask : public Task {
 
 class ParallelTask : public Task {
  public:
-  int64_t parallel;
+  TileTensor tile_tensor;
 
  public:
   // Constructor
   ParallelTask(int64_t cache_length, int64_t swap_length, int64_t align_length,
-               std::string cache_name, int64_t parallel_value,
+               std::string cache_name, TileTensor tiles,
                std::string name_value = "");
   // Destructor
   ~ParallelTask() = default;
