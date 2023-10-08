@@ -38,7 +38,6 @@ class TileTensor {
  public:
   // all tiles
   std::vector<Tile> tiles;
-  std::vector<Tile> neat_tiles;
   std::vector<Tile> remain_tiles;
   std::vector<int64_t> stride;
   std::vector<int64_t> shape;
