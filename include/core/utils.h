@@ -14,6 +14,11 @@
 #define TOKENPASTE(x, y, z) _TOKENPASTE(x, y, z)
 #endif
 
+#ifndef TOKENCAT
+#define _CAT(A, B) A##B
+#define CAT(A, B) _CAT(A, B)
+#endif
+
 #ifndef PAD_UP
 #define PAD_UP(x, y) (((x) / (y) + (int)((x) % (y) > 0)) * (y))
 #endif
@@ -213,6 +218,8 @@ std::string TO_STRING(CacheHitLocation location);
 std::string TO_STRING(PlatformType type);
 
 std::string TO_STRING(Platform p);
+
+int64_t datatype_size(TensorDatatype type);
 
 std::string datatype_string(TensorDatatype type);
 

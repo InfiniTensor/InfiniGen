@@ -14,7 +14,7 @@ namespace infini {
 using MicroType = KernelType;
 
 using OperandType =
-    std::tuple<std::string, int, int>;  // operand_name, offset, length
+    std::tuple<std::string, int64_t, int64_t, TensorDatatype>;  // operand_name, offset, length, dtype
 
 class Micro {
   /**
@@ -38,7 +38,7 @@ class Micro {
    * function and call generations which belongs to
    * specific platform.
    */
-  virtual std::string generatorCode(Cache &cache, std::string &result,
+  virtual std::string generatorCode(Cache &cache, std::string &code,
                                     int64_t indent = 0) = 0;
   static Micro *makeObj();  // dummpy functon
   /** @brief Information print*/
@@ -72,7 +72,7 @@ class MicroRegistry {
   }
 };
 
-#define REGISTER_MICRO_CONSTRUCTOR(optype, platform, constructor)              \
+#define REGISTER_MICRO(optype, platform, constructor)              \
   static const bool _register_micro_constructor_##__COUNTER__ =                \
       MicroRegistry::getInstance().registerMicro(MicroAttrs{optype, platform}, \
                                                  constructor);

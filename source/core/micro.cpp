@@ -3,7 +3,7 @@
 
 namespace infini {
 
-Micro* Micro::makeObj() {}
+Micro* Micro::makeObj() { return nullptr; }
 
 void Micro::printInformation() {
   std::string info_string = "- Kernel ";

@@ -1,18 +1,46 @@
 #pragma once
+#include "core/cache.h"
 #include "core/micro.h"
 
 namespace infini {
 
-#define SYNC_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)        \
-  class MICRO_NAME##Micro : public Micro {                       \
-   public:                                                       \
-    MICRO_NAME##Micro() : Micro(MICRO_TYPE, PLATFORM_TYPE) {}    \
-    std::string generatorCode(Cache& cache, std::string& result, \
-                              int64_t indent = 0) override;      \
-  };
+#define MAKEOBJ(MICRO)                                              \
+  static Micro* makeObj(const std::vector<OperandType>& operands) { \
+    ASSERT(operands.empty());                                       \
+    return new MICRO();                                     \
+  }
 
-SYNC_MICRO(BangSync, MicroType::SYNC, PlatformType::BANG)
-SYNC_MICRO(CudaSync, MicroType::SYNC, PlatformType::CUDA)
+#define SYNC_DEF(OP, PLName, PL)                                  \
+  class CAT(OP, PLName) : public SyncMicro {                      \
+   public:                                                        \
+    CAT(OP, PLName)() : SyncMicro(PL) {} \
+    std::string generatorCode(Cache& cache, std::string& code,    \
+                              int64_t indent) override;           \
+    MAKEOBJ(CAT(OP, PLName))                                      \
+  }
 
-#undef SYNC_MICRO
+class SyncMicro : public Micro {
+ public:
+  SyncMicro(Platform pt) : Micro(MicroType::SYNC, pt) {}
+};
+
+/**
+ * Cuda Sync declearation, including
+ *  1. SyncCuda
+ */
+SYNC_DEF(Sync, Cuda, Platform::CUDA);
+
+/**
+ * Bang Sync declearation, including
+ *  1. SyncBang
+ */
+SYNC_DEF(Sync, Bang, Platform::BANG);
+
+/**
+ * Register Sync micros
+*/
+REGISTER_MICRO(OperatorType::SYNC, Platform::CUDA, SyncCuda::makeObj)
+REGISTER_MICRO(OperatorType::SYNC, Platform::BANG, SyncBang::makeObj)
+
+#undef SYNC_DEF
 }  // namespace infini

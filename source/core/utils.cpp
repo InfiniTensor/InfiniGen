@@ -205,6 +205,21 @@ std::string TO_STRING(CacheType type) {
   }
 }
 
+int64_t datatype_size(TensorDatatype datatype) {
+  switch (datatype) {
+    case TensorDatatype::HALF:
+      return sizeof(float) / 2;  // NEED CHECK
+    case TensorDatatype::FLOAT:
+      return sizeof(float);
+    case TensorDatatype::DOUBLE:
+      return sizeof(double);
+    case TensorDatatype::INT32:
+      return sizeof(int);
+    default:
+      return 0;
+  }
+}
+
 std::string TO_STRING(CacheHitLocation location) {
   switch (location) {
     case CacheHitLocation::CACHE:
