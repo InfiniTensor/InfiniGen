@@ -33,6 +33,7 @@ struct Platform {
   const std::string taskScaleDecl(TileTensor tiles) const;
   const std::string syntacticSugar() const;
   const std::string workingCoreCond(TileTensor tiles) const;
+  const std::string remainingTileCond(TileTensor tiles) const;
 
   const std::string cacheDecl(std::string name, int64_t cache_size,
                               std::string datatype) const;

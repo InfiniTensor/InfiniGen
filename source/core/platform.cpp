@@ -173,6 +173,19 @@ const std::string Platform::workingCoreCond(TileTensor tiles) const {
   }
 }
 
+const std::string Platform::remainingTileCond(TileTensor tiles) const {
+  switch (type) {
+    CASE(CUDA, taskId() + " < " + std::to_string(tiles.numRemainTiles()) +
+                   " && " + "threadIdx.x < " +
+                   std::to_string(
+                       VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension)));
+    // TODO: n-d situations
+    CASE(BANG, taskId() + " < " + std::to_string(tiles.numRemainTiles()));
+    default:
+      return "";
+  }
+}
+
 const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
                                       std::string datatype) const {
   switch (type) {

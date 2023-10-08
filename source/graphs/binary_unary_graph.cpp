@@ -226,8 +226,8 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   result += "(" + task_list[0]->getArguments(false) + ");\n";
 
   if (task_list.size() > 1) {
-    result += indentation(indent + 1) + "if (" + platform.taskId() + " < " +
-              std::to_string(tiles.numRemainTiles()) + ") {\n";
+    result += indentation(indent + 1) + "if (" +
+              platform.remainingTileCond(tiles) + ") {\n";
     result += indentation(indent + 2) + task_list[1]->name;
     result += "(" + task_list[1]->getArguments(false) + ");\n";
     result += indentation(indent + 1) + "}\n";
