@@ -13,9 +13,6 @@ int main(void)
   CNRT_CHECK(cnrtSetDevice(0));
   CNRT_CHECK(cnrtQueueCreate(&queue));
 
-  cnrtDim3_t dim = {1, 1, 1};
-  cnrtFunctionType_t ktype = CNRT_FUNC_TYPE_BLOCK;
-
   cnrtNotifier_t start, end;
   CNRT_CHECK(cnrtNotifierCreate(&start));
   CNRT_CHECK(cnrtNotifierCreate(&end));
