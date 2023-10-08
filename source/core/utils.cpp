@@ -23,7 +23,7 @@ void COMPILE(std::string input_file_path, std::string output_binary_directory,
              " --bang-mlu-arch=mtp_372 -O3";
     system(shell.c_str());
   } else if (platform == Platform::CUDA) {
-    shell += "nvcc -shared --compiler-options '-fPIC' -o " +
+    shell += "nvcc -arch=sm_80 -shared --compiler-options '-fPIC' -o " +
              output_binary_directory + "lib" + file_name + ".so " +
              input_file_path + " -O3";
     system(shell.c_str());
