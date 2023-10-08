@@ -309,6 +309,12 @@ TileTensor Data::tiling(const Split& split) {
                             TO_STRING(start_position);
     Tile temp(tile_dimension, tile_local_position, tile_stride, tile_name,
               tile_start);
+    for (int64_t i = 0; i < tensor_dimension.size(); i++) {
+      if (tile_local_position[i] >= boundary[i]) {
+        result.remain_tiles.push_back(temp);
+        break;
+      }
+    }
     result.addTile(temp);
   }
 
@@ -364,6 +370,12 @@ TileTensor Data::tiling(const std::vector<int64_t>& tile_shape) {
                             TO_STRING(tile_local_position);
     Tile temp(_tile_shape, tile_local_position, tile_stride, tile_name,
               tile_offset);
+    for (int64_t i = 0; i < tensor_dimension.size(); i++) {
+      if (tile_local_position[i] >= down[i]) {
+        result.remain_tiles.push_back(temp);
+        break;
+      }
+    }
     result.addTile(temp);
   }
   return result;

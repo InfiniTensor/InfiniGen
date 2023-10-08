@@ -2,8 +2,8 @@
 
 int main() {
   using namespace infini;
-  Data* a = new Data({4, 1024});
-  Data* b = new Data({4, 1024});
+  Data* a = new Data({1, 2050});
+  Data* b = new Data({1, 2050});
   Node* add = new Node({a, b});
   Data* temp = add->getOutput(0);
   Node* mul = new Node({b, temp});

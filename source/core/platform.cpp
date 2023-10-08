@@ -140,10 +140,15 @@ const char* Platform::toString() const {
 
 const std::string Platform::taskScaleDecl(TileTensor tiles) const {
   switch (type) {
-    CASE(CUDA, "int numBlocks = " + std::to_string(tiles.numTiles()) +
-                   ", threadsPerBlock = 1024;");
+    CASE(CUDA,
+         "int numBlocks = " + std::to_string(tiles.numNeatTiles()) +
+             ", threadsPerBlock = " +
+             std::to_string(VECTOR_PRODUCT(tiles.tiles[0].tile_dimension)) +
+             ";");
+
     CASE(BANG, "cnrtDim3_t dim = {" +
-                   std::to_string(PAD_UP(tiles.numTiles(), 4)) + ", 1, 1};");
+                   std::to_string(PAD_UP(tiles.numNeatTiles(), 4)) +
+                   ", 1, 1};");
     default:
       return "";
   }
@@ -153,6 +158,29 @@ const std::string Platform::syntacticSugar() const {
   switch (type) {
     CASE(CUDA, "<<<numBlocks, threadsPerBlock, 0, queue>>>");
     CASE(BANG, "<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::workingCoreCond(TileTensor tiles) const {
+  switch (type) {
+    CASE(CUDA, "");
+    CASE(BANG, "if (taskId >= " + std::to_string(tiles.numNeatTiles()) +
+                   ") { return; }");
+    default:
+      return "";
+  }
+}
+
+const std::string Platform::remainingTileCond(TileTensor tiles) const {
+  switch (type) {
+    CASE(CUDA, taskId() + " < " + std::to_string(tiles.numRemainTiles()) +
+                   " && " + "threadIdx.x < " +
+                   std::to_string(
+                       VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension)));
+    // TODO: n-d situations
+    CASE(BANG, taskId() + " < " + std::to_string(tiles.numRemainTiles()));
     default:
       return "";
   }
