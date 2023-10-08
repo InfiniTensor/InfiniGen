@@ -113,8 +113,8 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
       temp_remain[data] = data->remaining;
       remainder_task->addArgument(data->tensor_datatype, data->name);
     }
-    int64_t offset = (tiles.numTiles() - tiles.unneat_tiles.size()) *
-                     VECTOR_PRODUCT(tiles.tiles[0].tile_dimension);
+    int64_t offset =
+        tiles.numNeatTiles() * VECTOR_PRODUCT(tiles.tiles[0].tile_dimension);
     for (int i = 0; i < sorted_op.size(); ++i) {
       Micro *remainder_micro = nullptr;
       if (platform == Platform::BANG) {
@@ -125,7 +125,7 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
             sorted_op[i]->inputs[0]->data_offset + offset,
             sorted_op[i]->inputs[1]->name,
             sorted_op[i]->inputs[1]->data_offset + offset,
-            VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+            VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
             sorted_op[i]->inputs[0]->tensor_datatype);
       } else if (platform == Platform::CUDA) {
         remainder_micro = new CudaAddMicro(
@@ -135,7 +135,7 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
             sorted_op[i]->inputs[0]->data_offset + offset,
             sorted_op[i]->inputs[1]->name,
             sorted_op[i]->inputs[1]->data_offset + offset,
-            VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+            VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
             sorted_op[i]->inputs[0]->tensor_datatype);
       }
       remainder_task->pushMicro(remainder_micro);
@@ -149,12 +149,12 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
           if (platform == Platform::BANG) {
             remainder_micro = new BangFreeMicro(
                 input->name, input->data_offset + offset,
-                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
                 input->tensor_datatype);
           } else if (platform == Platform::CUDA) {
             remainder_micro = new CudaFreeMicro(
                 input->name, input->data_offset + offset,
-                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
                 input->tensor_datatype);
           }
           remainder_task->pushMicro(remainder_micro);
@@ -168,12 +168,12 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
           if (platform == Platform::BANG) {
             remainder_micro = new BangStoreMicro(
                 output->name, output->data_offset + offset,
-                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
                 output->tensor_datatype);
           } else if (platform == Platform::CUDA) {
             remainder_micro = new CudaStoreMicro(
                 output->name, output->data_offset + offset,
-                VECTOR_PRODUCT(tiles.unneat_tiles[0].tile_dimension),
+                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
                 output->tensor_datatype);
           }
           remainder_task->pushMicro(remainder_micro);
@@ -219,7 +219,7 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   std::string arguments = string_gather(arguments_list);
 
   result += "(" + arguments + ") {\n";
-  if ((tiles.numTiles() - tiles.unneat_tiles.size()) % 4 != 0) {
+  if (tiles.numNeatTiles() % 4 != 0) {
     result += indentation(indent + 1) + platform.workingCoreCond(tiles) + "\n";
   }
   result += indentation(indent + 1) + task_list[0]->name;
@@ -227,7 +227,7 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
 
   if (task_list.size() > 1) {
     result += indentation(indent + 1) + "if (" + platform.taskId() + " < " +
-              std::to_string(tiles.unneat_tiles.size()) + ") {\n";
+              std::to_string(tiles.numRemainTiles()) + ") {\n";
     result += indentation(indent + 2) + task_list[1]->name;
     result += "(" + task_list[1]->getArguments(false) + ");\n";
     result += indentation(indent + 1) + "}\n";

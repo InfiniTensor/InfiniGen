@@ -98,6 +98,12 @@ bool TileTensor::empty() { return tiles.empty(); }
 
 int64_t TileTensor::numTiles() { return tiles.size(); }
 
+int64_t TileTensor::numNeatTiles() {
+  return tiles.size() - remain_tiles.size();
+}
+
+int64_t TileTensor::numRemainTiles() { return remain_tiles.size(); }
+
 bool TileTensor::isNeat() {
   if (tiles.empty()) {
     return true;

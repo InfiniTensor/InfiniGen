@@ -36,8 +36,10 @@ class TileTensor {
    *  shape: num_tiles = IIshape
    */
  public:
+  // all tiles
   std::vector<Tile> tiles;
-  std::vector<Tile> unneat_tiles;
+  std::vector<Tile> neat_tiles;
+  std::vector<Tile> remain_tiles;
   std::vector<int64_t> stride;
   std::vector<int64_t> shape;
   TensorLayout layout;
@@ -66,6 +68,10 @@ class TileTensor {
   bool empty();
   // num tiles
   int64_t numTiles();
+  // num neat tiles
+  int64_t numNeatTiles();
+  // num unneat tiles
+  int64_t numRemainTiles();
 
   bool isNeat();
   // TileTensor coord under the range is neat
