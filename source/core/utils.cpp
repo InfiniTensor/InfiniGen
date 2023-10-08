@@ -171,6 +171,11 @@ std::string TO_STRING(OperatorType type) {
     CASE(MUL);
     CASE(SIGMOID);
     CASE(RELU);
+    CASE(LOAD);
+    CASE(ALLOCATE);
+    CASE(FREE);
+    CASE(STORE);
+    CASE(SYNC);
     default:
       return "UNKNOWN";
   }

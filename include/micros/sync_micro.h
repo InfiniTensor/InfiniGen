@@ -1,5 +1,4 @@
 #pragma once
-#include "core/cache.h"
 #include "core/micro.h"
 
 namespace infini {
@@ -42,5 +41,6 @@ SYNC_DEF(Sync, Bang, Platform::BANG);
 REGISTER_MICRO(OperatorType::SYNC, Platform::CUDA, SyncCuda::makeObj)
 REGISTER_MICRO(OperatorType::SYNC, Platform::BANG, SyncBang::makeObj)
 
+#undef MAKEOBJ
 #undef SYNC_DEF
 }  // namespace infini

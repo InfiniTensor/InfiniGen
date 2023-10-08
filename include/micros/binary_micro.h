@@ -1,6 +1,5 @@
-#pragma
+#pragma once
 #include "core/micro.h"
-#include "core/utils.h"
 
 namespace infini {
 

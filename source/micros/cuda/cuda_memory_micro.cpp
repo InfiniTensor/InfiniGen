@@ -57,8 +57,8 @@ std::string StoreCuda::generatorCode(Cache& cache, std::string& code,
   }
 }
 
-std::string StoreCuda::generatorCode(Cache& cache, std::string& code,
-                                     int64_t indent) {
+std::string AllocateCuda::generatorCode(Cache& cache, std::string& code,
+                                        int64_t indent) {
   int64_t length_in_bytes = 1 * datatype_size(data_type);
   CacheData cache_data = CacheData(name, offset, length_in_bytes);
   auto result = cache.allocate(cache_data);
