@@ -199,17 +199,6 @@ std::string TO_STRING(KernelType type) {
 #undef CASE
 }
 
-std::string TO_STRING(PlatformType type) {
-  switch (type) {
-    case PlatformType::CUDA:
-      return "CUDA";
-    case PlatformType::BANG:
-      return "BANG";
-    default:
-      return "UNKNOWN";
-  }
-}
-
 std::string TO_STRING(Platform p) {
   switch (p.underlying()) {
     case Platform::CUDA:

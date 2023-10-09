@@ -25,8 +25,6 @@ enum class OperatorType {
 };
 // KernelType
 enum class KernelType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY, FMA, SYNC };
-// PlatformType
-enum class PlatformType { CUDA, BANG };
 
 // CacheType
 enum class CacheType { CACHE, LDRAM };

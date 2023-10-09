@@ -52,8 +52,8 @@ using MicroConstructor =
 
 class MicroRegistry {
  private:
-  std::map<MicroAttrs, MicroConstructor> microrecords;
-  int nrecord = 0;
+  std::map<MicroAttrs, MicroConstructor> micro_records;
+  int num_record = 0;
 
  public:
   ~MicroRegistry() = default;
@@ -63,13 +63,13 @@ class MicroRegistry {
     return instance;
   }
   bool registerMicro(const MicroAttrs &key, MicroConstructor constructor) {
-    ASSERT(microrecords.find(key) == microrecords.end());
-    microrecords.emplace(key, constructor);
-    nrecord++;
+    ASSERT(micro_records.find(key) == micro_records.end());
+    micro_records.emplace(key, constructor);
+    num_record++;
     return true;
   }
   const MicroConstructor &getConstructor(const MicroAttrs &key) const {
-    return microrecords.at(key);
+    return micro_records.at(key);
   }
 };
 

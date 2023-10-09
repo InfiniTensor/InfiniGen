@@ -17,7 +17,7 @@ namespace infini {
     CAT(OP, PLName)                                                           \
     (const std::vector<OperandType>& operands) : BinaryMicro(operands, PL) {} \
     std::string generatorCode(Cache& cache, std::string& code,                \
-                              int64_t indent);                                \
+                              int64_t indent) override;                       \
     MAKEOBJ(CAT(OP, PLName))                                                  \
   }
 
@@ -39,6 +39,9 @@ class BinaryMicro : public Micro {
         right_offset(std::get<1>(operands[2])),
         length(std::get<2>(operands[0])),
         data_type(std::get<3>(operands[0])) {}
+  virtual std::string generatorCode(Cache& cache, std::string& code,
+                                    int64_t indent = 0) = 0;
+  static Micro* makeObj() { return nullptr; }
 };
 
 /**
