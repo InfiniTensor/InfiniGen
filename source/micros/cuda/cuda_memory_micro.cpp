@@ -79,4 +79,13 @@ std::string FreeCuda::generatorCode(Cache& cache, std::string& code,
   return "";
 }
 
+/**
+ * Register Micros withc operator type and platform
+ */
+// CUDA
+REGISTER_MICRO(OperatorType::LOAD, Platform::CUDA, LoadCuda::makeObj)
+REGISTER_MICRO(OperatorType::ALLOCATE, Platform::CUDA, AllocateCuda::makeObj)
+REGISTER_MICRO(OperatorType::STORE, Platform::CUDA, StoreCuda::makeObj)
+REGISTER_MICRO(OperatorType::FREE, Platform::CUDA, FreeCuda::makeObj)
+
 }  // namespace infini

@@ -112,4 +112,12 @@ std::string AllocateBang::generatorCode(Cache& cache, std::string& code,
   return cache_string;
 }
 
+/**
+ * Register Micros withc operator type and platform
+ */
+REGISTER_MICRO(OperatorType::LOAD, Platform::BANG, LoadBang::makeObj)
+REGISTER_MICRO(OperatorType::ALLOCATE, Platform::BANG, AllocateBang::makeObj)
+REGISTER_MICRO(OperatorType::STORE, Platform::BANG, StoreBang::makeObj)
+REGISTER_MICRO(OperatorType::FREE, Platform::BANG, FreeBang::makeObj)
+
 }  // namespace infini

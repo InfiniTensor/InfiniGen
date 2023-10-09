@@ -63,8 +63,7 @@ class MicroRegistry {
     return instance;
   }
   bool registerMicro(const MicroAttrs &key, MicroConstructor constructor) {
-    LOG(INFO) << TO_STRING(std::get<0>(key)) << " " << std::get<1>(key);
-    // ASSERT(microrecords.find(key) == microrecords.end());
+    ASSERT(microrecords.find(key) == microrecords.end());
     microrecords.emplace(key, constructor);
     nrecord++;
     return true;

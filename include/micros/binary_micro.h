@@ -61,19 +61,6 @@ BINARY_DEF(Add, Bang, Platform::BANG);
 BINARY_DEF(Sub, Bang, Platform::BANG);
 BINARY_DEF(Mul, Bang, Platform::BANG);
 
-/**
- * Register Micros
- */
-// CUDA
-REGISTER_MICRO(OperatorType::ADD, Platform::CUDA, AddCuda::makeObj)
-REGISTER_MICRO(OperatorType::SUB, Platform::CUDA, SubCuda::makeObj)
-REGISTER_MICRO(OperatorType::MUL, Platform::CUDA, MulCuda::makeObj)
-
-// BANG
-REGISTER_MICRO(OperatorType::ADD, Platform::BANG, AddBang::makeObj)
-REGISTER_MICRO(OperatorType::SUB, Platform::BANG, SubBang::makeObj)
-REGISTER_MICRO(OperatorType::MUL, Platform::BANG, MulBang::makeObj)
-
 #undef MAKEOBJ
 #undef BINARY_DEF
 }  // namespace infini

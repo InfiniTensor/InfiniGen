@@ -15,4 +15,10 @@ std::string SyncCuda::generatorCode(Cache& cache, std::string& code,
   return "";
 }
 
+/**
+ * Register Sync micros
+ */
+REGISTER_MICRO(OperatorType::SYNC, Platform::CUDA, SyncCuda::makeObj)
+REGISTER_MICRO(OperatorType::SYNC, Platform::BANG, SyncBang::makeObj)
+
 }  // namespace infini

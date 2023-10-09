@@ -35,12 +35,6 @@ SYNC_DEF(Sync, Cuda, Platform::CUDA);
  */
 SYNC_DEF(Sync, Bang, Platform::BANG);
 
-/**
- * Register Sync micros
- */
-REGISTER_MICRO(OperatorType::SYNC, Platform::CUDA, SyncCuda::makeObj)
-REGISTER_MICRO(OperatorType::SYNC, Platform::BANG, SyncBang::makeObj)
-
 #undef MAKEOBJ
 #undef SYNC_DEF
 }  // namespace infini

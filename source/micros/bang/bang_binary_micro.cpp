@@ -30,6 +30,14 @@ BANG_GENERATOR(Add, "add")
 BANG_GENERATOR(Sub, "sub")
 BANG_GENERATOR(Mul, "mul")
 
+/**
+ * Register Micros
+ */
+// BANG
+REGISTER_MICRO(OperatorType::ADD, Platform::BANG, AddBang::makeObj)
+REGISTER_MICRO(OperatorType::SUB, Platform::BANG, SubBang::makeObj)
+REGISTER_MICRO(OperatorType::MUL, Platform::BANG, MulBang::makeObj)
+
 #undef BANG_GENERATOR
 
 }  // namespace infini

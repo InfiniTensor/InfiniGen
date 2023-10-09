@@ -62,20 +62,6 @@ MEMORY_DEF(Allocate, Bang, Platform::BANG);
 MEMORY_DEF(Store, Bang, Platform::BANG);
 MEMORY_DEF(Free, Bang, Platform::BANG);
 
-/**
- * Register Micros withc operator type and platform
- */
-// CUDA
-REGISTER_MICRO(OperatorType::LOAD, Platform::CUDA, LoadCuda::makeObj)
-REGISTER_MICRO(OperatorType::ALLOCATE, Platform::CUDA, AllocateCuda::makeObj)
-REGISTER_MICRO(OperatorType::STORE, Platform::CUDA, StoreCuda::makeObj)
-REGISTER_MICRO(OperatorType::FREE, Platform::CUDA, FreeCuda::makeObj)
-// BANG
-REGISTER_MICRO(OperatorType::LOAD, Platform::BANG, LoadBang::makeObj)
-REGISTER_MICRO(OperatorType::ALLOCATE, Platform::BANG, AllocateBang::makeObj)
-REGISTER_MICRO(OperatorType::STORE, Platform::BANG, StoreBang::makeObj)
-REGISTER_MICRO(OperatorType::FREE, Platform::BANG, FreeBang::makeObj)
-
 #undef MAKEOBJ
 #undef MEMORY_DEF
 

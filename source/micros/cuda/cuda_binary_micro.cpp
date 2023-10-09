@@ -29,6 +29,14 @@ CUDA_GENERATOR(Add, "+")
 CUDA_GENERATOR(Sub, "-")
 CUDA_GENERATOR(Mul, "*")
 
+/**
+ * Register Micros
+ */
+// CUDA
+REGISTER_MICRO(OperatorType::ADD, Platform::CUDA, AddCuda::makeObj)
+REGISTER_MICRO(OperatorType::SUB, Platform::CUDA, SubCuda::makeObj)
+REGISTER_MICRO(OperatorType::MUL, Platform::CUDA, MulCuda::makeObj)
+
 #undef CUDA_GENERATOR
 
 }  // namespace infini
