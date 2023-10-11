@@ -16,7 +16,7 @@ enum class OperatorType {
   ADD,
   SUB,
   MUL,
-  // DIV,
+  DIV,
   EQ,
   GE,
   GT,

@@ -63,7 +63,7 @@ class BinaryMicro : public Micro {
 BINARY_DEF(Add, Cuda, Platform::CUDA);
 BINARY_DEF(Sub, Cuda, Platform::CUDA);
 BINARY_DEF(Mul, Cuda, Platform::CUDA);
-// BINARY_DEF(Div, Cuda, Platform::CUDA);
+BINARY_DEF(Div, Cuda, Platform::CUDA);
 BINARY_DEF(Eq, Cuda, Platform::CUDA);
 BINARY_DEF(Ge, Cuda, Platform::CUDA);
 BINARY_DEF(Gt, Cuda, Platform::CUDA);
@@ -79,7 +79,7 @@ BINARY_DEF(Xor, Cuda, Platform::CUDA);
  *  1. AddBang
  *  2. SubBang
  *  3. MulBang
- *  4. DivBang (Not supported on arch 372)
+ *  4. DivBang
  *  5. EqBang
  *  6. GeBang
  *  7. GtBang
@@ -93,7 +93,7 @@ BINARY_DEF(Xor, Cuda, Platform::CUDA);
 BINARY_DEF(Add, Bang, Platform::BANG);
 BINARY_DEF(Sub, Bang, Platform::BANG);
 BINARY_DEF(Mul, Bang, Platform::BANG);
-// BINARY_DEF(Div, Bang, Platform::BANG);
+BINARY_DEF(Div, Bang, Platform::BANG);
 BINARY_DEF(Eq, Bang, Platform::BANG);
 BINARY_DEF(Ge, Bang, Platform::BANG);
 BINARY_DEF(Gt, Bang, Platform::BANG);
