@@ -122,6 +122,8 @@ void Node::deleteAttribute(std::string key) {
   }
 }
 
+OperatorType Node::getOperatorType() { return operator_type; }
+
 // Tensor implementation
 Data::Data(const std::vector<int64_t>& dimension, TensorDatatype dtype,
            TensorType type, TensorLayout layout, int64_t offset,
