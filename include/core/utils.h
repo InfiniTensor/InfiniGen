@@ -224,8 +224,6 @@ std::string TO_STRING(CacheHitLocation location);
 
 std::string TO_STRING(Platform p);
 
-int64_t datatype_size(TensorDatatype type);
-
 std::string datatype_string(TensorDatatype type);
 
 int64_t datatype_size(TensorDatatype type);
