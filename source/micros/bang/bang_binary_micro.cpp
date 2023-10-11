@@ -5,7 +5,7 @@
 
 namespace infini {
 
-#define BANG_GENERATOR(OP, OP_STR)                                          \
+#define BANG_BIN_GENERATOR(OP, OP_STR)                                          \
   std::string CAT(OP, Bang)::generatorCode(Cache& cache, std::string& code, \
                                            int64_t indent) {                \
     cache.lock();                                                           \
@@ -26,9 +26,9 @@ namespace infini {
     return "";                                                              \
   }
 
-BANG_GENERATOR(Add, "add")
-BANG_GENERATOR(Sub, "sub")
-BANG_GENERATOR(Mul, "mul")
+BANG_BIN_GENERATOR(Add, "add")
+BANG_BIN_GENERATOR(Sub, "sub")
+BANG_BIN_GENERATOR(Mul, "mul")
 
 /**
  * Register Micros
@@ -38,6 +38,6 @@ REGISTER_MICRO(OperatorType::ADD, Platform::BANG, AddBang::makeObj)
 REGISTER_MICRO(OperatorType::SUB, Platform::BANG, SubBang::makeObj)
 REGISTER_MICRO(OperatorType::MUL, Platform::BANG, MulBang::makeObj)
 
-#undef BANG_GENERATOR
+#undef BANG_BIN_GENERATOR
 
 }  // namespace infini
