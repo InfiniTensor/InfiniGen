@@ -8,36 +8,19 @@ int main()
     Data *b = new Data(shape);
     Data *c = new Data(shape);
     Data *d = new Data(shape);
-    Node *add = new Node({a, b});
+    Node *add = new ADD({a, b});
     Data *temp1 = add->getOutput(0);
-    Node *sub = new Node({temp1, c});
+    Node *sub = new SUB({temp1, c});
     Data *temp2 = sub->getOutput(0);
-    Node *sqrt = new Node({temp2});
+    Node *sqrt = new SQRT({temp2});
     Data *temp3 = sqrt->getOutput(0);
-    Node *mul = new Node({d, temp3});
+    Node *mul = new MUL({d, temp3});
     Data *temp4 = mul->getOutput(0);
-    Node *sub = new Node({temp1, c});
-    Data *temp2 = sub->getOutput(0);
-    Node *sub = new Node({temp1, c});
-    Data *temp2 = sub->getOutput(0);
-    Data *d = mul->getOutput(0);
+    Node *softmax = new SOFTMAX({temp4});
+    Data *output = softmax->getOutput(0);
 
-    add->printNode();
-    mul->printNode();
 
-    a->printData();
-    b->printData();
-    temp->printData();
-    d->printData();
-
-    Graph *graph = new BinaryUnaryGraph({add, mul}, {a, b}, {d});
-    graph->printGraph();
-    LOG(INFO) << "========== Topo Sort ==========";
-    auto topo = graph->topoSort();
-    for (auto op : topo)
-    {
-        op->printLink();
-    }
+    Graph *graph = new BinaryUnaryGraph({add, sub, sqrt, mul, softmax}, {a, b, c, d}, {output});
     LOG(INFO) << "========== Codegen ==========";
     std::string source_code;
     std::string head_code;
@@ -50,10 +33,14 @@ int main()
 
     delete a;
     delete b;
-    delete temp;
+    delete c;
     delete d;
     delete add;
+    delete sub;
+    delete sqrt;
     delete mul;
+    delete softmax;
+    delete output;
     delete graph;
     return 0;
 }
