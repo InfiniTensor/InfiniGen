@@ -169,7 +169,7 @@ std::string TO_STRING(OperatorType type) {
     CASE(ADD);
     CASE(SUB);
     CASE(MUL);
-    // CASE(DIV);
+    CASE(DIV);
     CASE(EQ);
     CASE(GE);
     CASE(GT);
