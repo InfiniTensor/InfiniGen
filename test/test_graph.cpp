@@ -4,9 +4,9 @@ int main() {
   using namespace infini;
   Data* a = new Data({1, 2050});
   Data* b = new Data({1, 2050});
-  Node* add = new Node({a, b});
+  Node* add = new ADD({a, b});
   Data* temp = add->getOutput(0);
-  Node* mul = new Node({b, temp});
+  Node* mul = new SUB({b, temp});
   Data* d = mul->getOutput(0);
 
   add->printNode();
@@ -27,12 +27,12 @@ int main() {
   LOG(INFO) << "========== Codegen ==========";
   std::string source_code;
   std::string head_code;
-  graph->applyPlatform(Platform::CUDA);
+  graph->applyPlatform(Platform::BANG);
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
-  LOG_FILE("../code/test.cu") << source_code;
+  LOG_FILE("../code/test.mlu") << source_code;
   LOG_FILE("../binary/test.h") << head_code;
-  COMPILE("../code/test.cu", "../binary/", Platform::CUDA);
+  COMPILE("../code/test.mlu", "../binary/", Platform::BANG);
 
   delete a;
   delete b;
