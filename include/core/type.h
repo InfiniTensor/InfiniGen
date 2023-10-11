@@ -12,15 +12,29 @@ enum class TensorLayout { NCHW, NHWC, ARRAY };
 enum class TensorType { CONST, VARIABLE };
 // OperatorType
 enum class OperatorType {
+  // Binary
   ADD,
   SUB,
   MUL,
+  // DIV,
+  EQ,
+  GE,
+  GT,
+  LE,
+  LT,
+  NE,
+  AND,
+  OR,
+  XOR,
+  // Unary
   SIGMOID,
   RELU,
+  // Memory
   LOAD,
   ALLOCATE,
   STORE,
   FREE,
+  // Sync
   SYNC
 };
 // KernelType

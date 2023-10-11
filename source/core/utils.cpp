@@ -169,6 +169,16 @@ std::string TO_STRING(OperatorType type) {
     CASE(ADD);
     CASE(SUB);
     CASE(MUL);
+    // CASE(DIV);
+    CASE(EQ);
+    CASE(GE);
+    CASE(GT);
+    CASE(LE);
+    CASE(LT);
+    CASE(NE);
+    CASE(AND);
+    CASE(OR);
+    CASE(XOR);
     CASE(SIGMOID);
     CASE(RELU);
     CASE(LOAD);

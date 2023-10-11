@@ -29,6 +29,16 @@ namespace infini {
 BANG_GENERATOR(Add, "add")
 BANG_GENERATOR(Sub, "sub")
 BANG_GENERATOR(Mul, "mul")
+// BANG_GENERATOR(Div, "div")
+BANG_GENERATOR(Eq, "eq")
+BANG_GENERATOR(Ge, "ge")
+BANG_GENERATOR(Gt, "gt")
+BANG_GENERATOR(Le, "le")
+BANG_GENERATOR(Lt, "lt")
+BANG_GENERATOR(Ne, "ne")
+BANG_GENERATOR(And, "and")
+BANG_GENERATOR(Or, "or")
+BANG_GENERATOR(Xor, "xor")
 
 /**
  * Register Micros
@@ -37,6 +47,16 @@ BANG_GENERATOR(Mul, "mul")
 REGISTER_MICRO(OperatorType::ADD, Platform::BANG, AddBang::makeObj)
 REGISTER_MICRO(OperatorType::SUB, Platform::BANG, SubBang::makeObj)
 REGISTER_MICRO(OperatorType::MUL, Platform::BANG, MulBang::makeObj)
+// REGISTER_MICRO(OperatorType::DIV, Platform::BANG, DivBang::makeObj)
+REGISTER_MICRO(OperatorType::EQ, Platform::BANG, EqBang::makeObj)
+REGISTER_MICRO(OperatorType::GE, Platform::BANG, GeBang::makeObj)
+REGISTER_MICRO(OperatorType::GT, Platform::BANG, GtBang::makeObj)
+REGISTER_MICRO(OperatorType::LE, Platform::BANG, LeBang::makeObj)
+REGISTER_MICRO(OperatorType::LT, Platform::BANG, LtBang::makeObj)
+REGISTER_MICRO(OperatorType::NE, Platform::BANG, NeBang::makeObj)
+REGISTER_MICRO(OperatorType::AND, Platform::BANG, AndBang::makeObj)
+REGISTER_MICRO(OperatorType::OR, Platform::BANG, OrBang::makeObj)
+REGISTER_MICRO(OperatorType::XOR, Platform::BANG, XorBang::makeObj)
 
 #undef BANG_GENERATOR
 
