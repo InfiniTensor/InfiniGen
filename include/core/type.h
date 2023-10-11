@@ -21,7 +21,9 @@ enum class OperatorType {
   ALLOCATE,
   STORE,
   FREE,
-  SYNC
+  SYNC,
+  SQRT,
+  RSQRT
 };
 // KernelType
 enum class KernelType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY, FMA, SYNC };
