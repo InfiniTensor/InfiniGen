@@ -171,6 +171,11 @@ std::string TO_STRING(OperatorType type) {
     CASE(MUL);
     CASE(SIGMOID);
     CASE(RELU);
+    CASE(LOAD);
+    CASE(ALLOCATE);
+    CASE(FREE);
+    CASE(STORE);
+    CASE(SYNC);
     default:
       return "UNKNOWN";
   }
@@ -192,17 +197,6 @@ std::string TO_STRING(KernelType type) {
       return "UNKNOWN";
   }
 #undef CASE
-}
-
-std::string TO_STRING(PlatformType type) {
-  switch (type) {
-    case PlatformType::CUDA:
-      return "CUDA";
-    case PlatformType::BANG:
-      return "BANG";
-    default:
-      return "UNKNOWN";
-  }
 }
 
 std::string TO_STRING(Platform p) {

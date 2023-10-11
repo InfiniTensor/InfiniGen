@@ -3,33 +3,66 @@
 
 namespace infini {
 
-#define MEMORY_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)              \
-  class MICRO_NAME##Micro : public Micro {                               \
-    int64_t data, length;                                                \
-    std::string data_name;                                               \
-    TensorDatatype data_type;                                            \
-                                                                         \
-   public:                                                               \
-    MICRO_NAME##Micro(std::string data_name_string, int64_t data_offset, \
-                      int64_t length_value, TensorDatatype dtype)        \
-        : Micro(MICRO_TYPE, PLATFORM_TYPE),                              \
-          data_name(data_name_string),                                   \
-          data(data_offset),                                             \
-          length(length_value),                                          \
-          data_type(dtype) {}                                            \
-    std::string generatorCode(Cache &cache, std::string &result,         \
-                              int64_t indent = 0) override;              \
-  };
+// #ifndef MAKEOBJ
+#define MAKEOBJ(MICRO)                                              \
+  static Micro* makeObj(const std::vector<OperandType>& operands) { \
+    ASSERT(operands.size() == 1);                                   \
+    return new MICRO(operands[0]);                                  \
+  }
+// #endif
 
-MEMORY_MICRO(BangLoad, MicroType::LOAD, PlatformType::BANG)
-MEMORY_MICRO(BangStore, MicroType::STORE, PlatformType::BANG)
-MEMORY_MICRO(BangAllocate, MicroType::ALLOCATE, PlatformType::BANG)
-MEMORY_MICRO(BangFree, MicroType::FREE, PlatformType::BANG)
+#define MEMORY_DEF(OP, PLName, PL)                                            \
+  class CAT(OP, PLName) : public MemoryMicro {                                \
+   public:                                                                    \
+    CAT(OP, PLName)(const OperandType& operand) : MemoryMicro(operand, PL) {} \
+    std::string generatorCode(Cache& cache, std::string& code,                \
+                              int64_t indent) override;                       \
+    MAKEOBJ(CAT(OP, PLName))                                                  \
+  }
 
-MEMORY_MICRO(CudaLoad, MicroType::LOAD, PlatformType::CUDA)
-MEMORY_MICRO(CudaStore, MicroType::STORE, PlatformType::CUDA)
-MEMORY_MICRO(CudaAllocate, MicroType::ALLOCATE, PlatformType::CUDA)
-MEMORY_MICRO(CudaFree, MicroType::FREE, PlatformType::CUDA)
+class MemoryMicro : public Micro {
+ protected:
+  int64_t offset, length;
+  std::string name;
+  TensorDatatype data_type;
 
-#undef MEMORY_MICRO
+ public:
+  MemoryMicro(const OperandType& operand, Platform pt)
+      : Micro(MicroType::MEMORY, pt),
+        name(std::get<0>(operand)),
+        offset(std::get<1>(operand)),
+        length(std::get<2>(operand)),
+        data_type(std::get<3>(operand)) {}
+  virtual std::string generatorCode(Cache& cache, std::string& code,
+                                    int64_t indent = 0) = 0;
+  static Micro* makeObj() { return nullptr; }
+};
+
+/**
+ * Cuda memory micro implementation, including
+ *  1. LoadCuda
+ *  2. AllocateCuda
+ *  3. StoreCuda
+ *  4. FreeCuda
+ */
+MEMORY_DEF(Load, Cuda, Platform::CUDA);
+MEMORY_DEF(Allocate, Cuda, Platform::CUDA);
+MEMORY_DEF(Store, Cuda, Platform::CUDA);
+MEMORY_DEF(Free, Cuda, Platform::CUDA);
+
+/**
+ * Bang memory micro implementation, including
+ *  1. LoadBang
+ *  2. AllocateBang
+ *  3. StoreBang
+ *  4. FreeBang
+ */
+MEMORY_DEF(Load, Bang, Platform::BANG);
+MEMORY_DEF(Allocate, Bang, Platform::BANG);
+MEMORY_DEF(Store, Bang, Platform::BANG);
+MEMORY_DEF(Free, Bang, Platform::BANG);
+
+#undef MAKEOBJ
+#undef MEMORY_DEF
+
 }  // namespace infini

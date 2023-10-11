@@ -1,8 +1,5 @@
-#include "graphs/binary_unary_graph.h"
-#include "micros/binary_micro.h"
-#include "micros/memory_micro.h"
 #include "core/task.h"
-#include "core/utils.h"
+#include "graphs/binary_unary_graph.h"
 #include <algorithm>
 
 namespace infini {
@@ -40,23 +37,20 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
     temp_remain[data] = data->remaining;
     task->addArgument(data->tensor_datatype, data->name);
   }
+  MicroRegistry instance = MicroRegistry::getInstance();
   for (int i = 0; i < sorted_op.size(); ++i) {
     Micro *micro = nullptr;
-    if (platform == Platform::BANG) {
-      micro = new BangAddMicro(
-          sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
-          sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
-          sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
-          VECTOR_PRODUCT(tiles({0}).tile_dimension),
-          sorted_op[i]->inputs[0]->tensor_datatype);
-    } else if (platform == Platform::CUDA) {
-      micro = new CudaAddMicro(
-          sorted_op[i]->outputs[0]->name, sorted_op[i]->outputs[0]->data_offset,
-          sorted_op[i]->inputs[0]->name, sorted_op[i]->inputs[0]->data_offset,
-          sorted_op[i]->inputs[1]->name, sorted_op[i]->inputs[1]->data_offset,
-          VECTOR_PRODUCT(tiles({0}).tile_dimension),
-          sorted_op[i]->inputs[0]->tensor_datatype);
-    }
+    int64_t length = VECTOR_PRODUCT(tiles({0}).tile_dimension);
+    TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
+    std::vector<OperandType> operands = std::vector(
+        {OperandType{sorted_op[i]->outputs[0]->name,
+                     sorted_op[i]->outputs[0]->data_offset, length, dtype},
+         OperandType{sorted_op[i]->inputs[0]->name,
+                     sorted_op[i]->inputs[0]->data_offset, length, dtype},
+         OperandType{sorted_op[i]->inputs[1]->name,
+                     sorted_op[i]->inputs[1]->data_offset, length, dtype}});
+    micro = instance.getConstructor(
+        MicroAttrs{OperatorType::ADD, platform.underlying()})(operands);
     task->pushMicro(micro);
 
     // Update remain data
@@ -65,15 +59,11 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
       if (temp_remain[input] == 0) {
         temp_remain.erase(input);
         // Free
-        if (platform == Platform::BANG) {
-          micro = new BangFreeMicro(input->name, input->data_offset,
-                                    VECTOR_PRODUCT(tiles({0}).tile_dimension),
-                                    input->tensor_datatype);
-        } else if (platform == Platform::CUDA) {
-          micro = new CudaFreeMicro(input->name, input->data_offset,
-                                    VECTOR_PRODUCT(tiles({0}).tile_dimension),
-                                    input->tensor_datatype);
-        }
+        micro = instance.getConstructor(
+            MicroAttrs{OperatorType::FREE, platform.underlying()})(
+            {OperandType{input->name, input->data_offset,
+                         VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                         input->tensor_datatype}});
         task->pushMicro(micro);
       }
     }
@@ -82,15 +72,11 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
     for (auto output : sorted_op[i]->outputs) {
       auto it = std::find(outputs.begin(), outputs.end(), output);
       if (it != outputs.end()) {
-        if (platform == Platform::BANG) {
-          micro = new BangStoreMicro(output->name, output->data_offset,
-                                     VECTOR_PRODUCT(tiles({0}).tile_dimension),
-                                     output->tensor_datatype);
-        } else if (platform == Platform::CUDA) {
-          micro = new CudaStoreMicro(output->name, output->data_offset,
-                                     VECTOR_PRODUCT(tiles({0}).tile_dimension),
-                                     output->tensor_datatype);
-        }
+        micro = instance.getConstructor(
+            MicroAttrs{OperatorType::STORE, platform.underlying()})(
+            {OperandType{output->name, output->data_offset,
+                         VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                         output->tensor_datatype}});
         task->pushMicro(micro);
       }
     }
@@ -117,27 +103,21 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
         tiles.numNeatTiles() * VECTOR_PRODUCT(tiles.tiles[0].tile_dimension);
     for (int i = 0; i < sorted_op.size(); ++i) {
       Micro *remainder_micro = nullptr;
-      if (platform == Platform::BANG) {
-        remainder_micro = new BangAddMicro(
-            sorted_op[i]->outputs[0]->name,
-            sorted_op[i]->outputs[0]->data_offset + offset,
-            sorted_op[i]->inputs[0]->name,
-            sorted_op[i]->inputs[0]->data_offset + offset,
-            sorted_op[i]->inputs[1]->name,
-            sorted_op[i]->inputs[1]->data_offset + offset,
-            VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
-            sorted_op[i]->inputs[0]->tensor_datatype);
-      } else if (platform == Platform::CUDA) {
-        remainder_micro = new CudaAddMicro(
-            sorted_op[i]->outputs[0]->name,
-            sorted_op[i]->outputs[0]->data_offset + offset,
-            sorted_op[i]->inputs[0]->name,
-            sorted_op[i]->inputs[0]->data_offset + offset,
-            sorted_op[i]->inputs[1]->name,
-            sorted_op[i]->inputs[1]->data_offset + offset,
-            VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
-            sorted_op[i]->inputs[0]->tensor_datatype);
-      }
+
+      int64_t length = VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension);
+      TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
+      std::vector<OperandType> operands = std::vector(
+          {OperandType{sorted_op[i]->outputs[0]->name,
+                       sorted_op[i]->outputs[0]->data_offset + offset, length,
+                       dtype},
+           OperandType{sorted_op[i]->inputs[0]->name,
+                       sorted_op[i]->inputs[0]->data_offset + offset, length,
+                       dtype},
+           OperandType{sorted_op[i]->inputs[1]->name,
+                       sorted_op[i]->inputs[1]->data_offset + offset, length,
+                       dtype}});
+      remainder_micro = instance.getConstructor(
+          MicroAttrs{OperatorType::ADD, platform.underlying()})(operands);
       remainder_task->pushMicro(remainder_micro);
 
       // Update remain data
@@ -146,17 +126,10 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
         if (temp_remain[input] == 0) {
           temp_remain.erase(input);
           // Free
-          if (platform == Platform::BANG) {
-            remainder_micro = new BangFreeMicro(
-                input->name, input->data_offset + offset,
-                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
-                input->tensor_datatype);
-          } else if (platform == Platform::CUDA) {
-            remainder_micro = new CudaFreeMicro(
-                input->name, input->data_offset + offset,
-                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
-                input->tensor_datatype);
-          }
+          remainder_micro = instance.getConstructor(
+              MicroAttrs{OperatorType::FREE, platform.underlying()})(
+              {OperandType{input->name, input->data_offset + offset, length,
+                           input->tensor_datatype}});
           remainder_task->pushMicro(remainder_micro);
         }
       }
@@ -165,17 +138,10 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
       for (auto output : sorted_op[i]->outputs) {
         auto it = std::find(outputs.begin(), outputs.end(), output);
         if (it != outputs.end()) {
-          if (platform == Platform::BANG) {
-            remainder_micro = new BangStoreMicro(
-                output->name, output->data_offset + offset,
-                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
-                output->tensor_datatype);
-          } else if (platform == Platform::CUDA) {
-            remainder_micro = new CudaStoreMicro(
-                output->name, output->data_offset + offset,
-                VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension),
-                output->tensor_datatype);
-          }
+          remainder_micro = instance.getConstructor(
+              MicroAttrs{OperatorType::STORE, platform.underlying()})(
+              {OperandType{output->name, output->data_offset + offset, length,
+                           output->tensor_datatype}});
           remainder_task->pushMicro(remainder_micro);
         }
       }
@@ -225,7 +191,7 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   result += indentation(indent + 1) + task_list[0]->name;
   result += "(" + task_list[0]->getArguments(false) + ");\n";
 
-  if (task_list.size() > 1) {
+  if (!tiles.isNeat()) {
     result += indentation(indent + 1) + "if (" +
               platform.remainingTileCond(tiles) + ") {\n";
     result += indentation(indent + 2) + task_list[1]->name;

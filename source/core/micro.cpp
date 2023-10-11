@@ -3,19 +3,7 @@
 
 namespace infini {
 
-Micro::Micro(MicroType mt, PlatformType pt) : micro_type(mt), platform(pt) {
-  switch (platform) {
-    case PlatformType::CUDA:
-      core_index_name = "blockIdx.x";
-      break;
-    case PlatformType::BANG:
-      core_index_name = "taskId";
-      break;
-    default:
-      core_index_name = "";
-      break;
-  }
-}
+Micro* Micro::makeObj() { return nullptr; }
 
 void Micro::printInformation() {
   std::string info_string = "- Kernel ";

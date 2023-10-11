@@ -3,39 +3,67 @@
 
 namespace infini {
 
-#define BINARY_MICRO(MICRO_NAME, MICRO_TYPE, PLATFORM_TYPE)                  \
-  class MICRO_NAME##Micro : public Micro {                                   \
-    int64_t output, left, right, length;                                     \
-    std::string output_name, left_name, right_name;                          \
-    TensorDatatype data_type;                                                \
-                                                                             \
-   public:                                                                   \
-    MICRO_NAME##Micro(std::string output_name_string, int64_t output_offset, \
-                      std::string left_name_string, int64_t left_offset,     \
-                      std::string right_name_string, int64_t right_offset,   \
-                      int64_t length_value, TensorDatatype dtype)            \
-        : Micro(MICRO_TYPE, PLATFORM_TYPE),                                  \
-          output_name(output_name_string),                                   \
-          output(output_offset),                                             \
-          left_name(left_name_string),                                       \
-          left(left_offset),                                                 \
-          right_name(right_name_string),                                     \
-          right(right_offset),                                               \
-          length(length_value),                                              \
-          data_type(dtype) {}                                                \
-    std::string generatorCode(Cache& cache, std::string& result,             \
-                              int64_t indent = 0) override;                  \
-  };
+// #ifndef MAKEOBJ
+#define MAKEOBJ(MICRO)                                              \
+  static Micro* makeObj(const std::vector<OperandType>& operands) { \
+    ASSERT(operands.size() == 3);                                   \
+    return new MICRO(operands);                                     \
+  }
+// #endif
 
-// On BANG platform
-BINARY_MICRO(BangAdd, MicroType::ADD, PlatformType::BANG)
-BINARY_MICRO(BangSub, MicroType::SUB, PlatformType::BANG)
-BINARY_MICRO(BangMul, MicroType::MUL, PlatformType::BANG)
+#define BINARY_DEF(OP, PLName, PL)                                            \
+  class CAT(OP, PLName) : public BinaryMicro {                                \
+   public:                                                                    \
+    CAT(OP, PLName)                                                           \
+    (const std::vector<OperandType>& operands) : BinaryMicro(operands, PL) {} \
+    std::string generatorCode(Cache& cache, std::string& code,                \
+                              int64_t indent) override;                       \
+    MAKEOBJ(CAT(OP, PLName))                                                  \
+  }
 
-// On Cuda platform
-BINARY_MICRO(CudaAdd, MicroType::ADD, PlatformType::CUDA)
-BINARY_MICRO(CudaSub, MicroType::SUB, PlatformType::CUDA)
-BINARY_MICRO(CudaMul, MicroType::MUL, PlatformType::CUDA)
+class BinaryMicro : public Micro {
+ protected:
+  std::string left_name, right_name, output_name;
+  int64_t left_offset, right_offset, output_offset;
+  int64_t length;
+  TensorDatatype data_type;
 
-#undef BINARY_MICRO
+ public:
+  BinaryMicro(const std::vector<OperandType>& operands, Platform pt)
+      : Micro(MicroType::BINARY, pt),
+        output_name(std::get<0>(operands[0])),
+        left_name(std::get<0>(operands[1])),
+        right_name(std::get<0>(operands[2])),
+        output_offset(std::get<1>(operands[0])),
+        left_offset(std::get<1>(operands[1])),
+        right_offset(std::get<1>(operands[2])),
+        length(std::get<2>(operands[0])),
+        data_type(std::get<3>(operands[0])) {}
+  virtual std::string generatorCode(Cache& cache, std::string& code,
+                                    int64_t indent = 0) = 0;
+  static Micro* makeObj() { return nullptr; }
+};
+
+/**
+ * Cuda Micro declearation
+ *  1. AddCuda
+ *  2. SubCuda
+ *  3. MulCuda
+ */
+BINARY_DEF(Add, Cuda, Platform::CUDA);
+BINARY_DEF(Sub, Cuda, Platform::CUDA);
+BINARY_DEF(Mul, Cuda, Platform::CUDA);
+
+/**
+ * Bang Micro declaration
+ *  1. AddBang
+ *  2. SubBang
+ *  3. MulBang
+ */
+BINARY_DEF(Add, Bang, Platform::BANG);
+BINARY_DEF(Sub, Bang, Platform::BANG);
+BINARY_DEF(Mul, Bang, Platform::BANG);
+
+#undef MAKEOBJ
+#undef BINARY_DEF
 }  // namespace infini

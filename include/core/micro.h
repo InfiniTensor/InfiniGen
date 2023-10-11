@@ -1,12 +1,21 @@
 #pragma once
 #include "core/type.h"
 #include "core/cache.h"
+#include "core/platform.h"
+#include "core/utils.h"
 #include <string>
+#include <functional>
+#include <map>
+#include <tuple>
 
 namespace infini {
 
 // TODO: delete line after change to Kernel
 using MicroType = KernelType;
+
+using OperandType =
+    std::tuple<std::string, int64_t, int64_t,
+               TensorDatatype>;  // operand_name, offset, length, dtype
 
 class Micro {
   /**
@@ -16,27 +25,57 @@ class Micro {
    */
  protected:
   MicroType micro_type;
-  PlatformType platform;
-  std::string core_index_name;
+  Platform platform;
 
  public:
   // Constructor
-  Micro() = delete;
   Micro(const Micro &) = delete;
-  Micro(MicroType mt, PlatformType pt);
+  Micro() = default;
+  Micro(MicroType mt, Platform pt) : micro_type(mt), platform(pt) {}
   // Destructor
   virtual ~Micro(){};
-
   /**
    * @brief Generate code. Subclasses rewrite this
    * function and call generations which belongs to
    * specific platform.
    */
-  virtual std::string generatorCode(Cache &cache, std::string &result,
+  virtual std::string generatorCode(Cache &cache, std::string &code,
                                     int64_t indent = 0) = 0;
-
+  static Micro *makeObj();  // dummpy functon
   /** @brief Information print*/
   virtual void printInformation();
 };
+
+using MicroAttrs = std::tuple<OperatorType, Platform::underlying_t>;
+using MicroConstructor =
+    std::function<Micro *(const std::vector<OperandType> &)>;
+
+class MicroRegistry {
+ private:
+  std::map<MicroAttrs, MicroConstructor> micro_records;
+  int num_record = 0;
+
+ public:
+  ~MicroRegistry() = default;
+
+  static MicroRegistry &getInstance() {
+    static MicroRegistry instance;
+    return instance;
+  }
+  bool registerMicro(const MicroAttrs &key, MicroConstructor constructor) {
+    ASSERT(micro_records.find(key) == micro_records.end());
+    micro_records.emplace(key, constructor);
+    num_record++;
+    return true;
+  }
+  const MicroConstructor &getConstructor(const MicroAttrs &key) const {
+    return micro_records.at(key);
+  }
+};
+
+#define REGISTER_MICRO(optype, platform, constructor)                          \
+  static const bool CAT(_register_micro_constructor_, __COUNTER__) =           \
+      MicroRegistry::getInstance().registerMicro(MicroAttrs{optype, platform}, \
+                                                 constructor);
 
 }  // namespace infini

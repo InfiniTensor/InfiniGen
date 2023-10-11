@@ -11,29 +11,20 @@ enum class TensorDatatype { HALF, FLOAT, DOUBLE, INT32 };
 enum class TensorLayout { NCHW, NHWC, ARRAY };
 enum class TensorType { CONST, VARIABLE };
 // OperatorType
-enum class OperatorType { ADD, SUB, MUL, SIGMOID, RELU };
-// KernelType
-enum class KernelType {
-  BINARY,
-  UNARY,
-  REDUCE,
-  BROADCAST,
-  MEMORY,
-  FMA,
-  LOAD,
-  CACHE,
+enum class OperatorType {
   ADD,
   SUB,
   MUL,
-  SIN,
-  COS,
+  SIGMOID,
+  RELU,
+  LOAD,
   ALLOCATE,
   STORE,
   FREE,
   SYNC
 };
-// PlatformType
-enum class PlatformType { CUDA, BANG };
+// KernelType
+enum class KernelType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY, FMA, SYNC };
 
 // CacheType
 enum class CacheType { CACHE, LDRAM };

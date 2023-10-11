@@ -49,7 +49,7 @@ class Operator {
   void printInformation();
   void printSummary();
   // Generator
-  virtual std::string generatorBone(PlatformType platform) = 0;
+  // virtual std::string generatorBone(PlatformType platform) = 0;
 
  private:
   virtual bool checkValid() = 0;
