@@ -51,6 +51,7 @@ UNARY_DEF(Sqrt, Cuda, Platform::CUDA);
 UNARY_DEF(Sigmoid, Cuda, Platform::CUDA);
 UNARY_DEF(Relu, Cuda, Platform::CUDA);
 UNARY_DEF(RSqrt, Cuda, Platform::CUDA);
+UNARY_DEF(Recip, Cuda, Platform::CUDA);
 
 /**
  * Bang Unary micros
@@ -63,6 +64,7 @@ UNARY_DEF(Sqrt, Bang, Platform::BANG);
 UNARY_DEF(Sigmoid, Bang, Platform::BANG);
 UNARY_DEF(Relu, Bang, Platform::BANG);
 UNARY_DEF(RSqrt, Bang, Platform::BANG);
+UNARY_DEF(Recip, Bang, Platform::BANG);
 
 #undef MAKEOBJ
 #undef UNARY_DEF

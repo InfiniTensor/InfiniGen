@@ -27,11 +27,13 @@ BANG_UNARY_GENERATOR(Sqrt, "__bang_active_sqrt")
 BANG_UNARY_GENERATOR(Sigmoid, "__bang_active_sigmoid")
 BANG_UNARY_GENERATOR(Relu, "__bang_active_relu")
 BANG_UNARY_GENERATOR(RSqrt, "__bang_active_rsqrt")
+BANG_UNARY_GENERATOR(Recip, "__bang_active_recip")
 
 REGISTER_MICRO(OperatorType::SQRT, Platform::BANG, SqrtBang::makeObj)
 REGISTER_MICRO(OperatorType::SIGMOID, Platform::BANG, SigmoidBang::makeObj)
 REGISTER_MICRO(OperatorType::RELU, Platform::BANG, ReluBang::makeObj)
 REGISTER_MICRO(OperatorType::RSQRT, Platform::BANG, RSqrtBang::makeObj)
+REGISTER_MICRO(OperatorType::RECIP, Platform::BANG, RecipBang::makeObj)
 
 #undef BANG_UNARY_GENERATOR
 

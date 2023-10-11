@@ -23,7 +23,8 @@ enum class OperatorType {
   FREE,
   SYNC,
   SQRT,
-  RSQRT
+  RSQRT,
+  RECIP
 };
 // KernelType
 enum class KernelType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY, FMA, SYNC };
