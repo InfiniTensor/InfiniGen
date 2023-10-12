@@ -1,5 +1,4 @@
 #include "core/task.h"
-#include "core/task.h"
 #include "graphs/binary_unary_graph.h"
 #include <algorithm>
 
