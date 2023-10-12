@@ -56,7 +56,7 @@ std::string DivBang::generatorCode(Cache& cache, std::string& code,
       OperandType{right_name + "_recip", right_offset, length, data_type};
   std::string recip_cache =
       AllocateBang(recip).generatorCode(cache, code, indent);
-  code += indentation(indent) + "__bang_active_recip(" + recip_cache + ", " +
+  code += indentation(indent) + "__bang_active_reciphp(" + recip_cache + ", " +
           right_cache + ", " + std::to_string(length) + ");\n";
   code += indentation(indent) + "__bang_mul(" + output_cache + ", " +
           left_cache + ", " + recip_cache + ", " + std::to_string(length) +
