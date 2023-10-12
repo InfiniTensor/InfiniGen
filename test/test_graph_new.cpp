@@ -16,7 +16,7 @@ int main()
     Data *temp3 = sqrt->getOutput(0);
     Node *mul = new MUL({d, temp3});
     Data *temp4 = mul->getOutput(0);
-    Node *softmax = new SOFTMAX({temp4});
+    Node *softmax = new SIGMOID({temp4});
     Data *output = softmax->getOutput(0);
 
 
