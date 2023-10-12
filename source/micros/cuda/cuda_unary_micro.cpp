@@ -45,4 +45,5 @@ REGISTER_MICRO(OperatorType::RELU, Platform::CUDA, ReluCuda::makeObj)
 REGISTER_MICRO(OperatorType::SIGMOID, Platform::CUDA, SigmoidCuda::makeObj)
 REGISTER_MICRO(OperatorType::RECIP, Platform::CUDA, RecipCuda::makeObj)
 
+#undef CUDA_UNARY_GENERATOR
 }  // namespace infini
