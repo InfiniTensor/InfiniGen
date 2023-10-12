@@ -50,8 +50,8 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
                      sorted_op[i]->inputs[0]->data_offset, length, dtype},
          OperandType{sorted_op[i]->inputs[1]->name,
                      sorted_op[i]->inputs[1]->data_offset, length, dtype}});
-    micro = instance.getConstructor(
-        MicroAttrs{OperatorType::ADD, platform.underlying()})(operands);
+    micro = instance.getConstructor(MicroAttrs{
+        sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
     task->pushMicro(micro);
 
     // Update remain data

@@ -37,6 +37,7 @@ enum class OperatorType {
   ALLOCATE,
   STORE,
   FREE,
+  // Sync
   SYNC
 };
 // KernelType

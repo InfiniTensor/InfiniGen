@@ -5,7 +5,7 @@
 
 namespace infini {
 
-#define CUDA_BIN_GENERATOR(OP, OP_STR, CAST)                                       \
+#define CUDA_BIN_GENERATOR(OP, OP_STR, CAST)                                   \
   std::string CAT(OP, Cuda)::generatorCode(Cache &cache, std::string &code,    \
                                            int64_t indent) {                   \
     cache.lock();                                                              \
