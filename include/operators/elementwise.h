@@ -1,50 +1,41 @@
 #pragma once
-#include "core/operator.h"
-#include "kernels/binary.h"
-#include "kernels/memory.h"
+#include "core/graph.h"
 
 namespace infini {
 
-class Binary : public Operator {
+class Binary : public Node {
  public:
   // Constructor
-  Binary(OperatorType type, Tensor* input_left, Tensor* input_right,
-         Tensor* output);
+  Binary(OperatorType type, std::vector<Data*> inputs_list = {},
+         std::vector<Data*> outputs_list = {}, std::string name_value = "",
+         int64_t outputs_num_value = 1);
   // Destructor
-  ~Binary();
-  // Apply
-  void applySplit() override;
-  // Generator
-  // std::string generatorBone(PlatformType platform) override;
-
- private:
-  // Check
-  bool checkValid() override;
-  // std::string generatorBoneOnCUDA(std::string name);
-  // std::string generatorBoneOnBANG(std::string name);
-  // std::string generatorCoreOnCUDA(const std::vector<int64_t>& coord);
-  // std::string generatorCoreOnBANG(const std::vector<int64_t>& coord);
+  ~Binary() = default;
 };
 
-#define DEFINE_BINARY(OP_NAME)                                             \
-  class OP_NAME : public Binary {                                          \
-   public:                                                                 \
-    OP_NAME(Tensor* input_left, Tensor* input_right, Tensor* output)       \
-        : Binary(OperatorType::OP_NAME, input_left, input_right, output) { \
-      Kernel* kernel = new G2R##Kernel();                                  \
-      this->pushKernel(kernel);                                            \
-      kernel = new G2R##Kernel();                                          \
-      this->pushKernel(kernel);                                            \
-      kernel = new OP_NAME##Kernel();                                      \
-      this->pushKernel(kernel);                                            \
-      kernel = new R2G##Kernel();                                          \
-      this->pushKernel(kernel);                                            \
-    }                                                                      \
+#define DEFINE_BINARY(OP_NAME)                                                 \
+  class OP_NAME : public Binary {                                              \
+   public:                                                                     \
+    OP_NAME(std::vector<Data*> inputs_list = {},                               \
+            std::vector<Data*> outputs_list = {}, std::string name_value = "", \
+            int64_t outputs_num_value = 1)                                     \
+        : Binary(OperatorType::OP_NAME, inputs_list, outputs_list, name_value, \
+                 outputs_num_value) {}                                         \
   };
 
 DEFINE_BINARY(ADD)
 DEFINE_BINARY(SUB)
 DEFINE_BINARY(MUL)
+DEFINE_BINARY(DIV)
+DEFINE_BINARY(EQ)
+DEFINE_BINARY(GE)
+DEFINE_BINARY(GT)
+DEFINE_BINARY(LE)
+DEFINE_BINARY(LT)
+DEFINE_BINARY(NE)
+DEFINE_BINARY(AND)
+DEFINE_BINARY(OR)
+DEFINE_BINARY(XOR)
 #undef DEFINE_BINARY_OBJ
 
 }  // namespace infini

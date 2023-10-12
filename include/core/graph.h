@@ -28,6 +28,7 @@ class Node {
   std::vector<Node*> predecessors;
   std::vector<Node*> successors;
   std::unordered_map<std::string, Attribute> attributes;
+  OperatorType operator_type;
 
  public:
   Node(std::vector<Data*> inputs_list = {},
@@ -41,6 +42,7 @@ class Node {
   void setAttribute(std::string key, Attribute attribute);
   Attribute getAttribute(std::string key);
   void deleteAttribute(std::string key);
+  OperatorType getOperatorType();
 };
 
 class Data {

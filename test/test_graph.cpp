@@ -4,20 +4,20 @@ int main() {
   using namespace infini;
   Data* a = new Data({1, 2050});
   Data* b = new Data({1, 2050});
-  Node* add = new Node({a, b});
-  Data* temp = add->getOutput(0);
-  Node* mul = new Node({b, temp});
-  Data* d = mul->getOutput(0);
+  Node* eq = new EQ({a, b});
+  Data* temp = eq->getOutput(0);
+  Node* div = new DIV({b, temp});
+  Data* d = div->getOutput(0);
 
-  add->printNode();
-  mul->printNode();
+  eq->printNode();
+  div->printNode();
 
   a->printData();
   b->printData();
   temp->printData();
   d->printData();
 
-  Graph* graph = new BinaryUnaryGraph({add, mul}, {a, b}, {d});
+  Graph* graph = new BinaryUnaryGraph({eq, div}, {a, b}, {d});
   graph->printGraph();
   LOG(INFO) << "========== Topo Sort ==========";
   auto topo = graph->topoSort();
@@ -27,19 +27,19 @@ int main() {
   LOG(INFO) << "========== Codegen ==========";
   std::string source_code;
   std::string head_code;
-  graph->applyPlatform(Platform::CUDA);
+  graph->applyPlatform(Platform::BANG);
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
-  LOG_FILE("../code/test.cu") << source_code;
+  LOG_FILE("../code/test.mlu") << source_code;
   LOG_FILE("../binary/test.h") << head_code;
-  COMPILE("../code/test.cu", "../binary/", Platform::CUDA);
+  COMPILE("../code/test.mlu", "../binary/", Platform::BANG);
 
   delete a;
   delete b;
   delete temp;
   delete d;
-  delete add;
-  delete mul;
+  delete eq;
+  delete div;
   delete graph;
   return 0;
 }

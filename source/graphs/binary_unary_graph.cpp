@@ -1,4 +1,5 @@
 #include "core/task.h"
+#include "core/task.h"
 #include "graphs/binary_unary_graph.h"
 #include <algorithm>
 
@@ -116,8 +117,8 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
            OperandType{sorted_op[i]->inputs[1]->name,
                        sorted_op[i]->inputs[1]->data_offset + offset, length,
                        dtype}});
-      remainder_micro = instance.getConstructor(
-          MicroAttrs{OperatorType::ADD, platform.underlying()})(operands);
+      remainder_micro = instance.getConstructor(MicroAttrs{
+          sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
       remainder_task->pushMicro(remainder_micro);
 
       // Update remain data
