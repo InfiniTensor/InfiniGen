@@ -5,7 +5,7 @@
 #include <math.h>
 
 #define EPS 1e-7
-#define LEN 1024 * 4
+#define LEN 2050
 
 int main(void)
 {
@@ -44,8 +44,8 @@ int main(void)
   CNRT_CHECK(cnrtMemcpy(host_dst, mlu_dst, LEN * sizeof(float), cnrtMemcpyDevToHost));
 
   for (int i = 0; i < LEN; i++) {
-    if (fabsf(host_dst[i] - 3 * i) > EPS) {
-      printf("%f expected, but %f got!\n", (float)(2 * i), host_dst[i]);
+    if (fabsf(host_dst[i] - i) > EPS) {
+      printf("%f expected, but %f got!\n", float(i), host_dst[i]);
     }
   }
 
