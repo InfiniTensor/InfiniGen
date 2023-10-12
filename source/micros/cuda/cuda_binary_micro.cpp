@@ -5,7 +5,7 @@
 
 namespace infini {
 
-#define CUDA_GENERATOR(OP, OP_STR)                                            \
+#define CUDA_BIN_GENERATOR(OP, OP_STR)                                        \
   std::string CAT(OP, Cuda)::generatorCode(Cache& cache, std::string& code,   \
                                            int64_t indent) {                  \
     cache.lock();                                                             \
@@ -25,9 +25,9 @@ namespace infini {
     return "";                                                                \
   }
 
-CUDA_GENERATOR(Add, "+")
-CUDA_GENERATOR(Sub, "-")
-CUDA_GENERATOR(Mul, "*")
+CUDA_BIN_GENERATOR(Add, "+")
+CUDA_BIN_GENERATOR(Sub, "-")
+CUDA_BIN_GENERATOR(Mul, "*")
 
 /**
  * Register Micros
@@ -37,6 +37,6 @@ REGISTER_MICRO(OperatorType::ADD, Platform::CUDA, AddCuda::makeObj)
 REGISTER_MICRO(OperatorType::SUB, Platform::CUDA, SubCuda::makeObj)
 REGISTER_MICRO(OperatorType::MUL, Platform::CUDA, MulCuda::makeObj)
 
-#undef CUDA_GENERATOR
+#undef CUDA_BIN_GENERATOR
 
 }  // namespace infini

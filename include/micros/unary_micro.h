@@ -58,7 +58,7 @@ UNARY_DEF(Recip, Cuda, Platform::CUDA);
  *  1. SqrtBang
  *  2. SigmoidBang
  *  3. SoftmaxBang
- *  3. ReluBang
+ *  4. ReluBang
 */
 UNARY_DEF(Sqrt, Bang, Platform::BANG);
 UNARY_DEF(Sigmoid, Bang, Platform::BANG);
