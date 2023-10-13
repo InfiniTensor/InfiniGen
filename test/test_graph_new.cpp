@@ -23,13 +23,12 @@ int main() {
   LOG(INFO) << "========== Codegen ==========";
   std::string source_code;
   std::string head_code;
-  graph->applyPlatform(Platform::BANG);
-  LOG(INFO) << "sadfsad";
+  graph->applyPlatform(Platform::CUDA);
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
-  LOG_FILE("../code/test.mlu") << source_code;
+  LOG_FILE("../code/test.cu") << source_code;
   LOG_FILE("../binary/test.h") << head_code;
-  COMPILE("../code/test.mlu", "../binary/", Platform::BANG);
+  COMPILE("../code/test.cu", "../binary/", Platform::CUDA);
 
   delete a;
   delete b;

@@ -8,13 +8,13 @@ namespace infini {
 #define UNARY_LAMBDA(OP_STR, DTYPE, LAMBDA)                          \
   "auto " + std::string(OP_STR) + " = [] __device__ (" +             \
       datatype_string(DTYPE) + " in) -> " + datatype_string(DTYPE) + \
-      " {return " + std::string(LAMBDA) + ";}"
+      " {return " + std::string(LAMBDA) + ";};"
 
 std::string unary_kernel(std::string kernel_name, TensorDatatype dtype) {
   if (kernel_name == "relu") {
     return UNARY_LAMBDA(kernel_name, dtype, "in > 0 ? in : 0");
   } else if (kernel_name == "sigmoid") {
-    return UNARY_LAMBDA(kernel_name, dtype, "1.0 / (1.0 + expf(-in));");
+    return UNARY_LAMBDA(kernel_name, dtype, "1.0 / (1.0 + expf(-in))");
   } else if (kernel_name == "recip") {
     return UNARY_LAMBDA(kernel_name, dtype, "1.0 / in");
   } else {
@@ -26,7 +26,7 @@ std::string unary_kernel(std::string kernel_name, TensorDatatype dtype) {
   std::string CAT(OP, Cuda)::generatorCode(Cache& cache, std::string& code, \
                                            int64_t indent) {                \
     cache.lock();                                                           \
-    code += unary_kernel(OP_STR, data_type);                                \
+    code += indentation(indent) + unary_kernel(OP_STR, data_type) + "\n";   \
     std::string input_cache =                                               \
         LoadCuda(OperandType{input_name, input_offset, length, data_type})  \
             .generatorCode(cache, code, indent);                            \

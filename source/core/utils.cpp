@@ -25,7 +25,7 @@ void COMPILE(std::string input_file_path, std::string output_binary_directory,
   } else if (platform == Platform::CUDA) {
     shell += "nvcc -arch=sm_80 -shared --compiler-options '-fPIC' -o " +
              output_binary_directory + "lib" + file_name + ".so " +
-             input_file_path + " -O3";
+             input_file_path + " -O3 --extended-lambda";
     system(shell.c_str());
   }
   return;
