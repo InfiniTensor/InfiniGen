@@ -23,11 +23,11 @@ namespace infini {
     return "";                                                              \
   }
 
-BANG_UNARY_GENERATOR(Sqrt, "__bang_active_sqrt")
-BANG_UNARY_GENERATOR(Sigmoid, "__bang_active_sigmoid")
+BANG_UNARY_GENERATOR(Sqrt, "__bang_active_sqrthp")
+BANG_UNARY_GENERATOR(Sigmoid, "__bang_taylor4_sigmoid")
 BANG_UNARY_GENERATOR(Relu, "__bang_active_relu")
-BANG_UNARY_GENERATOR(RSqrt, "__bang_active_rsqrt")
-BANG_UNARY_GENERATOR(Recip, "__bang_active_recip")
+BANG_UNARY_GENERATOR(RSqrt, "__bang_active_rsqrthp")
+BANG_UNARY_GENERATOR(Recip, "__bang_active_reciphp")
 
 REGISTER_MICRO(OperatorType::SQRT, Platform::BANG, SqrtBang::makeObj)
 REGISTER_MICRO(OperatorType::SIGMOID, Platform::BANG, SigmoidBang::makeObj)
