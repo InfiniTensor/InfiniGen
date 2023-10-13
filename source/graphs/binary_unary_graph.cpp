@@ -42,17 +42,18 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
     Micro *micro = nullptr;
     int64_t length = VECTOR_PRODUCT(tiles({0}).tile_dimension);
     TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
-    std::vector<OperandType> operands = std::vector(
-        {OperandType{sorted_op[i]->outputs[0]->name,
-                     sorted_op[i]->outputs[0]->data_offset, length, dtype},
-         OperandType{sorted_op[i]->inputs[0]->name,
-                     sorted_op[i]->inputs[0]->data_offset, length, dtype},
-         OperandType{sorted_op[i]->inputs[1]->name,
-                     sorted_op[i]->inputs[1]->data_offset, length, dtype}});
+    std::vector<OperandType> operands;
+    for (auto output : sorted_op[i]->outputs) {
+      operands.push_back(
+          OperandType{output->name, output->data_offset, length, dtype});
+    }
+    for (auto input : sorted_op[i]->inputs) {
+      operands.push_back(
+          OperandType{input->name, input->data_offset, length, dtype});
+    }
     micro = instance.getConstructor(MicroAttrs{
         sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
     task->pushMicro(micro);
-
     // Update remain data
     for (auto input : sorted_op[i]->inputs) {
       temp_remain[input] -= 1;
@@ -81,6 +82,7 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
       }
     }
   }
+
   task_list.push_back(task);
 
   // Remainder part task
@@ -106,16 +108,15 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
 
       int64_t length = VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension);
       TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
-      std::vector<OperandType> operands = std::vector(
-          {OperandType{sorted_op[i]->outputs[0]->name,
-                       sorted_op[i]->outputs[0]->data_offset + offset, length,
-                       dtype},
-           OperandType{sorted_op[i]->inputs[0]->name,
-                       sorted_op[i]->inputs[0]->data_offset + offset, length,
-                       dtype},
-           OperandType{sorted_op[i]->inputs[1]->name,
-                       sorted_op[i]->inputs[1]->data_offset + offset, length,
-                       dtype}});
+      std::vector<OperandType> operands;
+      for (auto output : sorted_op[i]->outputs) {
+        operands.push_back(OperandType{
+            output->name, output->data_offset + offset, length, dtype});
+      }
+      for (auto input : sorted_op[i]->inputs) {
+        operands.push_back(OperandType{input->name, input->data_offset + offset,
+                                       length, dtype});
+      }
       remainder_micro = instance.getConstructor(MicroAttrs{
           sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
       remainder_task->pushMicro(remainder_micro);

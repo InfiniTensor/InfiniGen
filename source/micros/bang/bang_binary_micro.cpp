@@ -5,7 +5,7 @@
 
 namespace infini {
 
-#define BANG_BINARY_GENERATOR(OP, OP_STR)                                      \
+#define BANG_BINARY_GENERATOR(OP, OP_STR)                                   \
   std::string CAT(OP, Bang)::generatorCode(Cache& cache, std::string& code, \
                                            int64_t indent) {                \
     cache.lock();                                                           \

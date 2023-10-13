@@ -17,8 +17,8 @@ class Unary : public Node {
  public:
   // Constructor
   Unary(OperatorType type, std::vector<Data*> inputs_list = {},
-         std::vector<Data*> outputs_list = {}, std::string name_value = "",
-         int64_t outputs_num_value = 1);
+        std::vector<Data*> outputs_list = {}, std::string name_value = "",
+        int64_t outputs_num_value = 1);
   // Destructor
   ~Unary() = default;
 };
@@ -33,16 +33,15 @@ class Unary : public Node {
                  outputs_num_value) {}                                         \
   };
 
-#define DEFINE_UNARY(OP_NAME)                                                 \
-  class OP_NAME : public Unary {                                              \
+#define DEFINE_UNARY(OP_NAME)                                                  \
+  class OP_NAME : public Unary {                                               \
    public:                                                                     \
     OP_NAME(std::vector<Data*> inputs_list = {},                               \
             std::vector<Data*> outputs_list = {}, std::string name_value = "", \
             int64_t outputs_num_value = 1)                                     \
-        : Unary(OperatorType::OP_NAME, inputs_list, outputs_list, name_value, \
-                 outputs_num_value) {}                                         \
+        : Unary(OperatorType::OP_NAME, inputs_list, outputs_list, name_value,  \
+                outputs_num_value) {}                                          \
   };
-
 
 // Binary OPs
 DEFINE_BINARY(ADD)

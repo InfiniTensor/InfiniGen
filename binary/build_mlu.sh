@@ -1,1 +1,1 @@
-gcc test_mlu.cpp -o test.out -L/home/wanghailu/new/Codegen/binary -ltest -L/usr/local/neuware/lib64 -lcnrt -I/usr/local/neuware/include -I/home/wanghailu/new/Codegen/binary
+gcc test_mlu_new.cpp -o test.out -L/home/zhangbolun/Github/Codegen/binary -ltest -L/usr/local/neuware/lib64 -lcnrt -I/usr/local/neuware/include -I/home/zhangbolun/Github/Codegen/binary -lm
