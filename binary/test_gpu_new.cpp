@@ -70,7 +70,7 @@ int main(void) {
 
   float timeTotal;
   cudaEventElapsedTime(&timeTotal, start, end);
-  printf("Total Time: %.3f ms\n", timeTotal / timingRounds / 1000.0);
+  printf("Total Time: %.6f ms\n", timeTotal / timingRounds);
 
   cudaStreamDestroy(queue);
 

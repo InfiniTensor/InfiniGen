@@ -74,7 +74,7 @@ int main(void) {
 
   float timeTotal;
   CNRT_CHECK(cnrtNotifierDuration(start, end, &timeTotal));
-  printf("Total Time: %.3f ms\n", timeTotal / timingRounds / 1000.0);
+  printf("Total Time: %.6f ms\n", timeTotal / timingRounds);
 
   CNRT_CHECK(cnrtQueueDestroy(queue));
 
