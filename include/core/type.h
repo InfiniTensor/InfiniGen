@@ -29,6 +29,9 @@ enum class OperatorType {
   // Unary
   SIGMOID,
   RELU,
+  SQRT,
+  RSQRT,
+  RECIP,
   // Memory
   LOAD,
   ALLOCATE,

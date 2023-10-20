@@ -6,7 +6,7 @@ int main() {
   Data* b = new Data({1, 2050});
   Node* eq = new EQ({a, b});
   Data* temp = eq->getOutput(0);
-  Node* div = new DIV({b, temp});
+  Node* div = new SIGMOID({temp});
   Data* d = div->getOutput(0);
 
   eq->printNode();
@@ -28,6 +28,7 @@ int main() {
   std::string source_code;
   std::string head_code;
   graph->applyPlatform(Platform::BANG);
+  LOG(INFO) << "sadfsad";
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
   LOG_FILE("../code/test.mlu") << source_code;

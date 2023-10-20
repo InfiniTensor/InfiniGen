@@ -21,10 +21,10 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
   for (auto data : temps) {
     data->flatten();
   }
-  tiles = inputs[0]->tiling({1024});
+  tiles = inputs[0]->tiling({8192});
   std::vector<Node *> sorted_op = topoSort();
   Task *task = nullptr;
-  task = new ParallelTask(1024 * 20, 1024 * 100, 4, "cache", tiles);
+  task = new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
   std::unordered_map<Data *, int64_t> temp_remain;
   for (auto data : inputs) {
     temp_remain[data] = data->remaining;
@@ -42,17 +42,18 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
     Micro *micro = nullptr;
     int64_t length = VECTOR_PRODUCT(tiles({0}).tile_dimension);
     TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
-    std::vector<OperandType> operands = std::vector(
-        {OperandType{sorted_op[i]->outputs[0]->name,
-                     sorted_op[i]->outputs[0]->data_offset, length, dtype},
-         OperandType{sorted_op[i]->inputs[0]->name,
-                     sorted_op[i]->inputs[0]->data_offset, length, dtype},
-         OperandType{sorted_op[i]->inputs[1]->name,
-                     sorted_op[i]->inputs[1]->data_offset, length, dtype}});
+    std::vector<OperandType> operands;
+    for (auto output : sorted_op[i]->outputs) {
+      operands.push_back(
+          OperandType{output->name, output->data_offset, length, dtype});
+    }
+    for (auto input : sorted_op[i]->inputs) {
+      operands.push_back(
+          OperandType{input->name, input->data_offset, length, dtype});
+    }
     micro = instance.getConstructor(MicroAttrs{
         sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
     task->pushMicro(micro);
-
     // Update remain data
     for (auto input : sorted_op[i]->inputs) {
       temp_remain[input] -= 1;
@@ -81,13 +82,14 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
       }
     }
   }
+
   task_list.push_back(task);
 
   // Remainder part task
   // Assume 1-d
   if (!tiles.isNeat()) {
     Task *remainder_task = nullptr;
-    remainder_task = new ParallelTask(1024 * 20, 1024 * 100, 4, "cache", tiles);
+    remainder_task = new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
     for (auto data : inputs) {
       temp_remain[data] = data->remaining;
       remainder_task->addArgument(data->tensor_datatype, data->name);
@@ -106,16 +108,15 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
 
       int64_t length = VECTOR_PRODUCT(tiles.remain_tiles[0].tile_dimension);
       TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
-      std::vector<OperandType> operands = std::vector(
-          {OperandType{sorted_op[i]->outputs[0]->name,
-                       sorted_op[i]->outputs[0]->data_offset + offset, length,
-                       dtype},
-           OperandType{sorted_op[i]->inputs[0]->name,
-                       sorted_op[i]->inputs[0]->data_offset + offset, length,
-                       dtype},
-           OperandType{sorted_op[i]->inputs[1]->name,
-                       sorted_op[i]->inputs[1]->data_offset + offset, length,
-                       dtype}});
+      std::vector<OperandType> operands;
+      for (auto output : sorted_op[i]->outputs) {
+        operands.push_back(OperandType{
+            output->name, output->data_offset + offset, length, dtype});
+      }
+      for (auto input : sorted_op[i]->inputs) {
+        operands.push_back(OperandType{input->name, input->data_offset + offset,
+                                       length, dtype});
+      }
       remainder_micro = instance.getConstructor(MicroAttrs{
           sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
       remainder_task->pushMicro(remainder_micro);

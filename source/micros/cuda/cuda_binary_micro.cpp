@@ -5,7 +5,7 @@
 
 namespace infini {
 
-#define CUDA_GENERATOR(OP, OP_STR, CAST)                                       \
+#define CUDA_BINARY_GENERATOR(OP, OP_STR, CAST)                                \
   std::string CAT(OP, Cuda)::generatorCode(Cache &cache, std::string &code,    \
                                            int64_t indent) {                   \
     cache.lock();                                                              \
@@ -32,19 +32,19 @@ namespace infini {
     return "";                                                                 \
   }
 
-CUDA_GENERATOR(Add, "+", false)
-CUDA_GENERATOR(Sub, "-", false)
-CUDA_GENERATOR(Mul, "*", false)
-CUDA_GENERATOR(Div, "/", false)
-CUDA_GENERATOR(Eq, "==", true)
-CUDA_GENERATOR(Ge, ">=", true)
-CUDA_GENERATOR(Gt, ">", true)
-CUDA_GENERATOR(Le, "<=", true)
-CUDA_GENERATOR(Lt, "<", true)
-CUDA_GENERATOR(Ne, "!=", true)
-CUDA_GENERATOR(And, "&", true)
-CUDA_GENERATOR(Or, "|", true)
-CUDA_GENERATOR(Xor, "^", true)
+CUDA_BINARY_GENERATOR(Add, "+", false)
+CUDA_BINARY_GENERATOR(Sub, "-", false)
+CUDA_BINARY_GENERATOR(Mul, "*", false)
+CUDA_BINARY_GENERATOR(Div, "/", false)
+CUDA_BINARY_GENERATOR(Eq, "==", true)
+CUDA_BINARY_GENERATOR(Ge, ">=", true)
+CUDA_BINARY_GENERATOR(Gt, ">", true)
+CUDA_BINARY_GENERATOR(Le, "<=", true)
+CUDA_BINARY_GENERATOR(Lt, "<", true)
+CUDA_BINARY_GENERATOR(Ne, "!=", true)
+CUDA_BINARY_GENERATOR(And, "&", true)
+CUDA_BINARY_GENERATOR(Or, "|", true)
+CUDA_BINARY_GENERATOR(Xor, "^", true)
 
 /**
  * Register Micros
@@ -64,6 +64,6 @@ REGISTER_MICRO(OperatorType::AND, Platform::CUDA, AndCuda::makeObj)
 REGISTER_MICRO(OperatorType::OR, Platform::CUDA, OrCuda::makeObj)
 REGISTER_MICRO(OperatorType::XOR, Platform::CUDA, XorCuda::makeObj)
 
-#undef CUDA_GENERATOR
+#undef CUDA_BINARY_GENERATOR
 
 }  // namespace infini

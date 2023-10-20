@@ -1,0 +1,27 @@
+
+#include <bang.h>
+
+__mlu_func__ void ParallelTask_0(float *Data_0, float *Data_1, float *Data_2, float *Data_3, float *Data_8) {
+  __nram__ char cache[409600];
+  __ldram__ char cache_ldram[102400];
+  __memcpy((float *)(cache + 0), Data_0 + 0 + taskId * 8192, 32768, GDRAM2NRAM);
+  __memcpy((float *)(cache + 32768), Data_1 + 0 + taskId * 8192, 32768, GDRAM2NRAM);
+  __bang_add((float *)(cache + 65536), (float *)(cache + 0), (float *)(cache + 32768), 8192);
+  __memcpy((float *)(cache + 0), Data_2 + 0 + taskId * 8192, 32768, GDRAM2NRAM);
+  __bang_sub((float *)(cache + 32768), (float *)(cache + 65536), (float *)(cache + 0), 8192);
+  __bang_active_sqrthp((float *)(cache + 0), (float *)(cache + 32768), 8192);
+  __memcpy((float *)(cache + 32768), Data_3 + 0 + taskId * 8192, 32768, GDRAM2NRAM);
+  __bang_mul((float *)(cache + 65536), (float *)(cache + 32768), (float *)(cache + 0), 8192);
+  __bang_taylor4_sigmoid((float *)(cache + 0), (float *)(cache + 65536), (float *)(cache + 32768), (float *)(cache + 98304), 8192);
+  __memcpy(Data_8 + 0 + taskId * 8192, (float *)(cache + 0), 32768, NRAM2GDRAM);
+}
+
+__mlu_entry__ void Graph_0_kernel(float *Data_0, float *Data_1, float *Data_2, float *Data_3, float *Data_8) {
+  if (taskId >= 21) { return; }
+  ParallelTask_0(Data_0, Data_1, Data_2, Data_3, Data_8);
+}
+
+void Graph_0(cnrtQueue_t queue, float *Data_0, float *Data_1, float *Data_2, float *Data_3, float *Data_8) {
+  cnrtDim3_t dim = {24, 1, 1};
+  Graph_0_kernel<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>(Data_0, Data_1, Data_2, Data_3, Data_8);
+}

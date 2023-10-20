@@ -5,7 +5,7 @@
 
 namespace infini {
 
-#define BANG_GENERATOR(OP, OP_STR)                                          \
+#define BANG_BINARY_GENERATOR(OP, OP_STR)                                   \
   std::string CAT(OP, Bang)::generatorCode(Cache& cache, std::string& code, \
                                            int64_t indent) {                \
     cache.lock();                                                           \
@@ -26,18 +26,18 @@ namespace infini {
     return "";                                                              \
   }
 
-BANG_GENERATOR(Add, "add")
-BANG_GENERATOR(Sub, "sub")
-BANG_GENERATOR(Mul, "mul")
-BANG_GENERATOR(Eq, "eq")
-BANG_GENERATOR(Ge, "ge")
-BANG_GENERATOR(Gt, "gt")
-BANG_GENERATOR(Le, "le")
-BANG_GENERATOR(Lt, "lt")
-BANG_GENERATOR(Ne, "ne")
-BANG_GENERATOR(And, "and")
-BANG_GENERATOR(Or, "or")
-BANG_GENERATOR(Xor, "xor")
+BANG_BINARY_GENERATOR(Add, "add")
+BANG_BINARY_GENERATOR(Sub, "sub")
+BANG_BINARY_GENERATOR(Mul, "mul")
+BANG_BINARY_GENERATOR(Eq, "eq")
+BANG_BINARY_GENERATOR(Ge, "ge")
+BANG_BINARY_GENERATOR(Gt, "gt")
+BANG_BINARY_GENERATOR(Le, "le")
+BANG_BINARY_GENERATOR(Lt, "lt")
+BANG_BINARY_GENERATOR(Ne, "ne")
+BANG_BINARY_GENERATOR(And, "and")
+BANG_BINARY_GENERATOR(Or, "or")
+BANG_BINARY_GENERATOR(Xor, "xor")
 
 // Div
 std::string DivBang::generatorCode(Cache& cache, std::string& code,
@@ -84,6 +84,6 @@ REGISTER_MICRO(OperatorType::AND, Platform::BANG, AndBang::makeObj)
 REGISTER_MICRO(OperatorType::OR, Platform::BANG, OrBang::makeObj)
 REGISTER_MICRO(OperatorType::XOR, Platform::BANG, XorBang::makeObj)
 
-#undef BANG_GENERATOR
+#undef BANG_BINARY_GENERATOR
 
 }  // namespace infini
