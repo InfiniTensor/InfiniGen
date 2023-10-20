@@ -21,10 +21,10 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
   for (auto data : temps) {
     data->flatten();
   }
-  tiles = inputs[0]->tiling({1024});
+  tiles = inputs[0]->tiling({8192});
   std::vector<Node *> sorted_op = topoSort();
   Task *task = nullptr;
-  task = new ParallelTask(1024 * 20, 1024 * 100, 4, "cache", tiles);
+  task = new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
   std::unordered_map<Data *, int64_t> temp_remain;
   for (auto data : inputs) {
     temp_remain[data] = data->remaining;
@@ -89,7 +89,7 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
   // Assume 1-d
   if (!tiles.isNeat()) {
     Task *remainder_task = nullptr;
-    remainder_task = new ParallelTask(1024 * 20, 1024 * 100, 4, "cache", tiles);
+    remainder_task = new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
     for (auto data : inputs) {
       temp_remain[data] = data->remaining;
       remainder_task->addArgument(data->tensor_datatype, data->name);
