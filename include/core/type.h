@@ -26,12 +26,17 @@ enum class OperatorType {
   AND,
   OR,
   XOR,
+  FLOORMOD,
+  FLOORDIV,
   // Unary
   SIGMOID,
   RELU,
   SQRT,
   RSQRT,
   RECIP,
+  SIN,
+  COS,
+  TANH,
   // Memory
   LOAD,
   ALLOCATE,

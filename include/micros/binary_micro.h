@@ -5,7 +5,7 @@ namespace infini {
 
 // #ifndef MAKEOBJ
 #define MAKEOBJ(MICRO)                                              \
-  static Micro* makeObj(const std::vector<OperandType>& operands) { \
+  static Micro *makeObj(const std::vector<OperandType> &operands) { \
     ASSERT(operands.size() == 3);                                   \
     return new MICRO(operands);                                     \
   }
@@ -15,8 +15,8 @@ namespace infini {
   class CAT(OP, PLName) : public BinaryMicro {                                \
    public:                                                                    \
     CAT(OP, PLName)                                                           \
-    (const std::vector<OperandType>& operands) : BinaryMicro(operands, PL) {} \
-    std::string generatorCode(Cache& cache, std::string& code,                \
+    (const std::vector<OperandType> &operands) : BinaryMicro(operands, PL) {} \
+    std::string generatorCode(Cache &cache, std::string &code,                \
                               int64_t indent) override;                       \
     MAKEOBJ(CAT(OP, PLName))                                                  \
   }
@@ -29,7 +29,7 @@ class BinaryMicro : public Micro {
   TensorDatatype data_type;
 
  public:
-  BinaryMicro(const std::vector<OperandType>& operands, Platform pt)
+  BinaryMicro(const std::vector<OperandType> &operands, Platform pt)
       : Micro(MicroType::BINARY, pt),
         output_name(std::get<0>(operands[0])),
         left_name(std::get<0>(operands[1])),
@@ -39,9 +39,9 @@ class BinaryMicro : public Micro {
         right_offset(std::get<1>(operands[2])),
         length(std::get<2>(operands[0])),
         data_type(std::get<3>(operands[0])) {}
-  virtual std::string generatorCode(Cache& cache, std::string& code,
+  virtual std::string generatorCode(Cache &cache, std::string &code,
                                     int64_t indent = 0) = 0;
-  static Micro* makeObj() { return nullptr; }
+  static Micro *makeObj() { return nullptr; }
 };
 
 /**
@@ -59,6 +59,8 @@ class BinaryMicro : public Micro {
  * 11. AndCuda
  * 12. OrCuda
  * 13. XorCuda
+ * 14. FloorModCuda
+ * 15. FloorDivCuda
  */
 BINARY_DEF(Add, Cuda, Platform::CUDA);
 BINARY_DEF(Sub, Cuda, Platform::CUDA);
@@ -73,6 +75,8 @@ BINARY_DEF(Ne, Cuda, Platform::CUDA);
 BINARY_DEF(And, Cuda, Platform::CUDA);
 BINARY_DEF(Or, Cuda, Platform::CUDA);
 BINARY_DEF(Xor, Cuda, Platform::CUDA);
+BINARY_DEF(FloorMod, Cuda, Platform::CUDA);
+BINARY_DEF(FloorDiv, Cuda, Platform::CUDA);
 
 /**
  * Bang Micro declaration
@@ -103,6 +107,8 @@ BINARY_DEF(Ne, Bang, Platform::BANG);
 BINARY_DEF(And, Bang, Platform::BANG);
 BINARY_DEF(Or, Bang, Platform::BANG);
 BINARY_DEF(Xor, Bang, Platform::BANG);
+BINARY_DEF(FloorMod, Bang, Platform::BANG);
+BINARY_DEF(FloorDiv, Bang, Platform::BANG);
 
 #undef MAKEOBJ
 #undef BINARY_DEF

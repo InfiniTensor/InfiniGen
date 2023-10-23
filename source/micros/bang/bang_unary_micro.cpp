@@ -45,12 +45,18 @@ BANG_UNARY_GENERATOR(Sigmoid, "__bang_taylor4_sigmoid", true)
 BANG_UNARY_GENERATOR(Relu, "__bang_active_relu", false)
 BANG_UNARY_GENERATOR(RSqrt, "__bang_active_rsqrthp", false)
 BANG_UNARY_GENERATOR(Recip, "__bang_active_reciphp", false)
+BANG_UNARY_GENERATOR(Cos, "__bang_taylor4_cos", true)
+BANG_UNARY_GENERATOR(Sin, "__bang_taylor4_sin", true)
+BANG_UNARY_GENERATOR(Tanh, "__bang_taylor4_tanh", true)
 
 REGISTER_MICRO(OperatorType::SQRT, Platform::BANG, SqrtBang::makeObj)
 REGISTER_MICRO(OperatorType::SIGMOID, Platform::BANG, SigmoidBang::makeObj)
 REGISTER_MICRO(OperatorType::RELU, Platform::BANG, ReluBang::makeObj)
 REGISTER_MICRO(OperatorType::RSQRT, Platform::BANG, RSqrtBang::makeObj)
 REGISTER_MICRO(OperatorType::RECIP, Platform::BANG, RecipBang::makeObj)
+REGISTER_MICRO(OperatorType::COS, Platform::BANG, CosBang::makeObj)
+REGISTER_MICRO(OperatorType::SIN, Platform::BANG, SinBang::makeObj)
+REGISTER_MICRO(OperatorType::TANH, Platform::BANG, TanhBang::makeObj)
 
 #undef BANG_UNARY_GENERATOR
 

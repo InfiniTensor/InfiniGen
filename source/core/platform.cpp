@@ -129,7 +129,7 @@ const std::string Platform::head() const {
   }
 }
 
-const char* Platform::toString() const {
+const char *Platform::toString() const {
   switch (type) {
     CASE(CUDA, "CUDA");
     CASE(BANG, "BANG");
@@ -139,16 +139,16 @@ const char* Platform::toString() const {
 }
 
 const std::string Platform::taskScaleDecl(TileTensor tiles) const {
+  int64_t num_neat_tiles = tiles.numNeatTiles() == 0 ? 1 : tiles.numNeatTiles();
   switch (type) {
     CASE(CUDA,
-         "int numBlocks = " + std::to_string(tiles.numNeatTiles()) +
+         "int numBlocks = " + std::to_string(num_neat_tiles) +
              ", threadsPerBlock = " +
              std::to_string(VECTOR_PRODUCT(tiles.tiles[0].tile_dimension)) +
              ";");
 
     CASE(BANG, "cnrtDim3_t dim = {" +
-                   std::to_string(PAD_UP(tiles.numNeatTiles(), 4)) +
-                   ", 1, 1};");
+                   std::to_string(PAD_UP(num_neat_tiles, 4)) + ", 1, 1};");
     default:
       return "";
   }

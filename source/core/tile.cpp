@@ -4,9 +4,9 @@
 namespace infini {
 
 // Tile implemenation
-Tile::Tile(const std::vector<int64_t>& dimension,
-           const std::vector<int64_t>& position, const std::string& name,
-           const int64_t& offset) {
+Tile::Tile(const std::vector<int64_t> &dimension,
+           const std::vector<int64_t> &position, const std::string &name,
+           const int64_t &offset) {
   tile_dimension = dimension;
   tile_position = position;
   tile_name = name;
@@ -17,10 +17,10 @@ Tile::Tile(const std::vector<int64_t>& dimension,
   }
 }
 
-Tile::Tile(const std::vector<int64_t>& dimension,
-           const std::vector<int64_t>& position,
-           const std::vector<int64_t>& stride, const std::string& name,
-           const int64_t& offset) {
+Tile::Tile(const std::vector<int64_t> &dimension,
+           const std::vector<int64_t> &position,
+           const std::vector<int64_t> &stride, const std::string &name,
+           const int64_t &offset) {
   tile_dimension = dimension;
   tile_position = position;
   tile_stride = stride;
@@ -67,23 +67,23 @@ void Tile::printSummary() {
 }
 
 // TileTensor implementation
-TileTensor::TileTensor(const std::vector<int64_t>& shape,
-                       const std::vector<int64_t>& stride, TensorType type,
+TileTensor::TileTensor(const std::vector<int64_t> &shape,
+                       const std::vector<int64_t> &stride, TensorType type,
                        TensorLayout layout, std::string name)
     : shape(shape), stride(stride), type(type), layout(layout), name(name) {
   tiles.clear();
 }
 
-void TileTensor::addTile(const Tile& t) { tiles.push_back(t); }
+void TileTensor::addTile(const Tile &t) { tiles.push_back(t); }
 
-Tile TileTensor::deleteTile(const std::vector<int64_t>& coord) {
+Tile TileTensor::deleteTile(const std::vector<int64_t> &coord) {
   int64_t tile_index = DOT_PRODUCT(stride, coord);
   Tile temp = tiles[tile_index];
   tiles.erase(tiles.begin() + tile_index);
   return temp;
 }
 
-Tile TileTensor::operator()(const std::vector<int64_t>& coord) {
+Tile TileTensor::operator()(const std::vector<int64_t> &coord) {
   // Get a Tile with Tile coord
   // Tile index = stride dot coord
   int64_t tile_index = DOT_PRODUCT(stride, coord);

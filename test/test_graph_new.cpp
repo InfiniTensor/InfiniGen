@@ -26,9 +26,9 @@ int main() {
   graph->applyPlatform(Platform::BANG);
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
-  LOG_FILE("../code/test.mlu") << source_code;
-  LOG_FILE("../binary/test.h") << head_code;
-  COMPILE("../code/test.mlu", "../binary/", Platform::BANG);
+  LOG_FILE("build/code/test_graph_new.mlu") << source_code;
+  LOG_FILE("build/binary/test.h") << head_code;
+  COMPILE("build/code/test_graph_new.mlu", "build/bin/", Platform::BANG);
 
   delete a;
   delete b;
