@@ -24,9 +24,9 @@ build:
 	@mkdir -p build/code
 	@mkdir -p build/bin
 	@cd build && cmake ..
+	@make -C build $(TEST_FILES)
 
 test: build
-	@make -C build test_$(TESTCASE)
 	@./build/test_$(TESTCASE)
 	@cp test/$(TEST_EXAMPLE).cpp build/bin/
 	@gcc build/bin/$(TEST_EXAMPLE).cpp -o build/bin/$(TEST_EXAMPLE) $(COMPILE_OPTIONS) $(LINK_SO)
@@ -34,7 +34,6 @@ test: build
 
 
 tests: build
-	@make -C build $(TEST_FILES)
 	@$(foreach file, $(TEST_BIN_FILES), ./$(file);)
 
 format:
