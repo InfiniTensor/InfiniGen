@@ -139,16 +139,16 @@ const char *Platform::toString() const {
 }
 
 const std::string Platform::taskScaleDecl(TileTensor tiles) const {
-  int64_t num_neat_tiles = tiles.numNeatTiles() == 0 ? 1 : tiles.numNeatTiles();
+  int64_t num_cores = tiles.numNeatTiles() == 0 ? 1 : tiles.numNeatTiles();
   switch (type) {
     CASE(CUDA,
-         "int numBlocks = " + std::to_string(num_neat_tiles) +
+         "int numBlocks = " + std::to_string(num_cores) +
              ", threadsPerBlock = " +
              std::to_string(VECTOR_PRODUCT(tiles.tiles[0].tile_dimension)) +
              ";");
 
-    CASE(BANG, "cnrtDim3_t dim = {" +
-                   std::to_string(PAD_UP(num_neat_tiles, 4)) + ", 1, 1};");
+    CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_cores, 4)) +
+                   ", 1, 1};");
     default:
       return "";
   }

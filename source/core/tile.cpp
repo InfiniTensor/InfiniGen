@@ -108,6 +108,9 @@ bool TileTensor::isNeat() {
   if (tiles.empty()) {
     return true;
   }
+  if (tiles.size() == remain_tiles.size()) {
+    return false;
+  }
   for (size_t i = 1; i < tiles.size(); i++) {
     if (ANY(tiles[i].tile_dimension != tiles[i - 1].tile_dimension) ||
         ANY(tiles[i].tile_stride != tiles[i - 1].tile_stride)) {

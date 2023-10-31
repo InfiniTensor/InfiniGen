@@ -32,12 +32,13 @@ test: build
 	@gcc build/bin/$(TEST_EXAMPLE).cpp -o build/bin/$(TEST_EXAMPLE) $(COMPILE_OPTIONS) $(LINK_SO)
 	@./build/bin/$(TEST_EXAMPLE)
 
-
 tests: build
 	@$(foreach file, $(TEST_BIN_FILES), ./$(file);)
 
 format:
-	@./tools/format ./
+	@./tools/format ./include
+	@./tools/format ./source
+	@./tools/format ./test
 
 clean:
 	@rm -rf build/
