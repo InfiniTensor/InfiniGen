@@ -1,6 +1,7 @@
+#include <algorithm>
+
 #include "core/task.h"
 #include "graphs/binary_unary_graph.h"
-#include <algorithm>
 
 namespace infini {
 
