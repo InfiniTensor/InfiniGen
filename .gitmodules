@@ -1,0 +1,6 @@
+[submodule "3rd-party/cutlass"]
+	path = 3rd-party/cutlass
+	url = https://github.com/NVIDIA/cutlass.git
+[submodule "3rd-party/fmt"]
+	path = 3rd-party/fmt
+	url = https://github.com/fmtlib/fmt.git
