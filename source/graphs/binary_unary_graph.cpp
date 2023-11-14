@@ -22,74 +22,78 @@ void BinaryUnaryGraph::applyPlatform(Platform platform) {
     data->flatten();
   }
   tiles = inputs[0]->tiling({8192});
-  std::vector<Node *> sorted_op = topoSort();
-  Task *task = nullptr;
-  task = new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
+  // tiles.printInformation();
   std::unordered_map<Data *, int64_t> temp_remain;
-  for (auto data : inputs) {
-    temp_remain[data] = data->remaining;
-    task->addArgument(data->tensor_datatype, data->name);
-  }
-  for (auto data : temps) {
-    temp_remain[data] = data->remaining;
-  }
-  for (auto data : outputs) {
-    temp_remain[data] = data->remaining;
-    task->addArgument(data->tensor_datatype, data->name);
-  }
+  std::vector<Node *> sorted_op = topoSort();
   MicroRegistry instance = MicroRegistry::getInstance();
-  for (int i = 0; i < sorted_op.size(); ++i) {
-    Micro *micro = nullptr;
-    int64_t length = VECTOR_PRODUCT(tiles({0}).tile_dimension);
-    TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
-    std::vector<OperandType> operands;
-    for (auto output : sorted_op[i]->outputs) {
-      operands.push_back(
-          OperandType{output->name, output->data_offset, length, dtype});
+  if (tiles.numNeatTiles() > 0) {
+    Task *task = nullptr;
+    task = new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
+    for (auto data : inputs) {
+      temp_remain[data] = data->remaining;
+      task->addArgument(data->tensor_datatype, data->name);
     }
-    for (auto input : sorted_op[i]->inputs) {
-      operands.push_back(
-          OperandType{input->name, input->data_offset, length, dtype});
+    for (auto data : temps) {
+      temp_remain[data] = data->remaining;
     }
-    micro = instance.getConstructor(MicroAttrs{
-        sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
-    task->pushMicro(micro);
-    // Update remain data
-    for (auto input : sorted_op[i]->inputs) {
-      temp_remain[input] -= 1;
-      if (temp_remain[input] == 0) {
-        temp_remain.erase(input);
-        // Free
-        micro = instance.getConstructor(
-            MicroAttrs{OperatorType::FREE, platform.underlying()})(
-            {OperandType{input->name, input->data_offset,
-                         VECTOR_PRODUCT(tiles({0}).tile_dimension),
-                         input->tensor_datatype}});
-        task->pushMicro(micro);
+    for (auto data : outputs) {
+      temp_remain[data] = data->remaining;
+      task->addArgument(data->tensor_datatype, data->name);
+    }
+    for (int i = 0; i < sorted_op.size(); ++i) {
+      Micro *micro = nullptr;
+      int64_t length = VECTOR_PRODUCT(tiles({0}).tile_dimension);
+      TensorDatatype dtype = sorted_op[i]->inputs[0]->tensor_datatype;
+      std::vector<OperandType> operands;
+      for (auto output : sorted_op[i]->outputs) {
+        operands.push_back(
+            OperandType{output->name, output->data_offset, length, dtype});
+      }
+      for (auto input : sorted_op[i]->inputs) {
+        operands.push_back(
+            OperandType{input->name, input->data_offset, length, dtype});
+      }
+      micro = instance.getConstructor(MicroAttrs{
+          sorted_op[i]->getOperatorType(), platform.underlying()})(operands);
+      task->pushMicro(micro);
+      // Update remain data
+      for (auto input : sorted_op[i]->inputs) {
+        temp_remain[input] -= 1;
+        if (temp_remain[input] == 0) {
+          temp_remain.erase(input);
+          // Free
+          micro = instance.getConstructor(
+              MicroAttrs{OperatorType::FREE, platform.underlying()})(
+              {OperandType{input->name, input->data_offset,
+                           VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                           input->tensor_datatype}});
+          task->pushMicro(micro);
+        }
+      }
+
+      // Store
+      for (auto output : sorted_op[i]->outputs) {
+        auto it = std::find(outputs.begin(), outputs.end(), output);
+        if (it != outputs.end()) {
+          micro = instance.getConstructor(
+              MicroAttrs{OperatorType::STORE, platform.underlying()})(
+              {OperandType{output->name, output->data_offset,
+                           VECTOR_PRODUCT(tiles({0}).tile_dimension),
+                           output->tensor_datatype}});
+          task->pushMicro(micro);
+        }
       }
     }
 
-    // Store
-    for (auto output : sorted_op[i]->outputs) {
-      auto it = std::find(outputs.begin(), outputs.end(), output);
-      if (it != outputs.end()) {
-        micro = instance.getConstructor(
-            MicroAttrs{OperatorType::STORE, platform.underlying()})(
-            {OperandType{output->name, output->data_offset,
-                         VECTOR_PRODUCT(tiles({0}).tile_dimension),
-                         output->tensor_datatype}});
-        task->pushMicro(micro);
-      }
-    }
+    task_list.push_back(task);
   }
-
-  task_list.push_back(task);
 
   // Remainder part task
   // Assume 1-d
   if (!tiles.isNeat()) {
     Task *remainder_task = nullptr;
-    remainder_task = new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
+    remainder_task =
+        new ParallelTask(1024 * 400, 1024 * 100, 4, "cache", tiles);
     for (auto data : inputs) {
       temp_remain[data] = data->remaining;
       remainder_task->addArgument(data->tensor_datatype, data->name);
@@ -186,17 +190,20 @@ std::string BinaryUnaryGraph::generatorHost(int64_t indent = 0) {
   std::string arguments = string_gather(arguments_list);
 
   result += "(" + arguments + ") {\n";
-  if (tiles.numNeatTiles() % 4 != 0) {
-    result += indentation(indent + 1) + platform.workingCoreCond(tiles) + "\n";
+  if (tiles.numNeatTiles() > 0) {
+    if (tiles.numNeatTiles() % 4 != 0) {
+      result +=
+          indentation(indent + 1) + platform.workingCoreCond(tiles) + "\n";
+    }
+    result += indentation(indent + 1) + task_list[0]->name;
+    result += "(" + task_list[0]->getArguments(false) + ");\n";
   }
-  result += indentation(indent + 1) + task_list[0]->name;
-  result += "(" + task_list[0]->getArguments(false) + ");\n";
 
   if (!tiles.isNeat()) {
     result += indentation(indent + 1) + "if (" +
               platform.remainingTileCond(tiles) + ") {\n";
-    result += indentation(indent + 2) + task_list[1]->name;
-    result += "(" + task_list[1]->getArguments(false) + ");\n";
+    result += indentation(indent + 2) + task_list.back()->name;
+    result += "(" + task_list.back()->getArguments(false) + ");\n";
     result += indentation(indent + 1) + "}\n";
   }
 

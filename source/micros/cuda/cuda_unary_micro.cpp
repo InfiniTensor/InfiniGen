@@ -23,7 +23,7 @@ std::string unary_kernel(std::string kernel_name, TensorDatatype dtype) {
 }
 
 #define CUDA_UNARY_GENERATOR(OP, OP_STR)                                    \
-  std::string CAT(OP, Cuda)::generatorCode(Cache& cache, std::string& code, \
+  std::string CAT(OP, Cuda)::generatorCode(Cache &cache, std::string &code, \
                                            int64_t indent) {                \
     cache.lock();                                                           \
     code += indentation(indent) + unary_kernel(OP_STR, data_type) + "\n";   \
@@ -46,6 +46,9 @@ CUDA_UNARY_GENERATOR(RSqrt, "rsqrt")
 CUDA_UNARY_GENERATOR(Relu, "relu")
 CUDA_UNARY_GENERATOR(Sigmoid, "sigmoid")
 CUDA_UNARY_GENERATOR(Recip, "recip")
+CUDA_UNARY_GENERATOR(Sin, "sin")
+CUDA_UNARY_GENERATOR(Cos, "cos")
+CUDA_UNARY_GENERATOR(Tanh, "tanhf")
 
 // register micros
 REGISTER_MICRO(OperatorType::SQRT, Platform::CUDA, SqrtCuda::makeObj)
@@ -53,6 +56,9 @@ REGISTER_MICRO(OperatorType::RSQRT, Platform::CUDA, RSqrtCuda::makeObj)
 REGISTER_MICRO(OperatorType::RELU, Platform::CUDA, ReluCuda::makeObj)
 REGISTER_MICRO(OperatorType::SIGMOID, Platform::CUDA, SigmoidCuda::makeObj)
 REGISTER_MICRO(OperatorType::RECIP, Platform::CUDA, RecipCuda::makeObj)
+REGISTER_MICRO(OperatorType::SIN, Platform::CUDA, SinCuda::makeObj)
+REGISTER_MICRO(OperatorType::COS, Platform::CUDA, CosCuda::makeObj)
+REGISTER_MICRO(OperatorType::TANH, Platform::CUDA, TanhCuda::makeObj)
 
 #undef CUDA_UNARY_GENERATOR
 }  // namespace infini

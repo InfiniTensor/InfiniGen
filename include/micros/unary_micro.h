@@ -4,7 +4,7 @@
 namespace infini {
 
 #define MAKEOBJ(MICRO)                                              \
-  static Micro* makeObj(const std::vector<OperandType>& operands) { \
+  static Micro *makeObj(const std::vector<OperandType> &operands) { \
     ASSERT(operands.size() == 2);                                   \
     return new MICRO(operands);                                     \
   }
@@ -13,8 +13,8 @@ namespace infini {
   class CAT(OP, PLName) : public UnaryMicro {                                \
    public:                                                                   \
     CAT(OP, PLName)                                                          \
-    (const std::vector<OperandType>& operands) : UnaryMicro(operands, PL) {} \
-    std::string generatorCode(Cache& cache, std::string& code,               \
+    (const std::vector<OperandType> &operands) : UnaryMicro(operands, PL) {} \
+    std::string generatorCode(Cache &cache, std::string &code,               \
                               int64_t indent) override;                      \
     MAKEOBJ(CAT(OP, PLName))                                                 \
   }
@@ -27,7 +27,7 @@ class UnaryMicro : public Micro {
   TensorDatatype data_type;
 
  public:
-  UnaryMicro(const std::vector<OperandType>& operands, Platform pt)
+  UnaryMicro(const std::vector<OperandType> &operands, Platform pt)
       : Micro(MicroType::UNARY, pt),
         output_name(std::get<0>(operands[0])),
         input_name(std::get<0>(operands[1])),
@@ -35,9 +35,9 @@ class UnaryMicro : public Micro {
         input_offset(std::get<1>(operands[1])),
         length(std::get<2>(operands[0])),
         data_type(std::get<3>(operands[0])) {}
-  virtual std::string generatorCode(Cache& cache, std::string& code,
+  virtual std::string generatorCode(Cache &cache, std::string &code,
                                     int64_t indent = 0) = 0;
-  static Micro* makeObj() { return nullptr; }
+  static Micro *makeObj() { return nullptr; }
 };
 
 /**
@@ -52,6 +52,9 @@ UNARY_DEF(Sigmoid, Cuda, Platform::CUDA);
 UNARY_DEF(Relu, Cuda, Platform::CUDA);
 UNARY_DEF(RSqrt, Cuda, Platform::CUDA);
 UNARY_DEF(Recip, Cuda, Platform::CUDA);
+UNARY_DEF(Sin, Cuda, Platform::CUDA);
+UNARY_DEF(Cos, Cuda, Platform::CUDA);
+UNARY_DEF(Tanh, Cuda, Platform::CUDA);
 
 /**
  * Bang Unary micros
@@ -65,6 +68,9 @@ UNARY_DEF(Sigmoid, Bang, Platform::BANG);
 UNARY_DEF(Relu, Bang, Platform::BANG);
 UNARY_DEF(RSqrt, Bang, Platform::BANG);
 UNARY_DEF(Recip, Bang, Platform::BANG);
+UNARY_DEF(Cos, Bang, Platform::BANG);
+UNARY_DEF(Sin, Bang, Platform::BANG);
+UNARY_DEF(Tanh, Bang, Platform::BANG);
 
 #undef MAKEOBJ
 #undef UNARY_DEF

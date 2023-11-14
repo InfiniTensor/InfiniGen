@@ -6,7 +6,7 @@
 namespace infini {
 
 #define BANG_BINARY_GENERATOR(OP, OP_STR)                                   \
-  std::string CAT(OP, Bang)::generatorCode(Cache& cache, std::string& code, \
+  std::string CAT(OP, Bang)::generatorCode(Cache &cache, std::string &code, \
                                            int64_t indent) {                \
     cache.lock();                                                           \
     std::string left_cache =                                                \
@@ -40,7 +40,7 @@ BANG_BINARY_GENERATOR(Or, "or")
 BANG_BINARY_GENERATOR(Xor, "xor")
 
 // Div
-std::string DivBang::generatorCode(Cache& cache, std::string& code,
+std::string DivBang::generatorCode(Cache &cache, std::string &code,
                                    int64_t indent) {
   cache.lock();
   std::string left_cache =
@@ -66,6 +66,88 @@ std::string DivBang::generatorCode(Cache& cache, std::string& code,
   return "";
 }
 
+std::string FloorDivBang::generatorCode(Cache &cache, std::string &code,
+                                        int64_t indent) {
+  cache.lock();
+  std::string left_cache =
+      LoadBang(OperandType{left_name, left_offset, length, data_type})
+          .generatorCode(cache, code, indent);
+  std::string right_cache =
+      LoadBang(OperandType{right_name, right_offset, length, data_type})
+          .generatorCode(cache, code, indent);
+  std::string output_cache =
+      AllocateBang(OperandType{output_name, output_offset, length, data_type})
+          .generatorCode(cache, code, indent);
+  auto recip =
+      OperandType{right_name + "_recip", right_offset, length, data_type};
+  auto floor =
+      OperandType{right_name + "_floor", right_offset, length, data_type};
+  std::string recip_cache =
+      AllocateBang(recip).generatorCode(cache, code, indent);
+  std::string floor_cache =
+      AllocateBang(floor).generatorCode(cache, code, indent);
+  code += indentation(indent) + "__bang_active_reciphp(" + recip_cache + ", " +
+          right_cache + ", " + std::to_string(length) + ");\n";
+  code += indentation(indent) + "__bang_mul(" + floor_cache + ", " +
+          left_cache + ", " + recip_cache + ", " + std::to_string(length) +
+          ");\n";
+  code += indentation(indent) + "__bang_floor(" + output_cache + ", " +
+          floor_cache + ", " + std::to_string(length) + ");\n";
+  cache.unlock();
+  FreeBang(recip).generatorCode(cache, code, indent);
+  FreeBang(floor).generatorCode(cache, code, indent);
+  return "";
+}
+
+std::string FloorModBang::generatorCode(Cache &cache, std::string &code,
+                                        int64_t indent) {
+  cache.lock();
+  std::string left_cache =
+      LoadBang(OperandType{left_name, left_offset, length, data_type})
+          .generatorCode(cache, code, indent);
+  std::string right_cache =
+      LoadBang(OperandType{right_name, right_offset, length, data_type})
+          .generatorCode(cache, code, indent);
+  std::string output_cache =
+      AllocateBang(OperandType{output_name, output_offset, length, data_type})
+          .generatorCode(cache, code, indent);
+  auto recip =
+      OperandType{right_name + "_recip", right_offset, length, data_type};
+  auto floor =
+      OperandType{right_name + "_floor", right_offset, length, data_type};
+  auto temp1 =
+      OperandType{right_name + "_temp1", right_offset, length, data_type};
+  auto temp2 =
+      OperandType{right_name + "_temp2", right_offset, length, data_type};
+  std::string recip_cache =
+      AllocateBang(recip).generatorCode(cache, code, indent);
+  std::string floor_cache =
+      AllocateBang(floor).generatorCode(cache, code, indent);
+  std::string temp1_cache =
+      AllocateBang(temp1).generatorCode(cache, code, indent);
+  std::string temp2_cache =
+      AllocateBang(temp2).generatorCode(cache, code, indent);
+  code += indentation(indent) + "__bang_active_reciphp(" + recip_cache + ", " +
+          right_cache + ", " + std::to_string(length) + ");\n";
+  code += indentation(indent) + "__bang_mul(" + floor_cache + ", " +
+          left_cache + ", " + recip_cache + ", " + std::to_string(length) +
+          ");\n";
+  code += indentation(indent) + "__bang_floor(" + temp1_cache + ", " +
+          floor_cache + ", " + std::to_string(length) + ");\n";
+  code += indentation(indent) + "__bang_mul(" + temp2_cache + ", " +
+          temp1_cache + ", " + right_cache + ", " + std::to_string(length) +
+          ");\n";
+  code += indentation(indent) + "__bang_sub(" + output_cache + ", " +
+          left_cache + ", " + temp2_cache + ", " + std::to_string(length) +
+          ");\n";
+  cache.unlock();
+  FreeBang(recip).generatorCode(cache, code, indent);
+  FreeBang(floor).generatorCode(cache, code, indent);
+  FreeBang(temp1).generatorCode(cache, code, indent);
+  FreeBang(temp2).generatorCode(cache, code, indent);
+  return "";
+}
+
 /**
  * Register Micros
  */
@@ -83,6 +165,8 @@ REGISTER_MICRO(OperatorType::NE, Platform::BANG, NeBang::makeObj)
 REGISTER_MICRO(OperatorType::AND, Platform::BANG, AndBang::makeObj)
 REGISTER_MICRO(OperatorType::OR, Platform::BANG, OrBang::makeObj)
 REGISTER_MICRO(OperatorType::XOR, Platform::BANG, XorBang::makeObj)
+REGISTER_MICRO(OperatorType::FLOORMOD, Platform::BANG, FloorModBang::makeObj)
+REGISTER_MICRO(OperatorType::FLOORDIV, Platform::BANG, FloorDivBang::makeObj)
 
 #undef BANG_BINARY_GENERATOR
 
