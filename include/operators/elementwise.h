@@ -23,6 +23,16 @@ class Unary : public Node {
   ~Unary() = default;
 };
 
+class Gemm : public Node {
+ public:
+  // Constructor
+  Gemm(OperatorType type, std::vector<Data *> inputs_list = {},
+       std::vector<Data *> outputs_list = {}, std::string name_value = "",
+       int64_t outputs_num_value = 1);
+  // Destructor
+  ~Gemm() = default;
+};
+
 #define DEFINE_BINARY(OP_NAME)                                                 \
   class OP_NAME : public Binary {                                              \
    public:                                                                     \

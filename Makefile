@@ -1,4 +1,6 @@
-PLATFORM ?= BANG
+PLATFORM ?= CUDA
+
+3RD_PARTY_INCLUDE := -I3rd-party/fmt/include/
 
 ifeq ($(PLATFORM), CUDA)
 	plat := cuda
@@ -12,7 +14,7 @@ endif
 
 COMPILE_OPTIONS += -Ibuild/bin/ -lc -lm -Wl,-rpath=build/bin/ -lstdc++ 
 
-TESTCASE ?= unary
+TESTCASE ?= gemm
 TEST_FILES := $(shell find test -name "test_*.cpp" | sed 's@.*/\([^/]*\)\.cpp@\1@')
 LINK_SO = $$(find build/bin/ -name 'libtest_*_$(plat).so')
 TEST_BIN_FILES := $(wildcard build/test_*)

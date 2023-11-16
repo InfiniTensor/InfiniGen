@@ -27,7 +27,8 @@ class GemmGraph : public Graph {
   std::string generatorHeadFile(int64_t indent) override;
   std::string generatorSourceFile(int64_t indent) override;
   void applyPlatform(Platform platform) override;
-  void split(std::vector<size_t>)
+  void split(std::vector<size_t> thread_block_size,
+             std::vector<size_t> warp_size, std::vector<size_t> thread_size);
 };
 
 }  // namespace infini
