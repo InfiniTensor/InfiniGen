@@ -33,7 +33,7 @@ build:
 test: build
 	@./build/test_$(TESTCASE)
 	@cp tests/$(TEST_EXAMPLE).cpp build/bin/
-	@gcc build/bin/$(TEST_EXAMPLE).cpp -o build/bin/$(TEST_EXAMPLE) $(COMPILE_OPTIONS) $(LINK_SO)
+	gcc build/bin/$(TEST_EXAMPLE).cpp -o build/bin/$(TEST_EXAMPLE) $(COMPILE_OPTIONS) $(LINK_SO)
 	@./build/bin/$(TEST_EXAMPLE)
 
 tests: build

@@ -16,7 +16,7 @@ int main() {
   graph->applyPlatform(Platform::CUDA);
   source_code = graph->generatorSourceFile();
   head_code = graph->generatorHeadFile();
-  LOG_FILE("build/code/test_gemm.cu") << source_code;
-  LOG_FILE("build/bin/test_gemm.h") << head_code;
-  COMPILE("build/code/test_gemm.cu", "build/bin/", Platform::CUDA);
+  LOG_FILE("build/code/test_gemm_cuda.cu") << source_code;
+  LOG_FILE("build/bin/test_gemm_cuda.h") << head_code;
+  COMPILE("build/code/test_gemm_cuda.cu", "build/bin/", Platform::CUDA);
 }

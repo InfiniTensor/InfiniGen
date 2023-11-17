@@ -243,16 +243,14 @@ std::string GemmGraph::generatorHost(int64_t indent = 0) {
 
 std::string GemmGraph::generatorCode(int64_t indent = 0) {
   std::string result = "\n";
-  // Add template parameters.
-  result +=
-      "template <typename TA, typename TB, typename TC, typename Alpha, "
-      "typename Beta>\n";
   // Add function name.
   result += fmt::format("void {}_kernel", name);
   // Add function parameters.
   result +=
-      "(int m, int n, int k, Alpha alpha, TA const* A, int ldA, TB const* B, "
-      "int ldB, Beta beta, TC* C, int ldC, cudaStream_t stream = 0) {\n";
+      "(int m, int n, int k, float alpha, float const* A, int ldA, float "
+      "const* "
+      "B, "
+      "int ldB, float beta, float* C, int ldC, cudaStream_t stream = 0) {\n";
   indent += 2;
   if (platform.type == Platform::CUDA) {
     result += indentation(indent) + "using namespace cute;\n";
@@ -307,15 +305,14 @@ std::string GemmGraph::generatorCode(int64_t indent = 0) {
 
 std::string GemmGraph::generatorHeadFile(int64_t indent = 0) {
   std::string result;
-  result +=
-      "template <typename TA, typename TB, typename TC, typename Alpha, "
-      "typename Beta>\n";
   // Add function name.
   result += fmt::format("void {}_kernel", name);
   // Add function parameters.
   result +=
-      "(int m, int n, int k, Alpha alpha, TA const* A, int ldA, TB const* B, "
-      "int ldB, Beta beta, TC* C, int ldC, cudaStream_t stream = 0);\n";
+      "(int m, int n, int k, float alpha, float const* A, int ldA, float "
+      "const* "
+      "B, "
+      "int ldB, float beta, float* C, int ldC, cudaStream_t stream = 0);";
   return result;
 }
 
