@@ -233,13 +233,15 @@ std::string GemmGraph::generatorHead(int64_t indent = 0) {
   return result;
 }
 
-std::string GemmGraph::generatorTask(int64_t indent = 0) {
+std::string GemmGraph::generatorTask(int64_t indent = 0) { return ""; }
+
+std::string GemmGraph::generatorHost(int64_t indent = 0) {
   std::string result = "\n";
   result += GemmKernel;
   return result;
 }
 
-std::string GemmGraph::generatorHost(int64_t indent = 0) {
+std::string GemmGraph::generatorCode(int64_t indent = 0) {
   std::string result = "\n";
   // Add template parameters.
   result +=
@@ -302,8 +304,6 @@ std::string GemmGraph::generatorHost(int64_t indent = 0) {
   LOG(WARNING) << result;
   return result;
 }
-
-std::string GemmGraph::generatorCode(int64_t indent = 0) { return ""; }
 
 std::string GemmGraph::generatorHeadFile(int64_t indent = 0) {
   std::string result;
