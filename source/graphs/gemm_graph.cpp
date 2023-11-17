@@ -246,7 +246,7 @@ std::string GemmGraph::generatorHost(int64_t indent = 0) {
       "template <typename TA, typename TB, typename TC, typename Alpha, "
       "typename Beta>\n";
   // Add function name.
-  result += platform.globalFuncDecl(name + "_kernel");
+  result += fmt::format("void {}_kernel", name);
   // Add function parameters.
   result +=
       "(int m, int n, int k, Alpha alpha, TA const* A, int ldA, TB const* B, "
@@ -305,7 +305,19 @@ std::string GemmGraph::generatorHost(int64_t indent = 0) {
 
 std::string GemmGraph::generatorCode(int64_t indent = 0) { return ""; }
 
-std::string GemmGraph::generatorHeadFile(int64_t indent = 0) { return ""; }
+std::string GemmGraph::generatorHeadFile(int64_t indent = 0) {
+  std::string result;
+  result +=
+      "template <typename TA, typename TB, typename TC, typename Alpha, "
+      "typename Beta>\n";
+  // Add function name.
+  result += fmt::format("void {}_kernel", name);
+  // Add function parameters.
+  result +=
+      "(int m, int n, int k, Alpha alpha, TA const* A, int ldA, TB const* B, "
+      "int ldB, Beta beta, TC* C, int ldC, cudaStream_t stream = 0);\n";
+  return result;
+}
 
 std::string GemmGraph::generatorSourceFile(int64_t indent = 0) {
   std::string result;

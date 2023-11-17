@@ -22,9 +22,18 @@ endif()
 
 include_directories(include)
 include_directories(tests)
+
 include_directories(3rd-party/fmt/include)
+# add_subdirectory(3rd-party/fmt)
+
 file(GLOB_RECURSE SOURCE source/core/*.cpp source/operators/*.cpp source/kernels/*.cpp source/micros/*.cpp source/graphs/*.cpp)
 add_library(Thread SHARED ${SOURCE})
+
+add_compile_options(-Wall)
+
+# 将 fmt 库链接到 Thread 库
+target_link_directories(Thread PRIVATE 3rd-party/fmt/build)
+target_link_libraries(Thread PRIVATE fmt)
 
 if(BUILD_TEST)
   file(GLOB_RECURSE TEST tests/*.cpp)
@@ -35,5 +44,6 @@ if(BUILD_TEST)
     add_test(NAME ${filename} COMMAND ${filename})
   endforeach()
 endif()
+
 
 

@@ -1,7 +1,4 @@
 PLATFORM ?= CUDA
-
-3RD_PARTY_INCLUDE := -I3rd-party/fmt/include/
-
 TESTCASE ?= gemm
 TEST_FILES := $(shell find tests -name "test_*.cpp" | sed 's@.*/\([^/]*\)\.cpp@\1@')
 LINK_SO = $$(find build/bin/ -name 'libtest_*_$(plat).so')
