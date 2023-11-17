@@ -30,8 +30,8 @@ file(GLOB_RECURSE SOURCE source/core/*.cpp source/operators/*.cpp source/kernels
 add_library(Thread SHARED ${SOURCE})
 
 add_compile_options(-Wall)
+# add_compile_options(-Werror)
 
-# 将 fmt 库链接到 Thread 库
 target_link_directories(Thread PRIVATE 3rd-party/fmt/build)
 target_link_libraries(Thread PRIVATE fmt)
 
