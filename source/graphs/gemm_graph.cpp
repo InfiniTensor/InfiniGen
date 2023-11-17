@@ -221,14 +221,13 @@ std::string GemmGraph::generatorHead(int64_t indent = 0) {
   result += platform.head();
   if (platform.type == Platform::CUDA) {
     result += "\n#include <cutlass/cutlass.h>\n";
-    result += "#include <cutlass/gemm/device/gemm_splitk_parallel.h >\n";
-    result += "#include <cutlass/util/host_tensor.h>\n";
-    result += "#include <cutlass/util/reference/device/gemm.h>\n";
-    result += "#include <cutlass/util/reference/host/tensor_compare.h>\n";
-    result += "#include <cutlass/util/reference/host/tensor_copy.h>\n";
-    result += "#include <cutlass/util/reference/host/tensor_fill.h>\n";
-    result += "#include <cutlass/util/tensor_view_io.h>\n";
-    result += "#include <helper.h>\n";
+    result += "#include <cute/tensor.hpp>\n";
+    result += "#include <cutlass/util/print_error.hpp>\n";
+    result += "#include <cutlass/util/GPU_Clock.hpp>\n";
+    result +=
+        "#if defined(CUTLASS_ENABLE_CUBLAS) && CUTLASS_ENABLE_CUBLAS != 0\n";
+    result += "#include <cutlass/util/cublas_wrappers.hpp>\n";
+    result += "#endif\n";
   }
   LOG(WARNING) << result;
   return result;
@@ -245,52 +244,61 @@ std::string GemmGraph::generatorHost(int64_t indent = 0) {
   // Add template parameters.
   result +=
       "template <typename TA, typename TB, typename TC, typename Alpha, "
-      "typename Beta>";
+      "typename Beta>\n";
   // Add function name.
   result += platform.globalFuncDecl(name + "_kernel");
   // Add function parameters.
   result +=
-      "(int m, int n, int k, Alpha alpha, TA const* A, int ldA, TB const* "
-      "B,\n",
-      "int ldB, Beta beta, TC* C, int ldC, cudaStream_t stream = 0) {";
+      "(int m, int n, int k, Alpha alpha, TA const* A, int ldA, TB const* B, "
+      "int ldB, Beta beta, TC* C, int ldC, cudaStream_t stream = 0) {\n";
+  indent += 2;
   if (platform.type == Platform::CUDA) {
-    result += "using namespace cute;\n";
-    result += "auto M = int(m);\n";
-    result += "auto N = int(n);\n";
-    result += "auto K = int(k);\n";
+    result += indentation(indent) + "using namespace cute;\n";
+    result += indentation(indent) + "auto M = int(m);\n";
+    result += indentation(indent) + "auto N = int(n);\n";
+    result += indentation(indent) + "auto K = int(k);\n";
 
     // TODO: Generate based on the tiling.
-    result += "auto dA = make_stride(Int<1>{}, ldA);";
-    result += "auto dB = make_stride(Int<1>{}, ldB);";
-    result += "auto dC = make_stride(Int<1>{}, ldC);";
+    result += indentation(indent) + "auto dA = make_stride(Int<1>{}, ldA);";
+    result += indentation(indent) + "auto dB = make_stride(Int<1>{}, ldB);";
+    result += indentation(indent) + "auto dC = make_stride(Int<1>{}, ldC);";
 
     // TODO: Block sizes generate based on the tiling.
     // Define block sizes (static)
-    result += "auto bM = Int<128>{};\n";
-    result += "auto bN = Int<128>{};\n";
-    result += "auto bK = Int<8>{};\n";
+    result += indentation(indent) + "auto bM = Int<128>{};\n";
+    result += indentation(indent) + "auto bN = Int<128>{};\n";
+    result += indentation(indent) + "auto bK = Int<8>{};\n";
 
     // TODO:Block layouts generate based on the tiling.
     // Define block layouts (static)
-    result += "auto sA = make_layout(make_shape(bM, bK));\n";
-    result += "auto sB = make_layout(make_shape(bN, bK));\n";
-    result += "auto sC = make_layout(make_shape(bM, bN));\n";
+    result +=
+        indentation(indent) + "auto sA = make_layout(make_shape(bM, bK));\n";
+    result +=
+        indentation(indent) + "auto sB = make_layout(make_shape(bN, bK));\n";
+    result +=
+        indentation(indent) + "auto sC = make_layout(make_shape(bM, bN));\n";
 
     // TODO: Thread layouts generate based on the tiling.
     // Define the thread layouts (static)
-    result += "auto tA = make_layout(make_shape(Int<32>{}, Int<8>{}));\n";
-    result += "auto tB = make_layout(make_shape(Int<32>{}, Int<8>{}));\n";
-    result += "auto tC = make_layout(make_shape(Int<16>{}, Int<16>{}));\n";
+    result += indentation(indent) +
+              "auto tA = make_layout(make_shape(Int<32>{}, Int<8>{}));\n";
+    result += indentation(indent) +
+              "auto tB = make_layout(make_shape(Int<32>{}, Int<8>{}));\n";
+    result += indentation(indent) +
+              "auto tC = make_layout(make_shape(Int<16>{}, Int<16>{}));\n";
 
     // Call GEMM kernel
-    result += "dim3 dimBlock(size(tC));\n";
-    result +=
-        "dim3 dimGrid(ceil_div(size(M), size(bM)), ceil_div(size(N), "
-        "size(bN)));\n";
-    result += "gemm_device<<<dimGrid, dimBlock, 0, stream>>>(",
-        "M, N, K, A, dA, sA, tA, B, dB, sB, tB, C, dC, sC, tC, alpha, "
-        "beta);\n";
+    result += indentation(indent) + "dim3 dimBlock(size(tC));\n";
+    result += indentation(indent) +
+              "dim3 dimGrid(ceil_div(size(M), size(bM)), ceil_div(size(N), "
+              "size(bN)));\n";
+    result += indentation(indent) +
+              "gemm_device<<<dimGrid, dimBlock, 0, stream>>>("
+              "M, N, K, A, dA, sA, tA, B, dB, sB, tB, C, dC, sC, tC, alpha, "
+              "beta);\n";
   }
+  indent -= 2;
+  result += indentation(indent) + "}\n";
   LOG(WARNING) << result;
   return result;
 }

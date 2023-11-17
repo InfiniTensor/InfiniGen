@@ -43,7 +43,9 @@ enum class OperatorType {
   STORE,
   FREE,
   // Sync
-  SYNC
+  SYNC,
+  // GEMM
+  GEMM
 };
 // KernelType
 enum class KernelType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY, FMA, SYNC };

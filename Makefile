@@ -2,6 +2,16 @@ PLATFORM ?= CUDA
 
 3RD_PARTY_INCLUDE := -I3rd-party/fmt/include/
 
+TESTCASE ?= gemm
+TEST_FILES := $(shell find tests -name "test_*.cpp" | sed 's@.*/\([^/]*\)\.cpp@\1@')
+LINK_SO = $$(find build/bin/ -name 'libtest_*_$(plat).so')
+TEST_BIN_FILES := $(wildcard build/test_*)
+TEST_EXAMPLE ?= check_$(TESTCASE)_$(plat)
+
+ifeq ($(and $(TESTCASE), $(PLATFORM)), gemm CUDA)
+	COMPILE_OPTIONS += -I3rd-party/cutlass/include
+endif
+
 ifeq ($(PLATFORM), CUDA)
 	plat := cuda
 	CXX := nvcc
@@ -14,11 +24,6 @@ endif
 
 COMPILE_OPTIONS += -Ibuild/bin/ -lc -lm -Wl,-rpath=build/bin/ -lstdc++ 
 
-TESTCASE ?= gemm
-TEST_FILES := $(shell find test -name "test_*.cpp" | sed 's@.*/\([^/]*\)\.cpp@\1@')
-LINK_SO = $$(find build/bin/ -name 'libtest_*_$(plat).so')
-TEST_BIN_FILES := $(wildcard build/test_*)
-TEST_EXAMPLE ?= check_$(TESTCASE)_$(plat)
 
 .PHONY: build tests clean test format
 
@@ -30,7 +35,7 @@ build:
 
 test: build
 	@./build/test_$(TESTCASE)
-	@cp test/$(TEST_EXAMPLE).cpp build/bin/
+	@cp tests/$(TEST_EXAMPLE).cpp build/bin/
 	@gcc build/bin/$(TEST_EXAMPLE).cpp -o build/bin/$(TEST_EXAMPLE) $(COMPILE_OPTIONS) $(LINK_SO)
 	@./build/bin/$(TEST_EXAMPLE)
 
