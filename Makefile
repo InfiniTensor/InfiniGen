@@ -6,20 +6,20 @@ TEST_BIN_FILES := $(wildcard build/test_*)
 TEST_EXAMPLE ?= check_$(TESTCASE)_$(plat)
 
 ifeq ($(and $(TESTCASE), $(PLATFORM)), gemm CUDA)
-	COMPILE_OPTIONS += -I3rd-party/cutlass/include
+	COMPILE_OPTIONS += -I3rd-party/cutlass/include -I3rd-party/cutlass/tools/util/include
 endif
 
 ifeq ($(PLATFORM), CUDA)
 	plat := cuda
 	CXX := nvcc
-	COMPILE_OPTIONS += -lcudart
+	COMPILE_OPTIONS += -lcudart -lcublas -I3rd-party/cutlass/include -I3rd-party/cutlass/tools/util/include -I3rd-party/cutlass/tools/library/include -I3rd-party/cutlass/examples/common
 else ifeq ($(PLATFORM), BANG)
 	plat := bang
 	CXX := cncc
 	COMPILE_OPTIONS += -L/usr/local/neuware/lib64 -lcnrt -I/usr/local/neuware/include
 endif
 
-COMPILE_OPTIONS += -Ibuild/bin/ -lc -lm -Wl,-rpath=build/bin/ -lstdc++ 
+COMPILE_OPTIONS += -Ibuild/bin/ -lc -lm -Wl,-rpath=build/bin/ -lstdc++
 
 
 .PHONY: build tests clean test format
@@ -33,7 +33,7 @@ build:
 test: build
 	@./build/test_$(TESTCASE)
 	@cp tests/$(TEST_EXAMPLE).cpp build/bin/
-	gcc build/bin/$(TEST_EXAMPLE).cpp -o build/bin/$(TEST_EXAMPLE) $(COMPILE_OPTIONS) $(LINK_SO)
+	@gcc build/bin/$(TEST_EXAMPLE).cpp -o build/bin/$(TEST_EXAMPLE) $(COMPILE_OPTIONS) $(LINK_SO)
 	@./build/bin/$(TEST_EXAMPLE)
 
 tests: build

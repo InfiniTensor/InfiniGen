@@ -218,16 +218,11 @@ void GemmGraph::applyPlatform(Platform platform) { this->platform = platform; }
 
 std::string GemmGraph::generatorHead(int64_t indent = 0) {
   std::string result = "\n";
+  // result += "#pragma once\n";
   result += platform.head();
   if (platform.type == Platform::CUDA) {
     result += "\n#include <cutlass/cutlass.h>\n";
     result += "#include <cute/tensor.hpp>\n";
-    result += "#include <cutlass/util/print_error.hpp>\n";
-    result += "#include <cutlass/util/GPU_Clock.hpp>\n";
-    result +=
-        "#if defined(CUTLASS_ENABLE_CUBLAS) && CUTLASS_ENABLE_CUBLAS != 0\n";
-    result += "#include <cutlass/util/cublas_wrappers.hpp>\n";
-    result += "#endif\n";
   }
   LOG(WARNING) << result;
   return result;
@@ -306,6 +301,18 @@ std::string GemmGraph::generatorCode(int64_t indent = 0) {
 std::string GemmGraph::generatorHeadFile(int64_t indent = 0) {
   std::string result;
   // Add function name.
+  result += "#pragma once\n";
+  result += "#define CUTLASS_ENABLE_CUBLAS 1\n";
+  result += "#include <thrust/host_vector.h>\n";
+  result += "#include <thrust/device_vector.h>\n";
+  result += "#include <cute/tensor.hpp>\n";
+
+  result += "#include \"cutlass/util/print_error.hpp\"\n";
+  result += "#include \"cutlass/util/GPU_Clock.hpp\"\n";
+  result +=
+      "#if defined(CUTLASS_ENABLE_CUBLAS) && CUTLASS_ENABLE_CUBLAS != 0\n";
+  result += "#include \"cutlass/util/cublas_wrappers.hpp\"\n";
+  result += "#endif\n";
   result += fmt::format("void {}_kernel", name);
   // Add function parameters.
   result +=
