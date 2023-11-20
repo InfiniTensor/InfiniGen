@@ -2,8 +2,8 @@
 
 int main() {
   using namespace infini;
-  Data* A = new Data({256, 256});
-  Data* B = new Data({256, 256});
+  Data* A = new Data({5120, 5120});
+  Data* B = new Data({5120, 5120});
 
   Node* gemm = new Gemm(OperatorType::GEMM, {A, B});
   Data* C = gemm->getOutput(0);

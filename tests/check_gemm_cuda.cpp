@@ -6,19 +6,19 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 
-// #include <thrust/host_vector.h>
-// #include <thrust/device_vector.h>
-
-// #include "cutlass/util/print_error.hpp"
-// #include "cutlass/util/GPU_Clock.hpp"
-
-// #define CUTLASS_ENABLE_CUBLAS 1
-
-// #if defined(CUTLASS_ENABLE_CUBLAS) && CUTLASS_ENABLE_CUBLAS != 0
-// #include "cutlass/util/cublas_wrappers.hpp"
-// #endif
-
 #include "test_gemm_cuda.h"
+
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+
+#include "cutlass/util/print_error.hpp"
+#include "cutlass/util/GPU_Clock.hpp"
+
+#define CUTLASS_ENABLE_CUBLAS 1
+
+#if defined(CUTLASS_ENABLE_CUBLAS) && CUTLASS_ENABLE_CUBLAS != 0
+#include "cutlass/util/cublas_wrappers.hpp"
+#endif
 
 void test_cute_gemm(int m, int n, int k) {
   std::cout << "M = " << m << std::endl;

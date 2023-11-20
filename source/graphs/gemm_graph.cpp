@@ -191,37 +191,22 @@ __global__ static __launch_bounds__(decltype(size(
 }
 )";
 
-GemmGraph::GemmGraph(std::vector<Node *> operators_list,
-                     std::vector<Data *> inputs_list,
-                     std::vector<Data *> outputs_list, std::string name_value)
-    : Graph(operators_list, inputs_list, outputs_list, name_value) {}
-
-void GemmGraph::split(std::vector<size_t> thread_block_size,
-                      std::vector<size_t> warp_size,
-                      std::vector<size_t> thread_size) {
-  // Check
-  CHECK_EQ(thread_block_size.size(), 3);
-  CHECK_EQ(warp_size.size(), 3);
-  CHECK_EQ(thread_size.size(), 3);
-  // Set
-  this->thread_block_size = thread_block_size;
-  this->warp_size = warp_size;
-  this->thread_size = thread_size;
-  // Split
-  // std::vector<int64_t> split_dimension = {thread_block_size[0],
-  //                                         thread_block_size[1]};
-  // Split split(split_dimension);
-  // tiles = outputs_list[0]->tiling(split);
+void GemmGraph::applyPlatform(Platform platform) {
+  this->platform = platform;
+  this->thread_block_size = {128, 128, 16};
+  auto input_tile_tensor_0 = inputs[0]->tiling({128, 16});
+  auto input_tile_tensor_1 = inputs[1]->tiling({16, 128});
+  LOG(INFO) << "GEMM Input[0] TileTensor Info:";
+  input_tile_tensor_0.printInformation();
+  LOG(INFO) << "GEMM Input[1] TileTensor Info:";
+  input_tile_tensor_1.printInformation();
 }
-
-void GemmGraph::applyPlatform(Platform platform) { this->platform = platform; }
 
 std::string GemmGraph::generatorHead(int64_t indent = 0) {
   std::string result = "\n";
-  // result += "#pragma once\n";
-  result += platform.head();
+  result += platform.head() + "\n";
   if (platform.type == Platform::CUDA) {
-    result += "\n#include <cutlass/cutlass.h>\n";
+    result += "#include <cutlass/cutlass.h>\n";
     result += "#include <cute/tensor.hpp>\n";
   }
   LOG(WARNING) << result;
@@ -254,15 +239,18 @@ std::string GemmGraph::generatorCode(int64_t indent = 0) {
     result += indentation(indent) + "auto K = int(k);\n";
 
     // TODO: Generate based on the tiling.
-    result += indentation(indent) + "auto dA = make_stride(Int<1>{}, ldA);";
-    result += indentation(indent) + "auto dB = make_stride(Int<1>{}, ldB);";
-    result += indentation(indent) + "auto dC = make_stride(Int<1>{}, ldC);";
+    result += indentation(indent) + "auto dA = make_stride(Int<1>{}, ldA);\n";
+    result += indentation(indent) + "auto dB = make_stride(Int<1>{}, ldB);\n";
+    result += indentation(indent) + "auto dC = make_stride(Int<1>{}, ldC);\n";
 
     // TODO: Block sizes generate based on the tiling.
     // Define block sizes (static)
-    result += indentation(indent) + "auto bM = Int<128>{};\n";
-    result += indentation(indent) + "auto bN = Int<128>{};\n";
-    result += indentation(indent) + "auto bK = Int<8>{};\n";
+    result += indentation(indent) + fmt::format("auto bM = Int<{}>{{}};\n",
+                                                this->thread_block_size[0]);
+    result += indentation(indent) + fmt::format("auto bN = Int<{}>{{}};\n",
+                                                this->thread_block_size[1]);
+    result += indentation(indent) + fmt::format("auto bK = Int<{}>{{}};\n",
+                                                this->thread_block_size[2]);
 
     // TODO:Block layouts generate based on the tiling.
     // Define block layouts (static)
