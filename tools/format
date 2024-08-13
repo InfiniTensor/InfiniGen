@@ -32,6 +32,5 @@ file_list=$(find ${input} -name "*.cc" -or -name "*.cpp" \
   -or -name "*.mlu" -or -name "*.h" -or -name "*.hpp")
 for file in ${file_list}; do
   echo "clang-formating ${file} ..."
-    clang-format -style="{BasedOnStyle: google, PointerAlignment: Right, \
-      SortIncludes: false, ColumnLimit: 80}" -i ${file}
+    clang-format -style=file -i ${file}
 done

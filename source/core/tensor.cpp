@@ -1,184 +1,101 @@
 #include "core/tensor.h"
 #include "core/utils.h"
-#include "core/type.h"
+#include "core/log.h"
 
 namespace infini {
 
-Tensor::Tensor(const std::vector<int64_t>& dimension, TensorDatatype dtype,
-               TensorType type, TensorLayout layout, std::string name,
-               int64_t offset) {
-  tensor_dimension = dimension;
-  tensor_datatype = dtype;
-  tensor_type = type;
-  tensor_layout = layout;
-  tensor_name = name;
-  data_offset = offset;
-  is_contiguous = true;
-  tensor_stride = std::vector<int64_t>(tensor_dimension.size(), 1);
-  for (int64_t i = tensor_stride.size() - 2; i >= 0; --i) {
-    tensor_stride[i] = tensor_stride[i + 1] * tensor_dimension[i + 1];
-  }
+int64_t Tensor::tensorCount = 0;
+
+Tensor::Tensor(const Shape &shape_, const TensorDataType &dataType_,
+               const std::string &name_)
+    : shape(shape_), dataType(dataType_), name(name_), index(tensorCount++) {
+    name = (name_ == "" ? "Tensor_" + std::to_string(index) : name_);
+    stride = CALCULATE_STRIDE(shape);
 }
 
-Tensor::Tensor(const std::vector<int64_t>& dimension,
-               const std::vector<int64_t>& stride, TensorDatatype dtype,
-               TensorType type, TensorLayout layout, std::string name,
-               int64_t offset) {
-  tensor_dimension = dimension;
-  tensor_stride = stride;
-  tensor_datatype = dtype;
-  tensor_type = type;
-  tensor_layout = layout;
-  tensor_name = name;
-  data_offset = offset;
-  std::vector<int64_t> temp = std::vector<int64_t>(tensor_dimension.size(), 1);
-  for (int64_t i = temp.size() - 2; i >= 0; --i) {
-    temp[i] = temp[i + 1] * tensor_dimension[i + 1];
-  }
-  is_contiguous = ALL(temp == tensor_stride);
-}
-
-TileTensor Tensor::tiling(const Split& split) {
-  // Check
-  CHECK_EQ(tensor_dimension.size(), split.split_dimension.size());
-  std::vector<int64_t> easy = tensor_dimension / split.split_dimension;
-  std::vector<int64_t> boundary = tensor_dimension % split.split_dimension;
-  std::vector<int64_t> heavy(tensor_dimension.size(), 0);
-  for (auto i = 0; i < heavy.size(); ++i) {
-    heavy[i] = (boundary[i] == 0 ? easy[i] : easy[i] + 1);
-  }
-  std::vector<int64_t> split_suffix(split.split_dimension.size(), 1);
-  for (int64_t i = split.split_dimension.size() - 2; i >= 0; --i) {
-    split_suffix[i] = split_suffix[i + 1] * split.split_dimension[i + 1];
-  }
-  int64_t total = VECTOR_PRODUCT(split.split_dimension);
-  TileTensor result(split.split_dimension, split_suffix, tensor_type,
-                    tensor_layout, tensor_name + "_split");
-  for (int64_t i = 0; i < total; ++i) {
-    // Local Position
-    int64_t pos = i;
-    int64_t axis = 0;
-    std::vector<int64_t> tile_local_position;
-    while (axis < split_suffix.size()) {
-      tile_local_position.push_back(pos / split_suffix[axis]);
-      pos %= split_suffix[axis];
-      ++axis;
+std::string Tensor::info(bool print) {
+    std::stringstream out;
+    out << name << TO_STRING(shape) << ", " << TO_STRING(dataType) << ", "
+        << "Stride: " << TO_STRING(stride);
+    if (print) {
+        LOG(INFO) << out.str();
     }
-    // Dimension
-    std::vector<int64_t> tile_dimension(split.split_dimension.size(), 0);
-    for (auto j = 0; j < tile_dimension.size(); ++j) {
-      tile_dimension[j] =
-          (tile_local_position[j] < boundary[j] ? heavy[j] : easy[j]);
+    return out.str();
+}
+
+Tiles Tensor::tiling(const Shape &pattern) {
+    CHECK_EQ(this->shape.size(), pattern.size());
+    std::vector<bool> compare = this->shape >= pattern;
+    CHECK(ALL_TRUE(compare));
+    Shape normalSize = pattern;
+    Shape tailSize = this->shape % pattern;
+    for (int64_t i = 0; i < tailSize.size(); ++i) {
+        tailSize[i] = tailSize[i] == 0 ? normalSize[i] : tailSize[i];
     }
-    // Stride
-    std::vector<int64_t> tile_stride = tensor_stride;
-    // Start Position
-    std::vector<int64_t> start_position(tile_dimension.size(), 0);
-    for (auto j = 0; j < tile_dimension.size(); ++j) {
-      start_position[j] =
-          (tile_local_position[j] <= boundary[j])
-              ? (heavy[j] * tile_local_position[j])
-              : (heavy[j] * boundary[j] +
-                 (tile_local_position[j] - boundary[j]) * easy[j]);
+    this->tileGridShape = Shape(pattern.size(), 1);
+    for (int64_t i = 0; i < tailSize.size(); ++i) {
+        tileGridShape[i] = DIV_UP(this->shape[i], pattern[i]);
     }
-    // Offset
-    int64_t tile_start = 0;
-    for (auto j = 0; j < tensor_dimension.size(); ++j) {
-      tile_start += start_position[j] * tensor_stride[j];
+    this->tileGridStride = CALCULATE_STRIDE(this->tileGridShape);
+    int64_t numTiles = VECTOR_PRODUCT(tileGridShape);
+    for (int64_t i = 0; i < numTiles; ++i) {
+        int64_t tileIndex = i;
+        int64_t axis = 0;
+        Shape tileCoordinates;
+        while (axis < tileGridStride.size()) {
+            tileCoordinates.push_back(tileIndex / tileGridStride[axis]);
+            tileIndex %= tileGridStride[axis];
+            ++axis;
+        }
+        Shape tileShape(this->shape.size(), 0);
+        for (auto j = 0; j < tileShape.size(); ++j) {
+            tileShape[j] =
+                (tileCoordinates[j] == (tileGridShape[j] - 1) ? tailSize[j]
+                                                             : normalSize[j]);
+        }
+        Shape tileStride = CALCULATE_STRIDE(tileShape);
+        Shape tileStartPoint(this->shape.size(), 0);
+        for (auto j = 0; j < tileShape.size(); ++j) {
+            tileStartPoint[j] = tileCoordinates[j] * normalSize[j];
+        }
+        int64_t tileOffset = 0;
+        for (auto j = 0; j < this->shape.size(); ++j) {
+            tileOffset += tileStartPoint[j] * this->stride[j];
+        }
+        std::string tileName =
+            this->name + "'s Tile " + TO_STRING(tileCoordinates);
+        Tile *tile = new Tile(this, tileShape, tileStride, tileCoordinates,
+                              tileOffset, tileName);
+        this->tiles.push_back(tile);
     }
-    std::string tile_name = TO_STRING(tile_local_position) + " tile of " +
-                            tensor_name + " with global start position " +
-                            TO_STRING(start_position);
-    Tile temp(tile_dimension, tile_local_position, tile_stride, tile_name,
-              tile_start);
-    result.addTile(temp);
-  }
-
-  return result;
+    return this->tiles;
 }
 
-void Tensor::printInformation() {
-  std::string info_string = "";
-  info_string += "—— Tensor ";
-  info_string += "Name: ";
-  info_string += tensor_name;
-  info_string += " ";
-  info_string += "Datatype: ";
-  info_string += TO_STRING(tensor_datatype);
-  info_string += " ";
-  info_string += "Type: ";
-  info_string += TO_STRING(tensor_type);
-  info_string += " ";
-  info_string += "Layout: ";
-  info_string += TO_STRING(tensor_layout);
-  info_string += " ";
-  info_string += "Dimension: ";
-  info_string += TO_STRING(tensor_dimension);
-  info_string += " ";
-  info_string += "Stride: ";
-  info_string += TO_STRING(tensor_stride);
-  info_string += " ";
-  info_string += "Offset: ";
-  info_string += std::to_string(data_offset);
-  LOG(INFO) << info_string;
-}
+// void Tensor::setProducer(Operator *producer_value) {
+//     tensor_producer = producer_value;
+// }
 
-void Tensor::printSummary() {
-  std::string info_string = "";
-  info_string += "Tensor ";
-  info_string += "Dtype: ";
-  info_string += TO_STRING(tensor_datatype);
-  info_string += " ";
-  info_string += "Layout: ";
-  info_string += TO_STRING(tensor_layout);
-  info_string += " ";
-  info_string += "Dim: ";
-  info_string += TO_STRING(tensor_dimension);
-  info_string += " ";
-  info_string += "Stride: ";
-  info_string += TO_STRING(tensor_stride);
-  info_string += " ";
-  info_string += "Offset: ";
-  info_string += std::to_string(data_offset);
-  info_string += "\n";
-  LOG(PURE) << info_string;
-}
+// void Tensor::addConsumer(Operator *consumer_value) {
+//     tensor_consumers.push_back(consumer_value);
+// }
 
-bool Tensor::isContiguous() { return is_contiguous; }
+// bool Tensor::like(const Tensor &other) {
+//     std::vector<int64_t> my_dimension = this->shape;
+//     std::vector<int64_t> other_dimension = other.shape;
+//     size_t my_size = my_dimension.size();
+//     size_t other_size = other_dimension.size();
+//     if (my_size < other_size) {
+//         int pad = other_size - my_size;
+//         my_dimension.insert(my_dimension.begin(), pad, 1);
+//     } else if (my_size > other_size) {
+//         int pad = my_size - other_size;
+//         other_dimension.insert(other_dimension.begin(), pad, 1);
+//     }
+//     if (ALL_TRUE(my_dimension == other_dimension)) {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// }
 
-void Tensor::flatten(int64_t start, int64_t end) {
-  // Check
-  int64_t len = tensor_dimension.size();
-  CHECK(isContiguous());
-  CHECK_GE(start, -len);
-  CHECK_LE(start, len - 1);
-  CHECK_GE(end, -len);
-  CHECK_LE(end, len - 1);
-  // Compute
-  start = (start + len) % len;
-  end = (end + len) % len;
-  CHECK_LE(start, end);
-  if (start == end) {
-    return;
-  }
-  std::vector<int64_t> result_dimension(len - (end - start), 0);
-  for (auto i = 0; i < start; ++i) {
-    result_dimension[i] = tensor_dimension[i];
-  }
-  int64_t accumulate = 1;
-  for (auto i = start; i <= end; ++i) {
-    accumulate *= tensor_dimension[i];
-  }
-  result_dimension[start] = accumulate;
-  for (auto i = end + 1; i < len; ++i) {
-    result_dimension[++start] = tensor_dimension[i];
-  }
-  // Assign
-  tensor_dimension = result_dimension;
-  tensor_stride = std::vector<int64_t>(tensor_dimension.size(), 1);
-  for (int64_t i = tensor_stride.size() - 2; i >= 0; --i) {
-    tensor_stride[i] = tensor_stride[i + 1] * tensor_dimension[i + 1];
-  }
-}
-
-}  // namespace infini
+} // namespace infini

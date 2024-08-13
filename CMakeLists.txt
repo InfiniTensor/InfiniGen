@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.12)
 project(InfiniTensor C CXX)
 
 option(USE_CUDA "Support CUDA GPU" OFF)
@@ -21,7 +21,7 @@ if(BUILD_ASAN)
 endif()
 
 include_directories(include)
-file(GLOB_RECURSE SOURCE source/core/*.cpp source/operators/*.cpp source/kernels/*.cpp source/micros/*.cpp source/graphs/*.cpp)
+file(GLOB_RECURSE SOURCE source/core/*.cpp)
 add_library(Thread SHARED ${SOURCE})
 
 if(BUILD_TEST)

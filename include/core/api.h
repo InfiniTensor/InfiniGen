@@ -1,16 +1,9 @@
-#pragma once
-#include "core/type.h"
+#ifndef API_H
+#define API_H
+#include "core/common.h"
 #include "core/log.h"
-#include "core/utils.h"
-#include "core/worker.h"
 #include "core/tensor.h"
 #include "core/tile.h"
-#include "core/split.h"
-#include "core/operator.h"
-#include "core/attribute.h"
-#include "core/graph.h"
-#include "core/micro.h"
-#include "core/task.h"
-#include "core/platform.h"
-#include "operators/elementwise.h"
-#include "graphs/binary_unary_graph.h"
+#include "core/utils.h"
+
+#endif

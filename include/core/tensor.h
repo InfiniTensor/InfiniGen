@@ -1,47 +1,45 @@
-#pragma once
-#include "core/type.h"
-#include "core/split.h"
+#ifndef TENSOR_H
+#define TENSOR_H
+
+#include "core/common.h"
 #include "core/tile.h"
-#include <vector>
-#include <map>
 
 namespace infini {
 
-class Tensor {
- public:
-  // Self information
-  TensorDatatype tensor_datatype;         // element type
-  TensorType tensor_type;                 // const or variable
-  TensorLayout tensor_layout;             // array or bchw or bhwc
-  std::vector<int64_t> tensor_dimension;  // tensor dim
-  std::vector<int64_t> tensor_stride;     // tensor stride
-  std::string tensor_name;
-  int64_t data_offset;
-  bool is_contiguous;
+class Tile;
+using Tiles = std::vector<Tile *>;
 
- public:
-  // Constructor
-  Tensor() = delete;
-  Tensor(const std::vector<int64_t>& dimension, TensorDatatype dtype,
-         TensorType type, TensorLayout layout, std::string name,
-         int64_t offset = 0);
-  Tensor(const std::vector<int64_t>& dimension,
-         const std::vector<int64_t>& stride, TensorDatatype dtype,
-         TensorType type, TensorLayout layout, std::string name,
-         int64_t offset = 0);
-  // Destructor
-  ~Tensor() = default;
-  // Tiling with split
-  TileTensor tiling(const Split& split);
-  //   // Tiling with tile size
-  //   TileTensor tiling(const Tile& Tile);
-  // Information
-  void printInformation();
-  void printSummary();
-  // Get Function;
-  bool isContiguous();
-  // Easy Funciton;
-  void flatten(int64_t start = 0, int64_t end = -1);
+class Tensor {
+  private:
+    static int64_t tensorCount;
+
+  public:  
+    // Tensor Information
+    std::string name;
+    TensorDataType dataType;
+    Shape shape;
+    Shape stride;
+    int64_t index;
+
+    // Tiling Information
+    Tiles tiles;
+    Shape tileGridShape;
+    Shape tileGridStride;
+
+    // Graph Information
+
+  public:
+    Tensor() = delete;
+    Tensor(const Shape &shape,
+           const TensorDataType &dataType = TensorDataType::FLOAT,
+           const std::string &name = "");
+    ~Tensor() = default;
+
+    Tiles tiling(const Shape &shape);
+
+    std::string info(bool print = true);
 };
 
-}  // namespace infini
+} // namespace infini
+
+#endif
