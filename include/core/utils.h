@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
-#include "core/log.h"
 #include "core/common.h"
+#include "core/log.h"
 #include <cassert>
 #include <vector>
 
@@ -32,7 +32,7 @@
 #endif
 
 #ifndef CEIL_ALIGN
-#define CEIL_ALIGN(x, align) (((x) + (align) - 1) / (align) * (align))
+#define CEIL_ALIGN(x, align) (((x) + (align)-1) / (align) * (align))
 #endif
 
 #ifndef FLOOR_ALIGN
@@ -91,7 +91,7 @@
 #ifndef VECTOR_COMPUTE_SCALAR
 #define VECTOR_COMPUTE_SCALAR(OP)                                              \
     template <class T>                                                         \
-    std::vector<T> operator OP(const std::vector<T> &left, const T & right) {  \
+    std::vector<T> operator OP(const std::vector<T> &left, const T &right) {   \
         std::vector<T> result;                                                 \
         result.reserve((left).size());                                         \
         for (size_t i = 0; i < (left).size(); i++) {                           \
@@ -117,7 +117,7 @@
 #ifndef VECTOR_INPLACE_COMPUTE_SCALAR
 #define VECTOR_INPLACE_COMPUTE_SCALAR(OP)                                      \
     template <class T>                                                         \
-    std::vector<T> &operator OP(std::vector<T> &left, const T & right) {       \
+    std::vector<T> &operator OP(std::vector<T> &left, const T &right) {        \
         for (size_t i = 0; i < (left).size(); i++) {                           \
             left[i] OP right;                                                  \
         }                                                                      \

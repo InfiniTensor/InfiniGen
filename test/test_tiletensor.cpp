@@ -9,9 +9,7 @@ int main() {
     LOG(INFO) << tensor2.info(false);
 
     infini::Tiles tiles2 = tensor2.tiling({2, 2, 3, 5});
-    for (auto tile : tiles2) {
-        tile->info();
-    }
+    tensor2.tilesInfo();
 
     return 0;
 }

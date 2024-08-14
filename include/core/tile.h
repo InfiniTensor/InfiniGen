@@ -12,13 +12,13 @@ class Tile {
     // Tensor Information
     Tensor *tensor;
 
-    std::string name;
-    uint64_t offset;
-    Shape startPoint;
-    Shape coordinates;
+    std::string tileName;
+    uint64_t tileOffset;
+    Shape tileStartPoint;
+    Shape tileCoordinates;
 
-    Shape shape;
-    Shape stride;
+    Shape tileShape;
+    Shape tileStride;
 
   public:
     Tile() = delete;
