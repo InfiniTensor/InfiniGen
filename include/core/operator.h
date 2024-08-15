@@ -12,24 +12,31 @@ class Tensor;
 
 class Operator {
   private:
+    // Number of ops created
     static int64_t operatorCount;
 
   public:
-    // Operator Information
+    /** Operator Information **/
+    // Name of op
     std::string operatorName;
+    // Index of op
     const int64_t operatorIndex;
+    // Inputs of op
     std::vector<Tensor *> operatorInputs;
+    // Temp variables of op
     std::vector<std::vector<Tensor *>> operatorTemps;
+    // Outputs of op
     std::vector<Tensor *> operatorOutputs;
 
-    // Graph Information
+    /** Graph Information **/
+    // Predecessor of this op in graph
     std::vector<Operator *> operatorPredecessors;
+    // Successors of this op in graph
     std::vector<Operator *> operatorSuccessors;
+    // Number of predecessor ops in graph
     int64_t operatorIndegree;
+    // Number of outputs of this op (for future use)
     int64_t operatorOutputsNum;
-
-    // std::unordered_map<std::string, Attribute> operatorAttributes;
-    // Task *operator_task;
 
   public:
     Operator() = delete;

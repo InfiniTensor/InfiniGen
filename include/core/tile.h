@@ -9,15 +9,23 @@ namespace infini {
 class Tensor;
 
 class Tile {
-    // Tensor Information
+    /** Tensor Information **/
+    // Tensor
     Tensor *tensor;
 
+    /** Tile Information */
+    // Name of tile
     std::string tileName;
+    // Offset of tile relative to tensor in memory
     uint64_t tileOffset;
+    // Coordinates of tile's starting point, within tensor
     Shape tileStartPoint;
+    // Coordinates of tile, in tile grid
     Shape tileCoordinates;
 
+    // Shape of tile
     Shape tileShape;
+    // Stride of tile
     Shape tileStride;
 
   public:

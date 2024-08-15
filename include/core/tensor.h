@@ -14,24 +14,36 @@ using Tiles = std::vector<Tile *>;
 
 class Tensor {
   private:
+    // Number of tensors created
     static int64_t tensorCount;
 
   public:
-    // Tensor Information
+    /** Tensor Information **/
+    // Name of tensor
     std::string tensorName;
+    // Index of tensor
     int64_t tensorIndex;
+    // Data type of tensor
     TensorDataType tensorDataType;
+    // Shape of tensor
     Shape tensorShape;
+    // Stride of tensor
     Shape tensorStride;
 
-    // Tiling Information
+    /** Tiling Information **/
+    // List of tiles
     Tiles tiles;
+    // Shape of tile grid
     Shape tileGridShape;
+    // Stride of tile grid
     Shape tileGridStride;
 
-    // Graph Information
+    /** Graph Information **/
+    // To keep track of number of remaining usages of tensor in graph
     int64_t tensorUsesLeft;
+    // Operator that creates this tensor
     Operator *tensorProducer;
+    // Operator(s) that make(s) use of this tensor
     std::vector<Operator *> tensorConsumers;
 
   public:
