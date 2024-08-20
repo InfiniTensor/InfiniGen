@@ -10,6 +10,8 @@ using Shape = std::vector<int64_t>;
 
 enum class TensorDataType { CHAR, HALF, FLOAT, DOUBLE, UNKNOWN };
 
+enum class MicroType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY };
+
 enum class OperatorType {
     // Binary
     ADD,
@@ -42,7 +44,9 @@ enum class OperatorType {
     STORE,
     FREE,
     // Sync
-    SYNC
+    SYNC,
+    // Default
+    UNKNOWN
 };
 
 } // namespace infini

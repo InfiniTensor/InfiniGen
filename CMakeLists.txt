@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(InfiniTensor C CXX)
+project(InfiniGen C CXX)
 
 option(USE_CUDA "Support CUDA GPU" OFF)
 option(USE_BANG "Support BANG MLU" OFF)
@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) 
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+
 ################################################################################
 # ASAN Check
 ################################################################################
@@ -21,7 +23,7 @@ if(BUILD_ASAN)
 endif()
 
 include_directories(include)
-file(GLOB_RECURSE SOURCE source/core/*.cpp)
+file(GLOB_RECURSE SOURCE source/core/*.cpp source/micros/*/*.cpp)
 add_library(Thread SHARED ${SOURCE})
 
 if(BUILD_TEST)

@@ -24,7 +24,7 @@ build:
 	@mkdir -p build/code
 	@mkdir -p build/bin
 	@cd build && cmake ..
-	@make -C build $(TEST_FILES)
+	@make -j64 -C build $(TEST_FILES)
 
 test: build
 	@./build/test_$(TESTCASE)

@@ -210,6 +210,12 @@ std::vector<int64_t> MAXIMUM(const std::vector<int64_t> &left,
 
 std::string TO_STRING(TensorDataType datatype);
 
+std::string dataTypeStr(TensorDataType datatype);
+
+std::string TO_STRING(OperatorType operatortype);
+
+std::string TO_STRING(MicroType microtype);
+
 std::string TO_STRING(const std::vector<int64_t> &input);
 
 std::string TO_STRING(const std::vector<std::string> &input);
@@ -221,6 +227,8 @@ std::string operator*(const std::string &left, const int64_t &right);
 int64_t SIZE_OF(TensorDataType datatype);
 
 std::vector<int64_t> CALCULATE_STRIDE(const std::vector<int64_t> &shape);
+
+std::string INDENTATION(int64_t num);
 
 } // namespace infini
 

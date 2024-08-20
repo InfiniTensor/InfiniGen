@@ -1,0 +1,44 @@
+#include "core/api.h"
+
+int main() {
+    using namespace infini;
+    std::vector<int64_t> shape = {32, 32};
+    Tensor *a = new Tensor(shape);
+    Tensor *b = new Tensor(shape);
+    Tensor *c = new Tensor(shape);
+    Tensor *d = new Tensor(shape);
+    a->info();
+    b->info();
+    c->info();
+    d->info();
+
+    Operator *add = new Operator({a, b});
+    add->operatorType = OperatorType::ADD;
+    Tensor *temp1 = add->getOutput(0);
+    Operator *sub = new Operator({temp1, c});
+    sub->operatorType = OperatorType::SUB;
+    Tensor *temp2 = sub->getOutput(0);
+    Operator *mul = new Operator({temp2, d});
+    mul->operatorType = OperatorType::MUL;
+    Tensor *output = mul->getOutput(0);
+    add->info();
+    sub->info();
+    mul->info();
+
+    Graph *graph = new Graph({add, sub, mul}, {a, b, c, d}, {output});
+    graph->info();
+
+    Generator *generator = new Generator(Platform::BANG, graph, {8, 8});
+    LOG(INFO) << generator->generateCode();
+
+    delete a;
+    delete b;
+    delete c;
+    delete d;
+    delete add;
+    delete sub;
+    delete mul;
+    delete output;
+    delete graph;
+    return 0;
+}

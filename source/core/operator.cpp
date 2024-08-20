@@ -13,7 +13,7 @@ Operator::Operator(const std::vector<Tensor *> &inputs,
                        ? "Operator_" + std::to_string(operatorCount)
                        : operatorName),
       operatorIndex(operatorCount++), operatorIndegree(0),
-      operatorOutputsNum(outputsNum) {
+      operatorOutputsNum(outputsNum), operatorType(OperatorType::UNKNOWN) {
     if (outputs.empty()) {
         // TODO: Infer output shape and datatype
         Tensor *temp;
@@ -48,7 +48,7 @@ std::string Operator::info(bool print) {
         out << operatorInputs[i]->tensorName;
         out << (i == (operatorInputs.size() - 1) ? "" : ", ");
     }
-    out << "] --> (" << operatorName << ") --> [";
+    out << "] --> (" << TO_STRING(operatorType) << ") --> [";
     for (auto i = 0; i < operatorOutputs.size(); ++i) {
         out << operatorOutputs[i]->tensorName;
         out << (i == (operatorOutputs.size() - 1) ? "" : ", ");

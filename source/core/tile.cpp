@@ -25,4 +25,10 @@ std::string Tile::info(bool print) {
     return out.str();
 }
 
+int64_t Tile::getElementNum() { return VECTOR_PRODUCT(tileShape); }
+
+int64_t Tile::getSizeInBytes() {
+    return VECTOR_PRODUCT(tileShape) * SIZE_OF(tensor->tensorDataType);
+}
+
 } // namespace infini

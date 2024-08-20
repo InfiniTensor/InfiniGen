@@ -37,10 +37,55 @@ std::string TO_STRING(TensorDataType datatype) {
         return "FLOAT";
     case TensorDataType::DOUBLE:
         return "DOUBLE";
-    case TensorDataType::UNKNOWN:
     default:
         return "UNKNOWN";
     }
+}
+
+std::string dataTypeStr(TensorDataType datatype) {
+    switch (datatype) {
+    case TensorDataType::CHAR:
+        return "char";
+    case TensorDataType::HALF:
+        return "half";
+    case TensorDataType::FLOAT:
+        return "float";
+    case TensorDataType::DOUBLE:
+        return "double";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+std::string TO_STRING(OperatorType type) {
+#define CASE(NAME)                                                             \
+    case OperatorType::NAME:                                                   \
+        return #NAME
+    switch (type) {
+        CASE(ADD);
+        CASE(SUB);
+        CASE(MUL);
+        CASE(DIV);
+        CASE(EQ);
+        CASE(GE);
+        CASE(GT);
+        CASE(LE);
+        CASE(LT);
+        CASE(NE);
+        CASE(AND);
+        CASE(OR);
+        CASE(XOR);
+        CASE(SIGMOID);
+        CASE(RELU);
+        CASE(LOAD);
+        CASE(ALLOCATE);
+        CASE(FREE);
+        CASE(STORE);
+        CASE(SYNC);
+    default:
+        return "UNKNOWN";
+    }
+#undef CASE
 }
 
 std::string TO_STRING(const std::vector<int64_t> &input) {
@@ -144,6 +189,22 @@ int64_t SIZE_OF(TensorDataType datatype) {
     }
 }
 
+std::string TO_STRING(MicroType type) {
+#define CASE(NAME)                                                             \
+    case MicroType::NAME:                                                      \
+        return #NAME
+    switch (type) {
+        CASE(BINARY);
+        CASE(UNARY);
+        CASE(REDUCE);
+        CASE(BROADCAST);
+        CASE(MEMORY);
+    default:
+        return "UNKNOWN";
+    }
+#undef CASE
+}
+
 std::vector<int64_t> CALCULATE_STRIDE(const std::vector<int64_t> &shape) {
     std::vector<int64_t> result(shape.size());
     int value = 1;
@@ -153,5 +214,7 @@ std::vector<int64_t> CALCULATE_STRIDE(const std::vector<int64_t> &shape) {
     }
     return result;
 }
+
+std::string INDENTATION(int64_t num) { return std::string(num * 2, ' '); }
 
 } // namespace infini
