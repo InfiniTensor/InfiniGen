@@ -21,6 +21,8 @@ struct Platform {
     // Print platform related code
     const std::string deviceFuncDecl(std::string name) const;
     const std::string globalFuncDecl(std::string name) const;
+    const std::string threadId(int dim) const;
+    const std::string threadId() const;
     const std::string taskId(int dim) const;
     const std::string taskId() const;
     const std::string taskDim(int dim) const;
@@ -39,7 +41,8 @@ struct Platform {
     // const std::string remainingTileCond(TileTensor tiles) const;
     const std::string offset(std::vector<int64_t> tensorStride,
                              std::vector<int64_t> tileGridStride,
-                             std::vector<int64_t> tileShape) const;
+                             std::vector<int64_t> tileShape,
+                             bool threadOffset = false) const;
 
     const std::string cacheDecl(std::string name, int64_t cache_size,
                                 std::string datatype) const;

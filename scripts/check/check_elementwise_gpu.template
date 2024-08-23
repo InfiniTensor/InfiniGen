@@ -1,4 +1,5 @@
-#include <cnrt.h>
+#include <cuda_runtime.h>
+#include <cuda.h>
 #include <cstdlib>
 #include <math.h>
 #include <random>
@@ -15,13 +16,13 @@ int main(void) {
     for (auto dim : shape) {
         LEN *= dim;
     }
-    cnrtQueue_t queue;
-    CNRT_CHECK(cnrtSetDevice(0));
-    CNRT_CHECK(cnrtQueueCreate(&queue));
+    cudaStream_t queue;
+    cudaSetDevice(0);
+    cudaStreamCreate(&queue);
 
-    cnrtNotifier_t start, end;
-    CNRT_CHECK(cnrtNotifierCreate(&start));
-    CNRT_CHECK(cnrtNotifierCreate(&end));
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
 
     std::random_device seed;
     std::ranlux48 engine(seed());
@@ -45,13 +46,14 @@ int main(void) {
         // 7. Warmup
         {}
     }
-    CNRT_CHECK(cnrtPlaceNotifier(start, queue));
+    cudaEventRecord(start, queue);
     for (int i = 0; i < timingRounds; i++) {
         // 8. Execute
         {}
     }
-    cnrtQueueSync(queue);
-    CNRT_CHECK(cnrtPlaceNotifier(end, queue));
+    cudaStreamSynchronize(queue);
+    cudaEventRecord(end, queue);
+    cudaEventSynchronize(end);
 
     // 9. Copy result to host
     {}
@@ -65,10 +67,10 @@ int main(void) {
     }
 
     float timeTotal;
-    CNRT_CHECK(cnrtNotifierDuration(start, end, &timeTotal));
-    printf("Total Time: %.8f ms\n", timeTotal / timingRounds / 1000.0);
+    cudaEventElapsedTime(&timeTotal, start, end);
+    printf("Total Time: %.8f ms\n", timeTotal / timingRounds);
 
-    CNRT_CHECK(cnrtQueueDestroy(queue));
+    cudaStreamDestroy(queue);
 
     // 11. Free pointers
 {}

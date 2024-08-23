@@ -261,8 +261,71 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
         args.push_back(freePtrs);
 
     } else if (platform.isCUDA()) {
-        // TODO: CUDA script
-        return "";
+        // 1. Generated func decl
+        args.push_back(generateHeaderFile());
+        // 2. Shape
+        args.push_back(INITIALIZER(graph->graphOutputs[0]->tensorShape));
+        // 3. Host memory allocation
+        std::string hostMemAlloc = "";
+        for (auto ptr : hostPointers) {
+            hostMemAlloc +=
+                fmt::format("{0}{1} *{2} = ({1}*)malloc(LEN * sizeof({1}));\n",
+                            INDENTATION(2), code.dataType, ptr);
+        }
+        args.push_back(hostMemAlloc);
+        // 4. Host memory initialization
+        std::string hostMemInit = "";
+        for (auto i = 0; i < hostPointers.size() - 1; i++) {
+            hostMemInit += fmt::format("{0}{1}[i] = distrib(engine);\n",
+                                       INDENTATION(4), hostPointers[i]);
+        }
+        args.push_back(hostMemInit);
+        // 5. Device memory allocation
+        std::string deviceMemAlloc = "";
+        for (auto ptr : devicePointers) {
+            deviceMemAlloc += fmt::format("{0}{1} *{2};\n", INDENTATION(2),
+                                          code.dataType, ptr);
+        }
+        for (auto ptr : devicePointers) {
+            deviceMemAlloc += fmt::format("{0}cudaMalloc((void **)&{1}, LEN * "
+                                          "sizeof({2}));\n",
+                                          INDENTATION(2), ptr, code.dataType);
+        }
+        args.push_back(deviceMemAlloc);
+        // 6. Device memory initialization
+        std::string deviceMemInit = "";
+        for (auto i = 0; i < devicePointers.size() - 1; i++) {
+            deviceMemInit +=
+                fmt::format("{0}cudaMemcpy({1}, {2}, LEN * "
+                            "sizeof({3}), cudaMemcpyHostToDevice);\n",
+                            INDENTATION(2), devicePointers[i], hostPointers[i],
+                            code.dataType);
+        }
+        args.push_back(deviceMemInit);
+        // 7 & 8. Warmup and Execute
+        std::string exec = fmt::format("{0}(queue, {1});", graph->graphName,
+                                       STRING_GATHER(devicePointers));
+        args.push_back(exec);
+        args.push_back(exec);
+        // 9. Copy result to host
+        std::string resD2H = fmt::format(
+            "cudaMemcpy({0}, {1}, LEN * sizeof({2}), "
+            "cudaMemcpyDeviceToHost);",
+            hostPointers.back(), devicePointers.back(), code.dataType);
+        args.push_back(resD2H);
+        // 10. Calculate baseline
+        std::string calc = fmt::format("{0} res = {1};", code.dataType, expr);
+        args.push_back(calc);
+        // 11. Free pointers
+        std::string freePtrs;
+        for (auto ptr : devicePointers) {
+            freePtrs += fmt::format("{0}cudaFree({1});\n", INDENTATION(2), ptr);
+        }
+        for (auto ptr : hostPointers) {
+            freePtrs += fmt::format("{0}free({1});\n", INDENTATION(2), ptr);
+        }
+        args.push_back(freePtrs);
+
     } else {
         LOG(ERROR) << "Platform not supported now.";
         return "";
