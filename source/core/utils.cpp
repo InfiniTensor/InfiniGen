@@ -9,6 +9,26 @@ std::ofstream &LOG_FILE(std::string file_path) {
 
 namespace infini {
 
+void COMPILE(std::string input_file_path, std::string output_binary_directory,
+             Platform platform) {
+    auto file_path_split = STRING_SPLIT(input_file_path, '/');
+    std::string file = file_path_split[file_path_split.size() - 1];
+    std::string file_name = STRING_SPLIT(file, '.')[0];
+    std::string shell = "";
+    if (platform == Platform::BANG) {
+        shell += "cncc -shared -fPIC -o " + output_binary_directory + "lib" +
+                 file_name + ".so " + input_file_path +
+                 " --bang-mlu-arch=mtp_592 -O3";
+        system(shell.c_str());
+    } else if (platform == Platform::CUDA) {
+        shell += "nvcc -arch=sm_80 -shared --compiler-options '-fPIC' -o " +
+                 output_binary_directory + "lib" + file_name + ".so " +
+                 input_file_path + " -O3 --extended-lambda";
+        system(shell.c_str());
+    }
+    return;
+}
+
 bool ANY_TRUE(const std::vector<bool> &input) {
     for (size_t i = 0; i < input.size(); i++) {
         if (input[i]) {
@@ -95,6 +115,16 @@ std::string TO_STRING(const std::vector<int64_t> &input) {
         info_string += (i == (input.size() - 1) ? "" : ", ");
     }
     info_string += "]";
+    return info_string;
+}
+
+std::string INITIALIZER(const std::vector<int64_t> &input) {
+    std::string info_string = "{";
+    for (auto i = 0; i < input.size(); ++i) {
+        info_string += std::to_string(input[i]);
+        info_string += (i == (input.size() - 1) ? "" : ", ");
+    }
+    info_string += "}";
     return info_string;
 }
 
@@ -216,5 +246,28 @@ std::vector<int64_t> CALCULATE_STRIDE(const std::vector<int64_t> &shape) {
 }
 
 std::string INDENTATION(int64_t num) { return std::string(num * 2, ' '); }
+
+std::string STRING_GATHER(std::vector<std::string> &strings,
+                          const std::string &delimiter) {
+    std::string result;
+    for (size_t i = 0; i < strings.size(); ++i) {
+        result += strings[i];
+        if (i < strings.size() - 1) {
+            result += delimiter;
+        }
+    }
+    return result;
+}
+
+std::vector<std::string> STRING_SPLIT(const std::string &input,
+                                      char delimiter) {
+    std::vector<std::string> tokens;
+    std::stringstream data(input);
+    std::string token;
+    while (std::getline(data, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
 
 } // namespace infini

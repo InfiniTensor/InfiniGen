@@ -1,4 +1,5 @@
 #include "core/platform.h"
+#include "core/log.h"
 #include "core/utils.h"
 
 namespace infini {
@@ -138,23 +139,42 @@ const char *Platform::toString() const {
     }
 }
 
-// const std::string Platform::taskScaleDecl(TileTensor tiles) const {
-//     int64_t num_cores = tiles.numNeatTiles() == 0 ? 1 : tiles.numNeatTiles();
-//     switch (type) {
-//         CASE(CUDA,
-//              "int numBlocks = " + std::to_string(num_cores) +
-//                  ", threadsPerBlock = " +
-//                  std::to_string(VECTOR_PRODUCT(tiles.tiles[0].tile_dimension))
-//                  +
-//                  ";");
+const std::string Platform::taskScaleDecl(Tiles tiles) const {
+    // TODO: how to determine task scale
+    int64_t num_cores = tiles.size();
+    switch (type) {
+        CASE(CUDA, "int numBlocks = " + std::to_string(num_cores) +
+                       ", threadsPerBlock = " +
+                       std::to_string(tiles[0]->getElementNum()) + ";");
 
-//         CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_cores,
-//         4)) +
-//                        ", 1, 1};");
-//     default:
-//         return "";
-//     }
-// }
+        CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_cores, 4)) +
+                       ", 1, 1};");
+    default:
+        return "";
+    }
+}
+
+const std::string
+Platform::taskScaleDecl(std::vector<int64_t> tileGridShape,
+                        std::vector<int64_t> tileShape) const {
+    // Assume taskScale is the same as tileGrid
+    std::vector<int64_t> tileGridShapePadded;
+    for (auto i = 0; i < 3; i++) {
+        tileGridShapePadded.push_back(
+            i < tileGridShape.size() ? tileGridShape[i] : 1);
+    }
+
+    switch (type) {
+        CASE(CUDA, "dim3 numBlocks(" + TO_STRING(tileGridShape) +
+                       "); int threadsPerBlock = " +
+                       std::to_string(VECTOR_PRODUCT(tileShape)) + ";");
+
+        CASE(BANG,
+             "cnrtDim3_t dim = " + INITIALIZER(tileGridShapePadded) + ";");
+    default:
+        return "";
+    }
+}
 
 const std::string Platform::syntacticSugar() const {
     switch (type) {
@@ -189,6 +209,47 @@ const std::string Platform::syntacticSugar() const {
 //         return "";
 //     }
 // }
+
+const std::string Platform::offset(std::vector<int64_t> tensorStride,
+                                   std::vector<int64_t> tileGridStride,
+                                   std::vector<int64_t> tileShape) const {
+    std::string result = "";
+    if (tileShape.size() == 3) {
+        /* (tileId / tileGridStride[0]) * tileShape[0] * tensorStride[0] +
+           (tileId % tileGridStride[0]) / tileGridStride[1] * tileShape[1] *
+           tensorStride[1] + (tileId % (tileGridStride[0] * tileGridStride[1]))
+           * tileShape[2] * tensorStride[2] */
+        result += "((int)(" + taskId() + " / " +
+                  std::to_string(tileGridStride[0]) + ") * " +
+                  std::to_string(tileShape[0]) + " * " +
+                  std::to_string(tensorStride[0]) + " + " + "(int)((" +
+                  taskId() + " % " + std::to_string(tileGridStride[0]) +
+                  ") / " + std::to_string(tileGridStride[1]) + ") * " +
+                  std::to_string(tileShape[1]) + " * " +
+                  std::to_string(tensorStride[1]) + " + ((" + taskId() + " % " +
+                  std::to_string(tileGridStride[0]) + ") % " +
+                  std::to_string(tileGridStride[1]) + ") * " +
+                  std::to_string(tileShape[2]) + ")";
+
+    } else if (tileShape.size() == 2) {
+        /* (tileId / tileGridStride[0]) * tileShape[0] * tensorStride[0] +
+           (tileId % tileGridStride[0]) * tileShape[1] * tensorStride[1]; */
+        result += "((int)(" + taskId() + " / " +
+                  std::to_string(tileGridStride[0]) + ") * " +
+                  std::to_string(tileShape[0]) + " * " +
+                  std::to_string(tensorStride[0]) + " + " + "(" + taskId() +
+                  " % " + std::to_string(tileGridStride[0]) + ") * " +
+                  std::to_string(tileShape[1]) + ")";
+
+    } else if (tileShape.size() == 1) {
+        /* tileId * tileShape[0] */
+        result += "(" + taskId() + " * " + std::to_string(tileShape[0]) + ")";
+
+    } else {
+        LOG(ERROR) << "tileShape > 3 not supported.";
+    }
+    return result;
+}
 
 const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
                                       std::string datatype) const {

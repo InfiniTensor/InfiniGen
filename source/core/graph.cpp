@@ -63,7 +63,8 @@ std::string Graph::info(bool print) {
             return res;
         };
         out << prefix << "\t" << printTensors(opInputNames, graphInputNames)
-            << " --> (" << op->operatorName << ") --> "
+            << " --> (" << op->operatorName << "|"
+            << TO_STRING(op->operatorType) << ") --> "
             << printTensors(opOutputNames, graphOutputNames) << "\n";
     }
 

@@ -2,6 +2,7 @@
 #define UTILS_H
 #include "core/common.h"
 #include "core/log.h"
+#include "core/platform.h"
 #include <cassert>
 #include <vector>
 
@@ -160,6 +161,9 @@ std::ofstream &LOG_FILE(std::string file_path);
 
 namespace infini {
 
+void COMPILE(std::string input_file_path, std::string output_binary_directory,
+             Platform platform);
+
 VECTOR_COMPARE(<)
 VECTOR_COMPARE(>)
 VECTOR_COMPARE(==)
@@ -216,6 +220,8 @@ std::string TO_STRING(OperatorType operatortype);
 
 std::string TO_STRING(MicroType microtype);
 
+std::string INITIALIZER(const std::vector<int64_t> &input);
+
 std::string TO_STRING(const std::vector<int64_t> &input);
 
 std::string TO_STRING(const std::vector<std::string> &input);
@@ -229,6 +235,11 @@ int64_t SIZE_OF(TensorDataType datatype);
 std::vector<int64_t> CALCULATE_STRIDE(const std::vector<int64_t> &shape);
 
 std::string INDENTATION(int64_t num);
+
+std::string STRING_GATHER(std::vector<std::string> &strings,
+                          const std::string &delimiter = ", ");
+
+std::vector<std::string> STRING_SPLIT(const std::string &input, char delimiter);
 
 } // namespace infini
 

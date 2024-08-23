@@ -1,3 +1,4 @@
+TYPE ?= Debug
 PLATFORM ?= BANG
 
 ifeq ($(PLATFORM), CUDA)
@@ -9,6 +10,8 @@ else ifeq ($(PLATFORM), BANG)
 	CXX := cncc
 	COMPILE_OPTIONS += -L/usr/local/neuware/lib64 -lcnrt -I/usr/local/neuware/include
 endif
+
+CMAKE_OPT = -DCMAKE_BUILD_TYPE=$(TYPE)
 
 COMPILE_OPTIONS += -Ibuild/bin/ -lc -lm -Wl,-rpath=build/bin/ -lstdc++ 
 
@@ -23,7 +26,7 @@ TEST_EXAMPLE ?= check_$(TESTCASE)_$(plat)
 build:
 	@mkdir -p build/code
 	@mkdir -p build/bin
-	@cd build && cmake ..
+	@cd build && cmake $(CMAKE_OPT) ..
 	@make -j64 -C build $(TEST_FILES)
 
 test: build

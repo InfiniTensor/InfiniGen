@@ -28,7 +28,6 @@ class MemoryMicro : public Micro {
     Tile *operand;
     std::string name;
     int64_t length;
-    int64_t lengthInBytes;
     TensorDataType dataType;
 
   public:
@@ -37,9 +36,7 @@ class MemoryMicro : public Micro {
         : Micro(MicroType::MEMORY, platform), operand(inputs[0]),
           name(inputs[0]->tensor->tensorName),
           length(inputs[0]->getElementNum()),
-          dataType(inputs[0]->tensor->tensorDataType) {
-        lengthInBytes = length * SIZE_OF(dataType);
-    }
+          dataType(inputs[0]->tensor->tensorDataType) {}
     virtual std::string code(Cache &cache, std::string &code,
                              int64_t indent = 0) = 0;
     static Micro *makeObj() { return nullptr; }

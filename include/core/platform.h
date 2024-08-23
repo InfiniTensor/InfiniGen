@@ -31,10 +31,15 @@ struct Platform {
     const std::string glmemDecl(std::string datatype, std::string name) const;
     const std::string queue() const;
     const std::string head() const;
-    // const std::string taskScaleDecl(TileTensor tiles) const;
+    const std::string taskScaleDecl(Tiles tiles) const;
+    const std::string taskScaleDecl(std::vector<int64_t> tileGridShape,
+                                    std::vector<int64_t> tileShape) const;
     const std::string syntacticSugar() const;
     // const std::string workingCoreCond(TileTensor tiles) const;
     // const std::string remainingTileCond(TileTensor tiles) const;
+    const std::string offset(std::vector<int64_t> tensorStride,
+                             std::vector<int64_t> tileGridStride,
+                             std::vector<int64_t> tileShape) const;
 
     const std::string cacheDecl(std::string name, int64_t cache_size,
                                 std::string datatype) const;

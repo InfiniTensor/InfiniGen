@@ -1,11 +1,8 @@
 /build
 /.vscode
-code/*
 *.swp
 *.un
 *.so
 CMakeFiles
 CMakeCache
-*.cmake 
-*.txt
-.clang-format
+*.cmake

@@ -2,7 +2,7 @@
 
 int main() {
     using namespace infini;
-    std::vector<int64_t> shape = {32, 32};
+    std::vector<int64_t> shape = {8, 32, 16};
     Tensor *a = new Tensor(shape);
     Tensor *b = new Tensor(shape);
     Tensor *c = new Tensor(shape);
@@ -28,9 +28,16 @@ int main() {
     Graph *graph = new Graph({add, sub, mul}, {a, b, c, d}, {output});
     graph->info();
 
-    Generator *generator = new Generator(Platform::BANG, graph, {8, 8});
-    LOG(INFO) << generator->generateCode();
+    Generator *generator = new Generator(Platform::BANG, graph, {4, 8, 8});
+    LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
+    LOG(INFO) << generator->generateSourceFile("build/code/test.mlu");
+    COMPILE("build/code/test.mlu", "build/bin/", Platform::BANG);
 
+#ifdef DEBUG_MODE
+    generator->generateTestScript(
+        "scripts/check/check_elementwise_mlu.template", "(0 + 1 - 2) * 3",
+        "build/bin/test.cpp");
+#endif
     delete a;
     delete b;
     delete c;
