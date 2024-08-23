@@ -88,23 +88,4 @@ void Tensor::addConsumer(Operator *consumer) {
     tensorConsumers.push_back(consumer);
 }
 
-// bool Tensor::like(const Tensor &other) {
-//     std::vector<int64_t> my_dimension = this->tensorShape;
-//     std::vector<int64_t> other_dimension = other.tensorShape;
-//     size_t my_size = my_dimension.size();
-//     size_t other_size = other_dimension.size();
-//     if (my_size < other_size) {
-//         int pad = other_size - my_size;
-//         my_dimension.insert(my_dimension.begin(), pad, 1);
-//     } else if (my_size > other_size) {
-//         int pad = my_size - other_size;
-//         other_dimension.insert(other_dimension.begin(), pad, 1);
-//     }
-//     if (ALL_TRUE(my_dimension == other_dimension)) {
-//         return true;
-//     } else {
-//         return false;
-//     }
-// }
-
 } // namespace infini

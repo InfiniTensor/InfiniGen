@@ -18,9 +18,7 @@ std::string LoadBang::code(Cache &cache, std::string &code, int64_t indent) {
         return cachePosStr;
     }
 
-    // TODO: use blockId/taskId to get offset
-    // std::string tileOffsetStr = operand->tensor->tensorName + " + " +
-    //                             std::to_string(operand->tileOffset);
+    // use blockId/taskId to get offset
     std::string tileOffsetStr =
         operand->tensor->tensorName + " + " +
         platform.offset(operand->tensor->tensorStride,
@@ -67,9 +65,7 @@ std::string StoreBang::code(Cache &cache, std::string &code, int64_t indent) {
                               cache.cacheName + " + " +
                               std::to_string(block->blockStart) + ")";
 
-    // TODO: use blockId/taskId to get offset
-    // std::string tileOffsetStr = operand->tensor->tensorName + " + " +
-    //                             std::to_string(operand->tileOffset);
+    // use blockId/taskId to get offset
     std::string tileOffsetStr =
         operand->tensor->tensorName + " + " +
         platform.offset(operand->tensor->tensorStride,
@@ -130,18 +126,3 @@ REGISTER_MICRO(OperatorType::STORE, Platform::BANG, StoreBang::makeObj)
 REGISTER_MICRO(OperatorType::FREE, Platform::BANG, FreeBang::makeObj)
 
 } // namespace infini
-
-/* GET OFFSET OF A TILE IN TENSOR USING TASKID() */
-// std::vector<uint64_t> tileCoords;
-// std::vector<uint64_t> tileGridStride = operand->tileGridStride;
-// uint64_t index = platform.taskId();
-// for (uint64_t i = 0; i < tileGridStride.size(); i++) {
-//     tileCoords.push_back((uint64_t)(index / tileGridStride[i]));
-//     index %= tileGridStride[i];
-// }
-// std::vector<uint64_t> tileShape = operand->tileShape;
-// std::vector<uint64_t> tileStride = operand->tileStride;
-// uint64_t offset = 0;
-// for (uint64_t i = 0; i < tileCoords.size(); i++) {
-//     offset += tileCoords[i] * tileShape[i] * tileStride[i];
-// }
