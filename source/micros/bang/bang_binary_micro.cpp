@@ -1,5 +1,6 @@
 #include "core/cache.h"
 #include "core/utils.h"
+#include "core/tile.h"
 #include "micros/binary_micro.h"
 #include "micros/memory_micro.h"
 
@@ -31,6 +32,23 @@ BANG_BINARY_GENERATOR(And, "and")
 BANG_BINARY_GENERATOR(Or, "or")
 BANG_BINARY_GENERATOR(Xor, "xor")
 
+// Div
+std::string DivBang::code(Cache &cache, std::string &code, int64_t indent) {
+    std::string leftCache = LoadBang({left}).code(cache, code, indent);
+    std::string rightCache = LoadBang({right}).code(cache, code, indent);
+    std::string outputCache = AllocateBang({output}).code(cache, code, indent);
+    auto recip = new Tile(*right);
+    std::string recipCache = AllocateBang({recip}).code(cache, code, indent);
+    code += INDENTATION(indent) + "__bang_active_reciphp(" + recipCache + ", " +
+            rightCache + ", " + std::to_string(length) + ");\n";
+    code += INDENTATION(indent) + "__bang_mul(" + outputCache + ", " +
+            leftCache + ", " + recipCache + ", " + std::to_string(length) +
+            ");\n";
+    FreeBang({recip}).code(cache, code, indent);
+    delete recip;
+    return "";
+}
+
 /**
  * Register Micros
  */
@@ -38,7 +56,7 @@ BANG_BINARY_GENERATOR(Xor, "xor")
 REGISTER_MICRO(OperatorType::ADD, Platform::BANG, AddBang::makeObj)
 REGISTER_MICRO(OperatorType::SUB, Platform::BANG, SubBang::makeObj)
 REGISTER_MICRO(OperatorType::MUL, Platform::BANG, MulBang::makeObj)
-// REGISTER_MICRO(OperatorType::DIV, Platform::BANG, DivBang::makeObj)
+REGISTER_MICRO(OperatorType::DIV, Platform::BANG, DivBang::makeObj)
 REGISTER_MICRO(OperatorType::EQ, Platform::BANG, EqBang::makeObj)
 REGISTER_MICRO(OperatorType::GE, Platform::BANG, GeBang::makeObj)
 REGISTER_MICRO(OperatorType::GT, Platform::BANG, GtBang::makeObj)
