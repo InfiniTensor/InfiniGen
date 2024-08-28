@@ -8,6 +8,7 @@ namespace infini {
 #define BANG_UNARY_GENERATOR(OP, OP_STRING, AUX_REQUIRED)                      \
     std::string CAT(OP, Bang)::code(Cache &cache, std::string &code,           \
                                     int64_t indent) {                          \
+        cache.lock();                                                          \
         std::string inputCache = LoadBang({input}).code(cache, code, indent);  \
         std::string outputCache =                                              \
             AllocateBang({output}).code(cache, code, indent);                  \
@@ -21,12 +22,14 @@ namespace infini {
             code += INDENTATION(indent) + std::string(OP_STRING) + "(" +       \
                     outputCache + ", " + inputCache + ", " + aux1Cache +       \
                     ", " + aux2Cache + ", " + std::to_string(length) + ");\n"; \
+            cache.unlock();                                                    \
             FreeBang({aux1}).code(cache, code, indent);                        \
             FreeBang({aux2}).code(cache, code, indent);                        \
         } else {                                                               \
             code += INDENTATION(indent) + std::string(OP_STRING) + "(" +       \
                     outputCache + ", " + inputCache + ", " +                   \
                     std::to_string(length) + ");\n";                           \
+            cache.unlock();                                                    \
         }                                                                      \
         return "";                                                             \
     }

@@ -8,6 +8,7 @@ namespace infini {
 #define CUDA_BINARY_GENERATOR(OP, OP_STR, CAST)                                \
     std::string CAT(OP, Cuda)::code(Cache &cache, std::string &code,           \
                                     int64_t indent) {                          \
+        cache.lock();                                                          \
         std::string leftCache = LoadCuda({left}).code(cache, code, indent);    \
         std::string rightCache = LoadCuda({right}).code(cache, code, indent);  \
         std::string outputCache =                                              \
@@ -22,6 +23,7 @@ namespace infini {
             code += ")";                                                       \
         }                                                                      \
         code += ";\n";                                                         \
+        cache.unlock();                                                        \
         return "";                                                             \
     }
 

@@ -25,12 +25,14 @@ std::string unary_kernel(std::string kernelName, TensorDataType dtype) {
 #define CUDA_UNARY_GENERATOR(OP, OP_STR)                                       \
     std::string CAT(OP, Cuda)::code(Cache &cache, std::string &code,           \
                                     int64_t indent) {                          \
+        cache.lock();                                                          \
         code += INDENTATION(indent) + unary_kernel(OP_STR, dataType) + "\n";   \
         std::string inputCache = LoadCuda({input}).code(cache, code, indent);  \
         std::string outputCache =                                              \
             AllocateCuda({output}).code(cache, code, indent);                  \
         code += INDENTATION(indent) + outputCache + " = " +                    \
                 std::string(OP_STR) + "(" + inputCache + ");\n";               \
+        cache.unlock();                                                        \
         return "";                                                             \
     }
 
