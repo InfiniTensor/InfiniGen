@@ -22,6 +22,7 @@ namespace infini {
 BANG_BINARY_GENERATOR(Add, "add")
 BANG_BINARY_GENERATOR(Sub, "sub")
 BANG_BINARY_GENERATOR(Mul, "mul")
+BANG_BINARY_GENERATOR(Div, "div")
 BANG_BINARY_GENERATOR(Eq, "eq")
 BANG_BINARY_GENERATOR(Ge, "ge")
 BANG_BINARY_GENERATOR(Gt, "gt")
@@ -32,22 +33,22 @@ BANG_BINARY_GENERATOR(And, "and")
 BANG_BINARY_GENERATOR(Or, "or")
 BANG_BINARY_GENERATOR(Xor, "xor")
 
-// Div
-std::string DivBang::code(Cache &cache, std::string &code, int64_t indent) {
-    std::string leftCache = LoadBang({left}).code(cache, code, indent);
-    std::string rightCache = LoadBang({right}).code(cache, code, indent);
-    std::string outputCache = AllocateBang({output}).code(cache, code, indent);
-    auto recip = new Tile(*right);
-    std::string recipCache = AllocateBang({recip}).code(cache, code, indent);
-    code += INDENTATION(indent) + "__bang_active_reciphp(" + recipCache + ", " +
-            rightCache + ", " + std::to_string(length) + ");\n";
-    code += INDENTATION(indent) + "__bang_mul(" + outputCache + ", " +
-            leftCache + ", " + recipCache + ", " + std::to_string(length) +
-            ");\n";
-    FreeBang({recip}).code(cache, code, indent);
-    delete recip;
-    return "";
-}
+// // Div
+// std::string DivBang::code(Cache &cache, std::string &code, int64_t indent) {
+//     std::string leftCache = LoadBang({left}).code(cache, code, indent);
+//     std::string rightCache = LoadBang({right}).code(cache, code, indent);
+//     std::string outputCache = AllocateBang({output}).code(cache, code, indent);
+//     auto recip = new Tile(*right);
+//     std::string recipCache = AllocateBang({recip}).code(cache, code, indent);
+//     code += INDENTATION(indent) + "__bang_active_reciphp(" + recipCache + ", " +
+//             rightCache + ", " + std::to_string(length) + ");\n";
+//     code += INDENTATION(indent) + "__bang_mul(" + outputCache + ", " +
+//             leftCache + ", " + recipCache + ", " + std::to_string(length) +
+//             ");\n";
+//     FreeBang({recip}).code(cache, code, indent);
+//     delete recip;
+//     return "";
+// }
 
 /**
  * Register Micros
