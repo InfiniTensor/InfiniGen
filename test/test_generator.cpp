@@ -12,17 +12,13 @@ int main() {
     c->info();
     d->info();
 
-    Operator *add = new Operator({a, b});
-    add->operatorType = OperatorType::ADD;
+    Operator *add = new ADD({a, b});
     Tensor *temp1 = add->getOutput(0);
-    Operator *sub = new Operator({temp1, c});
-    sub->operatorType = OperatorType::SUB;
+    Operator *sub = new SUB({temp1, c});
     Tensor *temp2 = sub->getOutput(0);
-    Operator *mul = new Operator({temp2, d});
-    mul->operatorType = OperatorType::MUL;
+    Operator *mul = new MUL({temp2, d});
     Tensor *temp3 = mul->getOutput(0);
-    Operator *sqrt = new Operator({temp3});
-    sqrt->operatorType = OperatorType::SQRT;
+    Operator *sqrt = new SQRT({temp3});
     Tensor *output = sqrt->getOutput(0);
     add->info();
     sub->info();
@@ -32,14 +28,14 @@ int main() {
     Graph *graph = new Graph({add, sub, mul, sqrt}, {a, b, c, d}, {output});
     graph->info();
 
-    Generator *generator = new Generator(Platform::CUDA, graph, {4, 8, 8});
+    Generator *generator = new Generator(Platform::BANG, graph, {4, 8, 8});
     LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
-    LOG(INFO) << generator->generateSourceFile("build/code/test.cu");
-    COMPILE("build/code/test.cu", "build/bin/", Platform::CUDA);
+    LOG(INFO) << generator->generateSourceFile("build/code/test.mlu");
+    COMPILE("build/code/test.mlu", "build/bin/", Platform::BANG);
 
 #ifdef DEBUG_MODE
     generator->generateTestScript(
-        "scripts/check/check_elementwise_gpu.template",
+        "scripts/check/check_elementwise_mlu.template",
         "sqrtf((0 + 1 - 2) * 3)", "build/bin/test.cpp");
 #endif
     delete a;

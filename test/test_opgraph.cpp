@@ -12,15 +12,15 @@ int main() {
     c->info();
     d->info();
 
-    Operator *add = new Operator({a, b});
+    Operator *add = new ADD({a, b});
     Tensor *temp1 = add->getOutput(0);
-    Operator *sub = new Operator({temp1, c});
+    Operator *sub = new SUB({temp1, c});
     Tensor *temp2 = sub->getOutput(0);
-    Operator *sqrt = new Operator({temp2});
+    Operator *sqrt = new SQRT({temp2});
     Tensor *temp3 = sqrt->getOutput(0);
-    Operator *mul = new Operator({d, temp3});
+    Operator *mul = new MUL({d, temp3});
     Tensor *temp4 = mul->getOutput(0);
-    Operator *sigmoid = new Operator({temp4});
+    Operator *sigmoid = new SIGMOID({temp4});
     Tensor *output = sigmoid->getOutput(0);
     add->info();
     sub->info();

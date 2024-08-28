@@ -5,15 +5,16 @@ namespace infini {
 
 int64_t Operator::operatorCount = 0;
 
-Operator::Operator(const std::vector<Tensor *> &inputs,
+Operator::Operator(const OperatorType &type,
+                   const std::vector<Tensor *> &inputs,
                    const std::vector<Tensor *> &outputs,
                    const std::string &name, const int64_t &outputsNum)
-    : operatorInputs(inputs), operatorOutputs(outputs),
+    : operatorType(type), operatorInputs(inputs), operatorOutputs(outputs),
       operatorName(operatorName == ""
                        ? "Operator_" + std::to_string(operatorCount)
                        : operatorName),
       operatorIndex(operatorCount++), operatorIndegree(0),
-      operatorOutputsNum(outputsNum), operatorType(OperatorType::UNKNOWN) {
+      operatorOutputsNum(outputsNum) {
     if (outputs.empty()) {
         // TODO: Infer output shape and datatype
         Tensor *temp;

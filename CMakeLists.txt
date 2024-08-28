@@ -39,7 +39,7 @@ include_directories(3rd-party/fmt/include)
 add_subdirectory(3rd-party/fmt)
 add_definitions(-D FMT_HEADER_ONLY)
 
-file(GLOB_RECURSE SOURCE source/core/*.cpp source/micros/*/*.cpp)
+file(GLOB_RECURSE SOURCE source/core/*.cpp source/micros/*/*.cpp source/operators/*.cpp)
 add_library(infiniGen SHARED ${SOURCE})
 
 if(BUILD_TEST)

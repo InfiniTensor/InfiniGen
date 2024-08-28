@@ -95,8 +95,14 @@ std::string TO_STRING(OperatorType type) {
         CASE(AND);
         CASE(OR);
         CASE(XOR);
+        CASE(SQRT);
+        CASE(RSQRT);
+        CASE(RECIP);
         CASE(SIGMOID);
         CASE(RELU);
+        CASE(SIN);
+        CASE(COS);
+        CASE(TANH);
         CASE(LOAD);
         CASE(ALLOCATE);
         CASE(FREE);

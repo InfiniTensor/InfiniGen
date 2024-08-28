@@ -33,7 +33,8 @@ class Operator {
 
   public:
     Operator() = delete;
-    Operator(const std::vector<Tensor *> &inputs = {},
+    Operator(const OperatorType &type = OperatorType::UNKNOWN,
+             const std::vector<Tensor *> &inputs = {},
              const std::vector<Tensor *> &outputs = {},
              const std::string &name = "", const int64_t &outputsNum = 1);
     ~Operator() = default;

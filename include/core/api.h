@@ -12,4 +12,6 @@
 #include "core/utils.h"
 #include "micros/binary_micro.h"
 #include "micros/memory_micro.h"
+#include "operators/binary.h"
+#include "operators/unary.h"
 #endif
