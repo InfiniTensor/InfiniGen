@@ -20,12 +20,16 @@ int main() {
     Tensor *temp2 = sub->getOutput(0);
     Operator *mul = new Operator({temp2, d});
     mul->operatorType = OperatorType::MUL;
-    Tensor *output = mul->getOutput(0);
+    Tensor *temp3 = mul->getOutput(0);
+    Operator *sqrt = new Operator({temp3});
+    sqrt->operatorType = OperatorType::SQRT;
+    Tensor *output = sqrt->getOutput(0);
     add->info();
     sub->info();
     mul->info();
+    sqrt->info();
 
-    Graph *graph = new Graph({add, sub, mul}, {a, b, c, d}, {output});
+    Graph *graph = new Graph({add, sub, mul, sqrt}, {a, b, c, d}, {output});
     graph->info();
 
     Generator *generator = new Generator(Platform::CUDA, graph, {4, 8, 8});
@@ -35,8 +39,8 @@ int main() {
 
 #ifdef DEBUG_MODE
     generator->generateTestScript(
-        "scripts/check/check_elementwise_gpu.template", "(0 + 1 - 2) * 3",
-        "build/bin/test.cpp");
+        "scripts/check/check_elementwise_gpu.template",
+        "sqrtf((0 + 1 - 2) * 3)", "build/bin/test.cpp");
 #endif
     delete a;
     delete b;
