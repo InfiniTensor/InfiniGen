@@ -15,15 +15,16 @@ Operator::Operator(const OperatorType &type,
                        : operatorName),
       operatorIndex(operatorCount++), operatorIndegree(0),
       operatorOutputsNum(outputsNum) {
-    if (outputs.empty()) {
-        // TODO: Infer output shape and datatype
-        Tensor *temp;
-        for (auto i = 0; i < outputsNum; ++i) {
-            temp =
-                new Tensor(inputs[0]->tensorShape, inputs[0]->tensorDataType);
-            operatorOutputs.push_back(temp);
-        }
-    }
+    // Infer output shape and datatype in derived class
+    // if (outputs.empty()) {
+    //     Tensor *temp;
+    //     for (auto i = 0; i < outputsNum; ++i) {
+    //         temp =
+    //             new Tensor(inputs[0]->tensorShape,
+    //             inputs[0]->tensorDataType);
+    //         operatorOutputs.push_back(temp);
+    //     }
+    // }
     for (auto it : operatorInputs) {
         it->addConsumer(this);
         it->tensorUsesLeft += 1;
