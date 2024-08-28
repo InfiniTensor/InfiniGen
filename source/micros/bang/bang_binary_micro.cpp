@@ -1,6 +1,6 @@
 #include "core/cache.h"
-#include "core/utils.h"
 #include "core/tile.h"
+#include "core/utils.h"
 #include "micros/binary_micro.h"
 #include "micros/memory_micro.h"
 
@@ -37,10 +37,10 @@ BANG_BINARY_GENERATOR(Xor, "xor")
 // std::string DivBang::code(Cache &cache, std::string &code, int64_t indent) {
 //     std::string leftCache = LoadBang({left}).code(cache, code, indent);
 //     std::string rightCache = LoadBang({right}).code(cache, code, indent);
-//     std::string outputCache = AllocateBang({output}).code(cache, code, indent);
-//     auto recip = new Tile(*right);
-//     std::string recipCache = AllocateBang({recip}).code(cache, code, indent);
-//     code += INDENTATION(indent) + "__bang_active_reciphp(" + recipCache + ", " +
+//     std::string outputCache = AllocateBang({output}).code(cache, code,
+//     indent); auto recip = new Tile(*right); std::string recipCache =
+//     AllocateBang({recip}).code(cache, code, indent); code +=
+//     INDENTATION(indent) + "__bang_active_reciphp(" + recipCache + ", " +
 //             rightCache + ", " + std::to_string(length) + ");\n";
 //     code += INDENTATION(indent) + "__bang_mul(" + outputCache + ", " +
 //             leftCache + ", " + recipCache + ", " + std::to_string(length) +

@@ -220,6 +220,8 @@ std::string TO_STRING(OperatorType operatortype);
 
 std::string TO_STRING(MicroType microtype);
 
+std::string TO_STRING(CachePolicy cachePolicy);
+
 std::string INITIALIZER(const std::vector<int64_t> &input);
 
 std::string TO_STRING(const std::vector<int64_t> &input);

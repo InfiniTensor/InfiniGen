@@ -12,6 +12,8 @@ enum class TensorDataType { CHAR, HALF, FLOAT, DOUBLE, UNKNOWN };
 
 enum class MicroType { BINARY, UNARY, REDUCE, BROADCAST, MEMORY };
 
+enum class CachePolicy { LRU, LFU, FIFO, DEFAULT };
+
 enum class OperatorType {
     // Binary
     ADD,

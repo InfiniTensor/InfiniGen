@@ -2,34 +2,62 @@
 
 int main() {
     using namespace infini;
-    Tensor tensor1({16, 32}, TensorDataType::FLOAT);
-    Tensor tensor2({128, 64}, TensorDataType::FLOAT);
+    Tensor tensor1({4, 4}, TensorDataType::CHAR);
+    Tensor tensor2({8, 8}, TensorDataType::CHAR);
     tensor1.info();
     tensor2.info();
-    Tiles tiles1 = tensor1.tiling({16, 16});
+    Tiles tiles1 = tensor1.tiling({2, 2});
     tensor1.tilesInfo();
-    Tiles tiles2 = tensor2.tiling({32, 32});
+    Tiles tiles2 = tensor2.tiling({4, 4});
     tensor2.tilesInfo();
 
-    Cache cache(4096 * 4);
+    Cache cache(32);
     cache.info();
 
-    Block *b1 = cache.allocate(tiles1[0]);
+    cache.lock();
+    cache.allocate(tiles1[0]);
     cache.info();
+    // tiles1[0] at [0, 4] (locked)
+    cache.unlock();
 
-    Block *b2 = cache.allocate(tiles1[1]);
+    cache.load(tiles1[1]);
     cache.info();
+    // tiles1[0] at [0, 4]
+    // tiles1[1] at [4, 8]
 
-    cache.free(tiles1[0]);
-    Block *b3 = cache.allocate(tiles2[0]);
+    cache.allocate(tiles2[0]);
     cache.info();
+    // tiles2[0] at [8, 24]
 
-    cache.free(tiles1[1]);
-    Block *b4 = cache.allocate(tiles2[1]);
+    cache.load(tiles2[1]);
     cache.info();
+    // above 3 blocks are swapped out
+    // tiles2[0] at [0, 16]
 
-    cache.free(tiles2[0]);
+    cache.allocate(tiles1[1]);
     cache.info();
+    // tiles2[0] at [0, 16]
+    // tiles1[1] at [16, 20]
+
+    cache.load(tiles1[1]);
+    cache.info();
+    // tiles2[0] at [0, 16]
+    // tiles1[1] at [16, 20]
+
+    cache.free(tiles2[1]);
+    cache.info();
+    // tiles1[1] at [16, 20]
+
+    cache.allocate(tiles1[2]);
+    cache.info();
+    // tiles1[1] at [16, 20]
+    // tiles1[2] at [20, 24]
+
+    cache.allocate(tiles2[1]);
+    cache.info();
+    // tiles2[0] at [0, 16]
+    // tiles1[1] at [16, 20]
+    // tiles1[2] at [20, 24]
 
     return 0;
 }

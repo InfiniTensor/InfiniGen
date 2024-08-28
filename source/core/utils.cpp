@@ -235,6 +235,21 @@ std::string TO_STRING(MicroType type) {
 #undef CASE
 }
 
+std::string TO_STRING(CachePolicy policy) {
+#define CASE(NAME)                                                             \
+    case CachePolicy::NAME:                                                    \
+        return #NAME
+    switch (policy) {
+        CASE(LRU);
+        CASE(LFU);
+        CASE(FIFO);
+        CASE(DEFAULT);
+    default:
+        return "UNKNOWN";
+    }
+#undef CASE
+}
+
 std::vector<int64_t> CALCULATE_STRIDE(const std::vector<int64_t> &shape) {
     std::vector<int64_t> result(shape.size());
     int value = 1;
