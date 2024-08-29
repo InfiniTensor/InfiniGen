@@ -21,15 +21,22 @@ int main() {
     Operator *mul = new MUL({d, temp3});
     Tensor *temp4 = mul->getOutput(0);
     Operator *sigmoid = new SIGMOID({temp4});
-    Tensor *output = sigmoid->getOutput(0);
+    Tensor *temp5 = sigmoid->getOutput(0);
+    Operator *bcast1 = new BROADCAST({temp5}, {}, {3, 1, 224, 768});
+    Tensor *temp6 = bcast1->getOutput(0);
+    Tensor *output = new Tensor({3, 3, 224, 768});
+    Operator *bcast2 = new BROADCAST({temp6}, {output});
+
     add->info();
     sub->info();
     sqrt->info();
     mul->info();
     sigmoid->info();
+    bcast1->info();
+    bcast2->info();
 
-    Graph *graph =
-        new Graph({add, sub, sqrt, mul, sigmoid}, {a, b, c, d}, {output});
+    Graph *graph = new Graph({add, sub, sqrt, mul, sigmoid, bcast1, bcast2},
+                             {a, b, c, d}, {output});
     graph->info();
 
     delete a;
@@ -40,12 +47,16 @@ int main() {
     delete temp2;
     delete temp3;
     delete temp4;
+    delete temp5;
+    delete temp6;
     delete output;
     delete add;
     delete sub;
     delete sqrt;
     delete mul;
     delete sigmoid;
+    delete bcast1;
+    delete bcast2;
     delete graph;
     return 0;
 }

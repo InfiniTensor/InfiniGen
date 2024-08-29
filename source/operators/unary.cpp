@@ -3,13 +3,11 @@
 
 namespace infini {
 Unary::Unary(const OperatorType &type, const std::vector<Tensor *> &inputs,
-             const std::vector<Tensor *> &outputs, const std::string &name,
-             const int64_t &outputsNum)
+             const std::vector<Tensor *> &outputs, const std::string &name)
     : Operator(type, inputs, outputs, name, 1) {
     // Validity check
     ASSERT(inputs.size() == 1);
     ASSERT(outputs.size() <= 1);
-    ASSERT(outputsNum == 1);
     if (outputs.empty()) {
         // Infer output shape and datatype
         Tensor *temp =

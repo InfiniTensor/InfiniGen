@@ -94,4 +94,20 @@ std::vector<Operator *> Operator::getPredecessors() {
 
 std::vector<Operator *> Operator::getSuccessors() { return operatorSuccessors; }
 
+void Operator::setAttribute(std::string key, Attribute attribute) {
+    operatorAttributes[key] = attribute;
+}
+
+Attribute Operator::getAttribute(std::string key) {
+    auto iter = operatorAttributes.find(key);
+    CHECK(iter != operatorAttributes.end(), "Can't find this key: " + key);
+    return iter->second;
+}
+
+void Operator::deleteAttribute(std::string key) {
+    auto iter = operatorAttributes.find(key);
+    if (iter != operatorAttributes.end()) {
+        operatorAttributes.erase(iter);
+    }
+}
 } // namespace infini

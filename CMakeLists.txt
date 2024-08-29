@@ -5,7 +5,7 @@ option(USE_CUDA "Support CUDA GPU" OFF)
 option(USE_BANG "Support BANG MLU" OFF)
 
 option(BUILD_TEST "Build test code" ON)
-option(BUILD_ASAN "Build code whith ASAN" OFF)
+option(BUILD_ASAN "Build code whith ASAN" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

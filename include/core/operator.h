@@ -24,6 +24,7 @@ class Operator {
     std::vector<Tensor *> operatorInputs;
     std::vector<std::vector<Tensor *>> operatorTemps;
     std::vector<Tensor *> operatorOutputs;
+    std::unordered_map<std::string, Attribute> operatorAttributes;
 
     // Graph Information
     std::vector<Operator *> operatorPredecessors;
@@ -49,6 +50,10 @@ class Operator {
     Operator *getSuccessor(int64_t index);
     std::vector<Operator *> getPredecessors();
     std::vector<Operator *> getSuccessors();
+
+    void setAttribute(std::string key, Attribute attribute);
+    Attribute getAttribute(std::string key);
+    void deleteAttribute(std::string key);
 };
 
 } // namespace infini

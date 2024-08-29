@@ -7,7 +7,7 @@ class Unary : public Operator {
   public:
     Unary(const OperatorType &type, const std::vector<Tensor *> &inputs = {},
           const std::vector<Tensor *> &outputs = {},
-          const std::string &name = "", const int64_t &outputsNum = 1);
+          const std::string &name = "");
     ~Unary() = default;
 };
 
@@ -16,9 +16,8 @@ class Unary : public Operator {
       public:                                                                  \
         OP_NAME(const std::vector<Tensor *> &inputs = {},                      \
                 const std::vector<Tensor *> &outputs = {},                     \
-                const std::string &name = "", const int64_t &outputsNum = 1)   \
-            : Unary(OperatorType::OP_NAME, inputs, outputs, name,              \
-                    outputsNum) {}                                             \
+                const std::string &name = "")                                  \
+            : Unary(OperatorType::OP_NAME, inputs, outputs, name) {}           \
     };
 
 DEFINE_UNARY(SQRT)

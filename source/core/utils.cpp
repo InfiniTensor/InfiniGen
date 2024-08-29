@@ -107,6 +107,12 @@ std::string TO_STRING(OperatorType type) {
         CASE(ALLOCATE);
         CASE(FREE);
         CASE(STORE);
+        CASE(BROADCAST);
+        CASE(BROADCAST_ADD);
+        CASE(BROADCAST_SUB);
+        CASE(BROADCAST_MUL);
+        CASE(BROADCAST_DIV);
+        CASE(REDUCE);
         CASE(SYNC);
     default:
         return "UNKNOWN";

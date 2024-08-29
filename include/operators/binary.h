@@ -7,7 +7,7 @@ class Binary : public Operator {
   public:
     Binary(const OperatorType &type, const std::vector<Tensor *> &inputs = {},
            const std::vector<Tensor *> &outputs = {},
-           const std::string &name = "", const int64_t &outputsNum = 1);
+           const std::string &name = "");
     ~Binary() = default;
 };
 
@@ -16,9 +16,8 @@ class Binary : public Operator {
       public:                                                                  \
         OP_NAME(const std::vector<Tensor *> &inputs = {},                      \
                 const std::vector<Tensor *> &outputs = {},                     \
-                const std::string &name = "", const int64_t &outputsNum = 1)   \
-            : Binary(OperatorType::OP_NAME, inputs, outputs, name,             \
-                     outputsNum) {}                                            \
+                const std::string &name = "")                                  \
+            : Binary(OperatorType::OP_NAME, inputs, outputs, name) {}          \
     };
 
 DEFINE_BINARY(ADD)
