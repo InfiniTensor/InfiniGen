@@ -12,7 +12,13 @@ Tensor::Tensor(const Shape &tensorShape_, const TensorDataType &tensorDataType_,
       tensorStride(CALCULATE_STRIDE(tensorShape_)),
       tensorName((tensorName_ == "" ? "Tensor_" + std::to_string(tensorCount)
                                     : tensorName_)),
-      tensorIndex(tensorCount++) {}
+      tensorIndex(tensorCount++), tensorUsesLeft(0), tensorProducer(nullptr) {}
+
+Tensor::~Tensor() {
+    for (auto tile : tiles) {
+        delete tile;
+    }
+}
 
 std::string Tensor::info(bool print) {
     std::stringstream out;

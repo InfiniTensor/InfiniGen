@@ -36,12 +36,16 @@ int main() {
     delete b;
     delete c;
     delete d;
+    delete temp1;
+    delete temp2;
+    delete temp3;
+    delete temp4;
+    delete output;
     delete add;
     delete sub;
     delete sqrt;
     delete mul;
     delete sigmoid;
-    delete output;
     delete graph;
     return 0;
 }

@@ -10,9 +10,8 @@ Operator::Operator(const OperatorType &type,
                    const std::vector<Tensor *> &outputs,
                    const std::string &name, const int64_t &outputsNum)
     : operatorType(type), operatorInputs(inputs), operatorOutputs(outputs),
-      operatorName(operatorName == ""
-                       ? "Operator_" + std::to_string(operatorCount)
-                       : operatorName),
+      operatorName(name == "" ? "Operator_" + std::to_string(operatorCount)
+                              : name),
       operatorIndex(operatorCount++), operatorIndegree(0),
       operatorOutputsNum(outputsNum) {
     // Infer output shape and datatype in derived class
@@ -28,7 +27,7 @@ Operator::Operator(const OperatorType &type,
     for (auto it : operatorInputs) {
         it->addConsumer(this);
         it->tensorUsesLeft += 1;
-        if (it->tensorProducer != NULL) {
+        if (it->tensorProducer != nullptr) {
             operatorPredecessors.push_back(it->tensorProducer);
             it->tensorProducer->operatorSuccessors.push_back(this);
         }

@@ -97,6 +97,12 @@ Generator::Generator(Platform platform_, Graph *graph_, Shape pattern_,
     }
 }
 
+Generator::~Generator() {
+    for (auto micro : microList) {
+        delete micro;
+    }
+}
+
 std::string Generator::generateHeaderFile(const std::string &filepath,
                                           const int64_t &indent) {
     std::string result = INDENTATION(indent) + "void " + graph->graphName +

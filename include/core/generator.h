@@ -31,7 +31,7 @@ class Generator {
     Generator() = delete;
     Generator(Platform platform, Graph *graph, Shape pattern = {},
               int64_t cacheSize = 40960);
-    ~Generator() = default;
+    ~Generator();
 
     std::string generateHeaderFile(const std::string &filepath = "",
                                    const int64_t &indent = 0);

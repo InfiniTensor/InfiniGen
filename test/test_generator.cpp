@@ -42,10 +42,15 @@ int main() {
     delete b;
     delete c;
     delete d;
+    delete temp1;
+    delete temp2;
+    delete temp3;
+    delete output;
     delete add;
     delete sub;
     delete mul;
-    delete output;
+    delete sqrt;
     delete graph;
+    delete generator;
     return 0;
 }

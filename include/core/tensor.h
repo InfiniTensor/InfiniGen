@@ -40,7 +40,7 @@ class Tensor {
     Tensor(const Shape &shape,
            const TensorDataType &dataType = TensorDataType::FLOAT,
            const std::string &name = "");
-    ~Tensor() = default;
+    ~Tensor();
 
     Tiles tiling(const Shape &shape);
 
