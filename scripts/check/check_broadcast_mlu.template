@@ -1,31 +1,35 @@
-#include <cuda_runtime.h>
-#include <cuda.h>
+#include <cnrt.h>
 #include <cstdlib>
 #include <math.h>
 #include <random>
 #include <stdio.h>
 
-#define EPS 1e-5
+#define EPS 1e-7
 
 // 1. Definition of generated function
 {}
 int main(void) {
-    cudaStream_t queue;
-    cudaSetDevice(0);
-    cudaStreamCreate(&queue);
+    // 2. Shape
+    std::vector<int64_t> shape = {};
+    int64_t LEN = 1;
+    for (auto dim : shape) {
+        LEN *= dim;
+    }
+    cnrtQueue_t queue;
+    CNRT_CHECK(cnrtSetDevice(0));
+    CNRT_CHECK(cnrtQueueCreate(&queue));
 
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
+    cnrtNotifier_t start, end;
+    CNRT_CHECK(cnrtNotifierCreate(&start));
+    CNRT_CHECK(cnrtNotifierCreate(&end));
 
     std::random_device seed;
     std::ranlux48 engine(seed());
     std::uniform_real_distribution<> distrib(0, 100);
 
-    // 2. Host memory allocation
+    // 3. Host memory allocation
 {}
-    // 3. Maximum tensor length
-    for (int i = 0; i < {}; i++) {
+    for (int i = 0; i < LEN; i++) {
         // 4. Host memory initialization
 {}
     }
@@ -41,21 +45,19 @@ int main(void) {
         // 7. Warmup
         {}
     }
-    cudaEventRecord(start, queue);
+    CNRT_CHECK(cnrtPlaceNotifier(start, queue));
     for (int i = 0; i < timingRounds; i++) {
         // 8. Execute
         {}
     }
-    cudaStreamSynchronize(queue);
-    cudaEventRecord(end, queue);
-    cudaEventSynchronize(end);
+    cnrtQueueSync(queue);
+    CNRT_CHECK(cnrtPlaceNotifier(end, queue));
 
     // 9. Copy result to host
     {}
 
-    // 10. Output tensor length
-    for (int i = 0; i < {}; i++) {
-        // 11. Calculate baseline result
+    for (int i = 0; i < LEN; i++) {
+        // 10. Calculate baseline result
         {}
         if (fabsf(host_dest[i] - res) > EPS) {
             printf("Pos %d: %f expected, but %f got!\n", i, res, host_dest[i]);
@@ -63,12 +65,12 @@ int main(void) {
     }
 
     float timeTotal;
-    cudaEventElapsedTime(&timeTotal, start, end);
-    printf("Total Time: %.8f ms\n", timeTotal / timingRounds);
+    CNRT_CHECK(cnrtNotifierDuration(start, end, &timeTotal));
+    printf("Total Time: %.8f ms\n", timeTotal / timingRounds / 1000.0);
 
-    cudaStreamDestroy(queue);
+    CNRT_CHECK(cnrtQueueDestroy(queue));
 
-    // 12. Free pointers
+    // 11. Free pointers
 {}
     return 0;
 }

@@ -21,8 +21,7 @@ std::string LoadBang::code(Cache &cache, std::string &code, int64_t indent) {
     // use blockId/taskId to get offset
     std::string tileOffsetStr =
         operand->tensor->tensorName + " + " +
-        platform.offset(operand->tensor->tensorStride,
-                        operand->tensor->tileGridStride, operand->tileShape);
+        operand->getOffsetInTensor(operand->tileCoordsExpr);
 
     if (operand->tileShape.size() == 1) {
         code += INDENTATION(indent) + "__memcpy(" + cachePosStr + ", " +
@@ -68,8 +67,7 @@ std::string StoreBang::code(Cache &cache, std::string &code, int64_t indent) {
     // use blockId/taskId to get offset
     std::string tileOffsetStr =
         operand->tensor->tensorName + " + " +
-        platform.offset(operand->tensor->tensorStride,
-                        operand->tensor->tileGridStride, operand->tileShape);
+        operand->getOffsetInTensor(operand->tileCoordsExpr);
 
     if (operand->tileShape.size() == 1) {
         code += INDENTATION(indent) + "__memcpy(" + tileOffsetStr + ", " +

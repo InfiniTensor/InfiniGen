@@ -3,6 +3,7 @@
 #include "core/tile.h"
 #include "core/utils.h"
 #include <algorithm>
+#include <deque>
 #ifdef DEBUG_MODE
 #include <fmt/core.h>
 #include <fstream>
@@ -32,6 +33,8 @@ Generator::Generator(Platform platform_, Graph *graph_, Shape pattern_,
     std::vector<std::string> params;
     for (auto data : graph->graphInputs) {
         data->tiling(pattern);
+        data->tiles[0]->tileCoordsExpr =
+            data->tiles[0]->tileId2TileCoords(platform.taskId());
         tempRemainingUses[data] = data->tensorUsesLeft;
         params.push_back(dataTypeStr(data->tensorDataType) + " *" +
                          data->tensorName);
@@ -51,6 +54,38 @@ Generator::Generator(Platform platform_, Graph *graph_, Shape pattern_,
     code.params = STRING_GATHER(params);
     code.args = STRING_GATHER(args);
     code.dataType = STRING_SPLIT(params[0], ' ')[0];
+
+    // TODO
+    auto currentCoords = graph->graphInputs[0]->tiles[0]->tileCoordsExpr;
+    // Apply mapping
+    for (auto op : graph->graphOperators) {
+        if (op->operatorType == OperatorType::BROADCAST) {
+            op->operatorOutputs[0]->tiles[0]->tileCoordsExpr = currentCoords;
+            std::vector<std::string> inputTileCoords;
+            for (int i = 0; i < currentCoords.size(); i++) {
+                inputTileCoords.push_back(
+                    "(" + currentCoords[i] + " % " +
+                    std::to_string(op->operatorInputs[0]->tileGridShape[i]) +
+                    ")");
+            }
+            std::deque<Operator *> previousOps(op->operatorPredecessors.begin(),
+                                               op->operatorPredecessors.end());
+            while (!previousOps.empty()) {
+                auto ptr = previousOps.front();
+                for (auto input : ptr->operatorInputs) {
+                    input->tiles[0]->tileCoordsExpr = inputTileCoords;
+                }
+                previousOps.insert(previousOps.end(),
+                                   ptr->operatorPredecessors.begin(),
+                                   ptr->operatorPredecessors.end());
+                previousOps.pop_front();
+            }
+        } else {
+            for (auto output : op->operatorOutputs) {
+                output->tiles[0]->tileCoordsExpr = currentCoords;
+            }
+        }
+    }
 
     // Build micro list
     for (int i = 0; i < sortedOps.size(); i++) {
@@ -149,7 +184,7 @@ std::string Generator::generateSourceFile(const std::string &filepath,
     result += INDENTATION(indent) + "void " + graph->graphName + "(" +
               platform.queue() + " queue, " + code.params + ") {\n";
     result += INDENTATION(indent + 1) +
-              platform.taskScaleDecl(graph->graphInputs[0]->tiles) + "\n";
+              platform.taskScaleDecl(graph->graphOutputs[0]->tiles) + "\n";
     result += INDENTATION(indent + 1) + graph->graphName + "_global" +
               platform.syntacticSugar() + "(" + code.args + ");\n";
     result += INDENTATION(indent) + "}\n";
@@ -184,6 +219,12 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
 
     std::vector<std::string> args;
 
+    std::vector<int64_t> tensorLengths;
+    for (auto input : graph->graphInputs) {
+        tensorLengths.push_back(input->getElementNum());
+    }
+    tensorLengths.push_back(graph->graphOutputs[0]->getElementNum());
+
     std::vector<std::string> hostPointers;
     for (auto i = 0; i < graph->graphInputs.size(); i++) {
         hostPointers.push_back(fmt::format("host_src{}", i));
@@ -202,21 +243,24 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
     if (platform.isBANG()) {
         // 1. Generated func decl
         args.push_back(generateHeaderFile());
-        // 2. Shape
-        args.push_back(INITIALIZER(graph->graphOutputs[0]->tensorShape));
-        // 3. Host memory allocation
+        // 2. Host memory allocation
         std::string hostMemAlloc = "";
-        for (auto ptr : hostPointers) {
+        for (int i = 0; i < hostPointers.size(); i++) {
             hostMemAlloc +=
-                fmt::format("{0}{1} *{2} = ({1}*)malloc(LEN * sizeof({1}));\n",
-                            INDENTATION(2), code.dataType, ptr);
+                fmt::format("{0}{1} *{2} = ({1}*)malloc({3} * sizeof({1}));\n",
+                            INDENTATION(2), code.dataType, hostPointers[i],
+                            tensorLengths[i]);
         }
         args.push_back(hostMemAlloc);
+        // 3. Maximum tensor length
+        args.push_back(std::to_string(
+            *(std::max_element(tensorLengths.begin(), tensorLengths.end()))));
         // 4. Host memory initialization
         std::string hostMemInit = "";
         for (auto i = 0; i < hostPointers.size() - 1; i++) {
-            hostMemInit += fmt::format("{0}{1}[i] = distrib(engine);\n",
-                                       INDENTATION(4), hostPointers[i]);
+            hostMemInit +=
+                fmt::format("{0}if (i < {1}) {2}[i] = distrib(engine);\n",
+                            INDENTATION(4), tensorLengths[i], hostPointers[i]);
         }
         args.push_back(hostMemInit);
         // 5. Device memory allocation
@@ -225,21 +269,22 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
             deviceMemAlloc += fmt::format("{0}{1} *{2};\n", INDENTATION(2),
                                           code.dataType, ptr);
         }
-        for (auto ptr : devicePointers) {
+        for (auto i = 0; i < devicePointers.size(); i++) {
             deviceMemAlloc +=
-                fmt::format("{0}CNRT_CHECK(cnrtMalloc((void **)&{1}, LEN * "
-                            "sizeof({2})));\n",
-                            INDENTATION(2), ptr, code.dataType);
+                fmt::format("{0}CNRT_CHECK(cnrtMalloc((void **)&{1}, {2} * "
+                            "sizeof({3})));\n",
+                            INDENTATION(2), devicePointers[i], tensorLengths[i],
+                            code.dataType);
         }
         args.push_back(deviceMemAlloc);
         // 6. Device memory initialization
         std::string deviceMemInit = "";
         for (auto i = 0; i < devicePointers.size() - 1; i++) {
             deviceMemInit +=
-                fmt::format("{0}CNRT_CHECK(cnrtMemcpy({1}, {2}, LEN * "
-                            "sizeof({3}), cnrtMemcpyHostToDev));\n",
+                fmt::format("{0}CNRT_CHECK(cnrtMemcpy({1}, {2}, {3} * "
+                            "sizeof({4}), cnrtMemcpyHostToDev));\n",
                             INDENTATION(2), devicePointers[i], hostPointers[i],
-                            code.dataType);
+                            tensorLengths[i], code.dataType);
         }
         args.push_back(deviceMemInit);
         // 7 & 8. Warmup and Execute
@@ -248,15 +293,18 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
         args.push_back(exec);
         args.push_back(exec);
         // 9. Copy result to host
-        std::string resD2H = fmt::format(
-            "CNRT_CHECK(cnrtMemcpy({0}, {1}, LEN * sizeof({2}), "
-            "cnrtMemcpyDevToHost));",
-            hostPointers.back(), devicePointers.back(), code.dataType);
+        std::string resD2H =
+            fmt::format("CNRT_CHECK(cnrtMemcpy({0}, {1}, {2} * sizeof({3}), "
+                        "cnrtMemcpyDevToHost));",
+                        hostPointers.back(), devicePointers.back(),
+                        tensorLengths.back(), code.dataType);
         args.push_back(resD2H);
-        // 10. Calculate baseline
+        // 10. Output tensor length
+        args.push_back(std::to_string(tensorLengths.back()));
+        // 11. Calculate baseline
         std::string calc = fmt::format("{0} res = {1};", code.dataType, expr);
         args.push_back(calc);
-        // 11. Free pointers
+        // 12. Free pointers
         std::string freePtrs;
         for (auto ptr : devicePointers) {
             freePtrs += fmt::format("{0}cnrtFree({1});\n", INDENTATION(2), ptr);
@@ -269,21 +317,24 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
     } else if (platform.isCUDA()) {
         // 1. Generated func decl
         args.push_back(generateHeaderFile());
-        // 2. Shape
-        args.push_back(INITIALIZER(graph->graphOutputs[0]->tensorShape));
-        // 3. Host memory allocation
+        // 2. Host memory allocation
         std::string hostMemAlloc = "";
-        for (auto ptr : hostPointers) {
+        for (int i = 0; i < hostPointers.size(); i++) {
             hostMemAlloc +=
-                fmt::format("{0}{1} *{2} = ({1}*)malloc(LEN * sizeof({1}));\n",
-                            INDENTATION(2), code.dataType, ptr);
+                fmt::format("{0}{1} *{2} = ({1}*)malloc({3} * sizeof({1}));\n",
+                            INDENTATION(2), code.dataType, hostPointers[i],
+                            tensorLengths[i]);
         }
         args.push_back(hostMemAlloc);
+        // 3. Maximum tensor length
+        args.push_back(std::to_string(
+            *(std::max_element(tensorLengths.begin(), tensorLengths.end()))));
         // 4. Host memory initialization
         std::string hostMemInit = "";
         for (auto i = 0; i < hostPointers.size() - 1; i++) {
-            hostMemInit += fmt::format("{0}{1}[i] = distrib(engine);\n",
-                                       INDENTATION(4), hostPointers[i]);
+            hostMemInit +=
+                fmt::format("{0}if (i < {1}) {2}[i] = distrib(engine);\n",
+                            INDENTATION(4), tensorLengths[i], hostPointers[i]);
         }
         args.push_back(hostMemInit);
         // 5. Device memory allocation
@@ -292,20 +343,21 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
             deviceMemAlloc += fmt::format("{0}{1} *{2};\n", INDENTATION(2),
                                           code.dataType, ptr);
         }
-        for (auto ptr : devicePointers) {
-            deviceMemAlloc += fmt::format("{0}cudaMalloc((void **)&{1}, LEN * "
-                                          "sizeof({2}));\n",
-                                          INDENTATION(2), ptr, code.dataType);
+        for (auto i = 0; i < devicePointers.size(); i++) {
+            deviceMemAlloc += fmt::format("{0}cudaMalloc((void **)&{1}, {2} * "
+                                          "sizeof({3}));\n",
+                                          INDENTATION(2), devicePointers[i],
+                                          tensorLengths[i], code.dataType);
         }
         args.push_back(deviceMemAlloc);
         // 6. Device memory initialization
         std::string deviceMemInit = "";
         for (auto i = 0; i < devicePointers.size() - 1; i++) {
             deviceMemInit +=
-                fmt::format("{0}cudaMemcpy({1}, {2}, LEN * "
-                            "sizeof({3}), cudaMemcpyHostToDevice);\n",
+                fmt::format("{0}cudaMemcpy({1}, {2}, {3} * "
+                            "sizeof({4}), cudaMemcpyHostToDevice);\n",
                             INDENTATION(2), devicePointers[i], hostPointers[i],
-                            code.dataType);
+                            tensorLengths[i], code.dataType);
         }
         args.push_back(deviceMemInit);
         // 7 & 8. Warmup and Execute
@@ -314,15 +366,18 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
         args.push_back(exec);
         args.push_back(exec);
         // 9. Copy result to host
-        std::string resD2H = fmt::format(
-            "cudaMemcpy({0}, {1}, LEN * sizeof({2}), "
-            "cudaMemcpyDeviceToHost);",
-            hostPointers.back(), devicePointers.back(), code.dataType);
+        std::string resD2H =
+            fmt::format("cudaMemcpy({0}, {1}, {2} * sizeof({3}), "
+                        "cudaMemcpyDeviceToHost);",
+                        hostPointers.back(), devicePointers.back(),
+                        tensorLengths.back(), code.dataType);
         args.push_back(resD2H);
-        // 10. Calculate baseline
+        // 10. Output tensor length
+        args.push_back(std::to_string(tensorLengths.back()));
+        // 11. Calculate baseline
         std::string calc = fmt::format("{0} res = {1};", code.dataType, expr);
         args.push_back(calc);
-        // 11. Free pointers
+        // 12. Free pointers
         std::string freePtrs;
         for (auto ptr : devicePointers) {
             freePtrs += fmt::format("{0}cudaFree({1});\n", INDENTATION(2), ptr);

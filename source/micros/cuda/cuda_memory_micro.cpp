@@ -21,12 +21,8 @@ std::string LoadCuda::code(Cache &cache, std::string &code, int64_t indent) {
     // use blockId/threadId to get element offset
     std::string threadOffsetStr =
         operand->tensor->tensorName + "[" +
-        platform.offset(operand->tensor->tensorStride,
-                        operand->tensor->tileGridStride, operand->tileShape) +
-        " + " +
-        platform.offset(operand->tensor->tensorStride, operand->tileStride,
-                        std::vector<int64_t>(operand->tileShape.size(), 1),
-                        true) +
+        operand->getElementOffsetInTensor(operand->tileCoordsExpr,
+                                          platform.threadId()) +
         "]";
 
     code += INDENTATION(indent) + cachePosStr + " = " + threadOffsetStr + ";\n";
@@ -45,12 +41,8 @@ std::string StoreCuda::code(Cache &cache, std::string &code, int64_t indent) {
     // use blockId/threadId to get element offset
     std::string threadOffsetStr =
         operand->tensor->tensorName + "[" +
-        platform.offset(operand->tensor->tensorStride,
-                        operand->tensor->tileGridStride, operand->tileShape) +
-        " + " +
-        platform.offset(operand->tensor->tensorStride, operand->tileStride,
-                        std::vector<int64_t>(operand->tileShape.size(), 1),
-                        true) +
+        operand->getElementOffsetInTensor(operand->tileCoordsExpr,
+                                          platform.threadId()) +
         "]";
 
     code += INDENTATION(indent) + threadOffsetStr + " = " + cachePosStr + ";\n";

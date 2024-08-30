@@ -239,7 +239,7 @@ const std::string Platform::offset(std::vector<int64_t> tensorStride,
     if (tileShape.size() == 3) {
         /* (tileId / tileGridStride[0]) * tileShape[0] * tensorStride[0] +
            (tileId % tileGridStride[0]) / tileGridStride[1] * tileShape[1] *
-           tensorStride[1] + (tileId % (tileGridStride[0] * tileGridStride[1]))
+           tensorStride[1] + ((tileId % tileGridStride[0]) % tileGridStride[1])
            * tileShape[2] * tensorStride[2] */
         result += "((int)(" + index + " / " +
                   std::to_string(tileGridStride[0]) + ") * " +

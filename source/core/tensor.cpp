@@ -94,4 +94,10 @@ void Tensor::addConsumer(Operator *consumer) {
     tensorConsumers.push_back(consumer);
 }
 
+int64_t Tensor::getElementNum() { return VECTOR_PRODUCT(tensorShape); }
+
+int64_t Tensor::getSizeInBytes() {
+    return VECTOR_PRODUCT(tensorShape) * SIZE_OF(tensorDataType);
+}
+
 } // namespace infini

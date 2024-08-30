@@ -10,11 +10,10 @@ class Tensor;
 
 class Tile {
   public:
-    /** Tensor Information **/
-    // Tensor
+    // Tensor Information
     Tensor *tensor;
 
-    /** Tile Information */
+    // Tile Information
     std::string tileName;
     uint64_t tileOffset;
     Shape tileStartPoint;
@@ -22,6 +21,9 @@ class Tile {
 
     Shape tileShape;
     Shape tileStride;
+
+    // Codegen Information
+    std::vector<std::string> tileCoordsExpr;
 
   public:
     Tile() = delete;
@@ -34,6 +36,17 @@ class Tile {
 
     int64_t getElementNum();
     int64_t getSizeInBytes();
+
+    // For codegen
+    std::vector<std::string> tileId2TileCoords(std::string tileId);
+    std::string getOffsetInTensor(std::vector<std::string> tileCoords);
+    std::string getOffsetInTensor(std::string tileId);
+    // Cuda only
+    std::string getElementOffsetInTile(std::string threadId);
+    std::string getElementOffsetInTensor(std::string blockId,
+                                         std::string threadId);
+    std::string getElementOffsetInTensor(std::vector<std::string> tileCoords,
+                                         std::string threadId);
 };
 
 } // namespace infini

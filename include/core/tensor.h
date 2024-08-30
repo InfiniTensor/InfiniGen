@@ -49,6 +49,9 @@ class Tensor {
 
     std::string info(bool print = true);
     std::string tilesInfo(bool print = true);
+
+    int64_t getElementNum();
+    int64_t getSizeInBytes();
 };
 
 } // namespace infini
