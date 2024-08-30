@@ -33,15 +33,15 @@ int main() {
         new Graph({add, sub, mul, bcast, sqrt}, {a, b, c, d}, {output});
     graph->info();
 
-    Generator *generator = new Generator(Platform::BANG, graph, {1, 4, 4});
+    Generator *generator = new Generator(Platform::CUDA, graph, {1, 4, 4});
     LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
-    LOG(INFO) << generator->generateSourceFile("build/code/test.mlu");
-    COMPILE("build/code/test.mlu", "build/bin/", Platform::BANG);
+    LOG(INFO) << generator->generateSourceFile("build/code/test.cu");
+    COMPILE("build/code/test.cu", "build/bin/", Platform::CUDA);
 
 #ifdef DEBUG_MODE
-    // generator->generateTestScript(
-    //     "scripts/check/check_elementwise_mlu.template",
-    //     "sqrtf((0 + 1 - 2) * 3)", "build/bin/test.cpp");
+    generator->generateTestScript(
+        "scripts/check/check_elementwise_gpu.template",
+        "sqrtf((0 + 1 - 2) * 3)", "build/bin/test.cpp");
 #endif
     delete a;
     delete b;
@@ -50,10 +50,12 @@ int main() {
     delete temp1;
     delete temp2;
     delete temp3;
+    delete temp4;
     delete output;
     delete add;
     delete sub;
     delete mul;
+    delete bcast;
     delete sqrt;
     delete graph;
     delete generator;

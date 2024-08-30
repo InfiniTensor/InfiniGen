@@ -28,14 +28,14 @@ int main() {
     Graph *graph = new Graph({add, sub, mul, sqrt}, {a, b, c, d}, {output});
     graph->info();
 
-    Generator *generator = new Generator(Platform::BANG, graph, {4, 8, 8});
+    Generator *generator = new Generator(Platform::CUDA, graph, {4, 8, 8});
     LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
-    LOG(INFO) << generator->generateSourceFile("build/code/test.mlu");
-    COMPILE("build/code/test.mlu", "build/bin/", Platform::BANG);
+    LOG(INFO) << generator->generateSourceFile("build/code/test.cu");
+    COMPILE("build/code/test.cu", "build/bin/", Platform::CUDA);
 
 #ifdef DEBUG_MODE
     generator->generateTestScript(
-        "scripts/check/check_elementwise_mlu.template",
+        "scripts/check/check_elementwise_gpu.template",
         "sqrtf((0 + 1 - 2) * 3)", "build/bin/test.cpp");
 #endif
     delete a;
