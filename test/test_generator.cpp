@@ -36,7 +36,7 @@ int main() {
 #ifdef DEBUG_MODE
     generator->generateTestScript(
         "scripts/check/check_elementwise_gpu.template",
-        "sqrtf((0 + 1 - 2) * 3)", "build/bin/test.cpp");
+        "sqrtf((0[i] + 1[i] - 2[i]) * 3[i])", "build/bin/test.cpp");
 #endif
     delete a;
     delete b;

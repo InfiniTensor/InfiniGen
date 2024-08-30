@@ -39,9 +39,11 @@ int main() {
     COMPILE("build/code/test.cu", "build/bin/", Platform::CUDA);
 
 #ifdef DEBUG_MODE
+    // Use template for elementwise at the moment 
     generator->generateTestScript(
         "scripts/check/check_elementwise_gpu.template",
-        "sqrtf((0 + 1 - 2) * 3)", "build/bin/test.cpp");
+        "sqrtf((0[i % 128] + 1[i % 128] - 2[i % 128]) * 3[i % 128])",
+        "build/bin/test.cpp");
 #endif
     delete a;
     delete b;

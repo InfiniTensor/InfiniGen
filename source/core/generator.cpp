@@ -236,9 +236,9 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
     }
     devicePointers.push_back("dev_dest");
 
-    std::regex number("(\\d+)");
+    std::regex number("(\\d+)\\[");
     std::string expr =
-        std::regex_replace(formula, number, std::string("host_src$1[i]"));
+        std::regex_replace(formula, number, std::string("host_src$1["));
 
     if (platform.isBANG()) {
         // 1. Generated func decl
