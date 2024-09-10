@@ -1,0 +1,16 @@
+[project]
+name = "infinigen"
+version = "0.1.0"
+dependencies = ["ninetoothed"]
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+[tool.ruff]
+src = [".", "src", "tests"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
