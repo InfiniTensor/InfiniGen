@@ -12,6 +12,7 @@ const std::string Platform::deviceFuncDecl(std::string name) const {
     switch (type) {
         CASE(CUDA, "__device__ void " + name);
         CASE(BANG, "__mlu_func__ void " + name);
+        CASE(ASCEND, "__aicore__ inline void " + name);
     default:
         return "";
     }
@@ -21,6 +22,7 @@ const std::string Platform::globalFuncDecl(std::string name) const {
     switch (type) {
         CASE(CUDA, "__global__ void " + name);
         CASE(BANG, "__mlu_entry__ void " + name);
+        CASE(ASCEND, "extern \"C\" __global__ __aicore__ void " + name);
     default:
         return "";
     }
@@ -65,6 +67,7 @@ const std::string Platform::taskId() const {
              "(blockIdx.x + blockIdx.y * gridDim.x + blockIdx.z * gridDim.x * "
              "gridDim.y)");
         CASE(BANG, "taskId");
+        CASE(ASCEND, "GetBlockIdx()");
     default:
         return "";
     }
@@ -97,6 +100,7 @@ const std::string Platform::regDecl(std::string datatype,
     switch (type) {
         CASE(CUDA, datatype + " " + name);
         CASE(BANG, "__nram__ " + datatype + " " + name);
+        CASE(ASCEND, "LocalTensor<" + datatype + "> " + name);
     default:
         return "";
     }
@@ -107,6 +111,7 @@ const std::string Platform::ldramDecl(std::string datatype,
     switch (type) {
         CASE(CUDA, datatype + " " + name); // 不确定是不是这个
         CASE(BANG, "__ldram__ " + datatype + " " + name);
+        CASE(ASCEND, "");
     default:
 
         return "";
@@ -118,6 +123,7 @@ const std::string Platform::shmemDecl(std::string datatype,
     switch (type) {
         CASE(CUDA, "__shared__ " + datatype + " " + name);
         CASE(BANG, "__mlu_shared__ " + datatype + " " + name);
+        CASE(ASCEND, "");
     default:
         return "";
     }
@@ -128,6 +134,7 @@ const std::string Platform::glmemDecl(std::string datatype,
     switch (type) {
         CASE(CUDA, "__device__ " + datatype + " " + name);
         CASE(BANG, "__mlu_device__ " + datatype + " " + name);
+        CASE(ASCEND, "GlobalTensor<" + datatype + "> " + name);
     default:
         return "";
     }
@@ -137,6 +144,7 @@ const std::string Platform::queue() const {
     switch (type) {
         CASE(CUDA, "cudaStream_t");
         CASE(BANG, "cnrtQueue_t");
+        CASE(ASCEND, "aclrtStream");
     default:
         return "";
     }
@@ -146,6 +154,8 @@ const std::string Platform::head() const {
     switch (type) {
         CASE(CUDA, "#include <cuda.h>");
         CASE(BANG, "#include <bang.h>");
+        CASE(ASCEND,
+             "#include \"kernel_operator.h\"\nusing namespace AscendC;");
     default:
         return "";
     }
@@ -155,6 +165,7 @@ const char *Platform::toString() const {
     switch (type) {
         CASE(CUDA, "CUDA");
         CASE(BANG, "BANG");
+        CASE(ASCEND, "ASCEND");
     default:
         return "Unknown";
     }
@@ -170,6 +181,7 @@ const std::string Platform::taskScaleDecl(Tiles tiles) const {
 
         CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_cores, 4)) +
                        ", 1, 1};");
+        CASE(ASCEND, "int numBlocks = " + std::to_string(num_cores) + ";");
     default:
         return "";
     }
@@ -200,6 +212,7 @@ const std::string Platform::syntacticSugar() const {
     switch (type) {
         CASE(CUDA, "<<<numBlocks, threadsPerBlock, 0, queue>>>");
         CASE(BANG, "<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>");
+        CASE(ASCEND, "<<<numBlocks, nullptr, queue>>>");
     default:
         return "";
     }
@@ -279,6 +292,11 @@ const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
         CASE(CUDA, "char " + name + "[" + std::to_string(cache_size) + "];");
         CASE(BANG,
              "__nram__ char " + name + "[" + std::to_string(cache_size) + "];");
+        CASE(ASCEND, "TPipe pipe;TBuf<TPosition::VECCALC> tbuf;"
+                     " pipe.InitBuffer(tbuf, " +
+                         std::to_string(cache_size) + "); LocalTensor<" +
+                         datatype + "> " + name + " = tbuf.Get<" + datatype +
+                         ">();");
     default:
         return "";
     }
@@ -298,5 +316,7 @@ const std::string Platform::ldramDecl(std::string name,
 bool Platform::isCUDA() const { return type == Platform::CUDA; }
 
 bool Platform::isBANG() const { return type == Platform::BANG; }
+
+bool Platform::isASCEND() const { return type == Platform::ASCEND; }
 
 } // namespace infini

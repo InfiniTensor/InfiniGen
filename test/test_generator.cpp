@@ -2,7 +2,7 @@
 
 int main() {
     using namespace infini;
-    std::vector<int64_t> shape = {8, 32, 16};
+    std::vector<int64_t> shape = {1024};
     Tensor *a = new Tensor(shape);
     Tensor *b = new Tensor(shape);
     Tensor *c = new Tensor(shape);
@@ -28,10 +28,10 @@ int main() {
     Graph *graph = new Graph({add, sub, mul, sqrt}, {a, b, c, d}, {output});
     graph->info();
 
-    Generator *generator = new Generator(Platform::CUDA, graph, {4, 8, 8});
+    Generator *generator = new Generator(Platform::ASCEND, graph, {1024});
     LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
-    LOG(INFO) << generator->generateSourceFile("build/code/test.cu");
-    COMPILE("build/code/test.cu", "build/bin/", Platform::CUDA);
+    LOG(INFO) << generator->generateSourceFile("build/code/test.cpp");
+    // COMPILE("build/code/test.cu", "build/bin/", Platform::CUDA);
 
 #ifdef DEBUG_MODE
     generator->generateTestScript(

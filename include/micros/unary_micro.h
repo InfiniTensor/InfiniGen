@@ -76,6 +76,16 @@ UNARY_DEF(Cos, Bang, Platform::BANG);
 UNARY_DEF(Sin, Bang, Platform::BANG);
 UNARY_DEF(Tanh, Bang, Platform::BANG);
 
+UNARY_DEF(Sqrt, Ascend, Platform::ASCEND);
+UNARY_DEF(Sigmoid, Ascend, Platform::ASCEND);
+UNARY_DEF(Relu, Ascend, Platform::ASCEND);
+UNARY_DEF(RSqrt, Ascend, Platform::ASCEND);
+UNARY_DEF(Recip, Ascend, Platform::ASCEND);
+UNARY_DEF(Cos, Ascend, Platform::ASCEND);
+UNARY_DEF(Sin, Ascend, Platform::ASCEND);
+UNARY_DEF(Tanh, Ascend, Platform::ASCEND);
+UNARY_DEF(Abs, Ascend, Platform::ASCEND);
+
 #undef MAKEOBJ
 #undef UNARY_DEF
 

@@ -112,6 +112,20 @@ BINARY_DEF(Xor, Bang, Platform::BANG);
 BINARY_DEF(FloorMod, Bang, Platform::BANG);
 BINARY_DEF(FloorDiv, Bang, Platform::BANG);
 
+BINARY_DEF(Add, Ascend, Platform::ASCEND);
+BINARY_DEF(Sub, Ascend, Platform::ASCEND);
+BINARY_DEF(Mul, Ascend, Platform::ASCEND);
+BINARY_DEF(Div, Ascend, Platform::ASCEND);
+BINARY_DEF(Eq, Ascend, Platform::ASCEND);
+BINARY_DEF(Ge, Ascend, Platform::ASCEND);
+BINARY_DEF(Gt, Ascend, Platform::ASCEND);
+BINARY_DEF(Le, Ascend, Platform::ASCEND);
+BINARY_DEF(Lt, Ascend, Platform::ASCEND);
+BINARY_DEF(Ne, Ascend, Platform::ASCEND);
+BINARY_DEF(And, Ascend, Platform::ASCEND);
+BINARY_DEF(Or, Ascend, Platform::ASCEND);
+BINARY_DEF(Xor, Ascend, Platform::ASCEND);
+
 #undef MAKEOBJ
 #undef BINARY_DEF
 } // namespace infini
