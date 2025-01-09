@@ -31,13 +31,13 @@ int main() {
     Generator *generator = new Generator(Platform::ASCEND, graph, {1024});
     LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
     LOG(INFO) << generator->generateSourceFile("build/code/test.cpp");
-    // COMPILE("build/code/test.cu", "build/bin/", Platform::CUDA);
+    COMPILE("build/code/test.cpp", "build/bin/", Platform::ASCEND);
 
-#ifdef DEBUG_MODE
-    generator->generateTestScript(
-        "scripts/check/check_elementwise_gpu.template",
-        "sqrtf((0[i] + 1[i] - 2[i]) * 3[i])", "build/bin/test.cpp");
-#endif
+// #ifdef DEBUG_MODE
+//     generator->generateTestScript(
+//         "scripts/check/check_elementwise_gpu.template",
+//         "sqrtf((0[i] + 1[i] - 2[i]) * 3[i])", "build/bin/test.cpp");
+// #endif
     delete a;
     delete b;
     delete c;
