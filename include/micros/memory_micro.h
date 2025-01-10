@@ -78,7 +78,6 @@ MEMORY_DEF(Allocate, Ascend, Platform::ASCEND);
 MEMORY_DEF(Store, Ascend, Platform::ASCEND);
 MEMORY_DEF(Free, Ascend, Platform::ASCEND);
 
-
 #undef MAKEOBJ
 #undef MEMORY_DEF
 } // namespace infini

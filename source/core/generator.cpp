@@ -36,7 +36,7 @@ Generator::Generator(Platform platform_, Graph *graph_, Shape pattern_,
         data->tiles[0]->tileCoordsExpr =
             data->tiles[0]->tileId2TileCoords(platform.taskId());
         tempRemainingUses[data] = data->tensorUsesLeft;
-        params.push_back(dataTypeStr(data->tensorDataType) + " *" +
+        params.push_back(dataTypeStr(data->tensorDataType) + "* " +
                          data->tensorName);
         args.push_back(data->tensorName);
     }
@@ -47,13 +47,22 @@ Generator::Generator(Platform platform_, Graph *graph_, Shape pattern_,
     for (auto data : graph->graphOutputs) {
         data->tiling(pattern);
         tempRemainingUses[data] = data->tensorUsesLeft;
-        params.push_back(dataTypeStr(data->tensorDataType) + " *" +
+        params.push_back(dataTypeStr(data->tensorDataType) + "* " +
                          data->tensorName);
         args.push_back(data->tensorName);
     }
     code.params = STRING_GATHER(params);
     code.args = STRING_GATHER(args);
-    code.dataType = STRING_SPLIT(params[0], ' ')[0];
+    code.dataType = STRING_SPLIT(params[0], '*')[0];
+    if (platform == Platform::ASCEND) {
+        std::vector<std::string> paramsOnChip;
+        std::transform(params.begin(), params.end(),
+                       std::back_inserter(paramsOnChip),
+                       [](const std::string &s) { return "__gm__ " + s; });
+        code.paramsOnChip = STRING_GATHER(paramsOnChip);
+    } else {
+        code.paramsOnChip = code.params;
+    }
 
     // TODO
     auto currentCoords = graph->graphInputs[0]->tiles[0]->tileCoordsExpr;
@@ -160,7 +169,7 @@ std::string Generator::generateSourceFile(const std::string &filepath,
     // TODO: multiple tasks
     result += INDENTATION(indent) +
               platform.deviceFuncDecl(graph->graphName + "_device") + "(" +
-              code.params + ") {\n";
+              code.paramsOnChip + ") {\n";
     result +=
         INDENTATION(indent + 1) +
         platform.cacheDecl(cache.cacheName, cache.cacheSize, code.dataType) +
@@ -174,7 +183,7 @@ std::string Generator::generateSourceFile(const std::string &filepath,
     // Global Function
     result += INDENTATION(indent) +
               platform.globalFuncDecl(graph->graphName + "_global") + "(" +
-              code.params + ") {\n";
+              code.paramsOnChip + ") {\n";
     result += INDENTATION(indent + 1) + graph->graphName + "_device(" +
               code.args + ");\n";
     result += INDENTATION(indent) + "}\n";

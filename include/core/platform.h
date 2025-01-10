@@ -9,7 +9,7 @@ namespace infini {
 struct Platform {
     using underlying_t = uint16_t;
 
-    enum : underlying_t { CUDA, BANG, ASCEND} type;
+    enum : underlying_t { CUDA, BANG, ASCEND } type;
 
     constexpr Platform(decltype(type) t) : type(t) {}
     constexpr explicit Platform(underlying_t val) : type((decltype(type))val) {}

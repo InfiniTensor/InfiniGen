@@ -22,7 +22,7 @@ const std::string Platform::globalFuncDecl(std::string name) const {
     switch (type) {
         CASE(CUDA, "__global__ void " + name);
         CASE(BANG, "__mlu_entry__ void " + name);
-        CASE(ASCEND, "extern \"C\" __global__ __aicore__ void " + name);
+        CASE(ASCEND, "__global__ __aicore__ void " + name);
     default:
         return "";
     }
@@ -144,7 +144,7 @@ const std::string Platform::queue() const {
     switch (type) {
         CASE(CUDA, "cudaStream_t");
         CASE(BANG, "cnrtQueue_t");
-        CASE(ASCEND, "aclrtStream");
+        CASE(ASCEND, "void*");
     default:
         return "";
     }
@@ -292,7 +292,7 @@ const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
         CASE(CUDA, "char " + name + "[" + std::to_string(cache_size) + "];");
         CASE(BANG,
              "__nram__ char " + name + "[" + std::to_string(cache_size) + "];");
-        CASE(ASCEND, "TPipe pipe;TBuf<TPosition::VECCALC> tbuf;"
+        CASE(ASCEND, "TPipe pipe; TBuf<TPosition::VECCALC> tbuf;"
                      " pipe.InitBuffer(tbuf, " +
                          std::to_string(cache_size) + "); LocalTensor<" +
                          datatype + "> " + name + " = tbuf.Get<" + datatype +

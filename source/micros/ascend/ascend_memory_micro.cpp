@@ -22,10 +22,9 @@ std::string LoadAscend::code(Cache &cache, std::string &code, int64_t indent) {
     std::string gmDecl =
         platform.glmemDecl(dataTypeStr(dataType), tensorName + "Gm;\n");
 
-    std::string gmInit = tensorName + "Gm.SetGlobalBuffer((__gm__ " +
-                         dataTypeStr(dataType) + " *)" + tensorName + " + " + 
-                         operand->getOffsetInTensor(operand->tileCoordsExpr)
-                         +
+    std::string gmInit = tensorName + "Gm.SetGlobalBuffer(" + tensorName +
+                         " + " +
+                         operand->getOffsetInTensor(operand->tileCoordsExpr) +
                          ", " + lengthStr + ");\n";
 
     code += INDENTATION(indent) + gmDecl;
@@ -51,9 +50,20 @@ std::string StoreAscend::code(Cache &cache, std::string &code, int64_t indent) {
     Block *block = cache.load(operand);
     std::string cachePosStr =
         cache.cacheName + "[" + std::to_string(block->blockStart) + "]";
+    std::string tensorName = operand->tensor->tensorName;
+    std::string gmDecl =
+        platform.glmemDecl(dataTypeStr(dataType), tensorName + "Gm;\n");
+
+    std::string gmInit = tensorName + "Gm.SetGlobalBuffer(" + tensorName +
+                         " + " +
+                         operand->getOffsetInTensor(operand->tileCoordsExpr) +
+                         ", " + lengthStr + ");\n";
+
+    code += INDENTATION(indent) + gmDecl;
+    code += INDENTATION(indent) + gmInit;
 
     std::string tileOffsetStr =
-        operand->tensor->tensorName + "[" +
+        operand->tensor->tensorName + "Gm[" +
         operand->getOffsetInTensor(operand->tileCoordsExpr) + "]";
 
     if (operand->tileShape.size() == 1) {
