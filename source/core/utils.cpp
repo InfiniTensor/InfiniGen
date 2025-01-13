@@ -25,6 +25,17 @@ void COMPILE(std::string input_file_path, std::string output_binary_directory,
                  output_binary_directory + "lib" + file_name + ".so " +
                  input_file_path + " -O3 --extended-lambda";
         system(shell.c_str());
+    } else if (platform == Platform::ASCEND) {
+        file_path_split.pop_back();
+        std::string code_path = STRING_GATHER(file_path_split, "/");
+        shell += "sed 's/{}/" + file_name +
+                 "/g' ./scripts/ascend/CMakeLists.txt > " + code_path +
+                 "/CMakeLists.txt;";
+        shell += "cmake -S " + code_path + " -B " + code_path +
+                 "/build && make -C " + code_path + "/build;";
+        shell += "cp " + code_path + "/build/lib/lib" + file_name + ".so " +
+                 output_binary_directory;
+        system(shell.c_str());
     }
     return;
 }

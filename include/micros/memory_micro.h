@@ -66,6 +66,18 @@ MEMORY_DEF(Allocate, Bang, Platform::BANG);
 MEMORY_DEF(Store, Bang, Platform::BANG);
 MEMORY_DEF(Free, Bang, Platform::BANG);
 
+/**
+ * Ascend memory micro implementation, including
+ *  1. LoadAscend
+ *  2. AllocateAscend
+ *  3. StoreAscend
+ *  4. FreeAscend
+ */
+MEMORY_DEF(Load, Ascend, Platform::ASCEND);
+MEMORY_DEF(Allocate, Ascend, Platform::ASCEND);
+MEMORY_DEF(Store, Ascend, Platform::ASCEND);
+MEMORY_DEF(Free, Ascend, Platform::ASCEND);
+
 #undef MAKEOBJ
 #undef MEMORY_DEF
 } // namespace infini
