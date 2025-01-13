@@ -33,11 +33,11 @@ int main() {
     LOG(INFO) << generator->generateSourceFile("build/code/test.cpp");
     COMPILE("build/code/test.cpp", "build/bin/", Platform::ASCEND);
 
-    // #ifdef DEBUG_MODE
-    //     generator->generateTestScript(
-    //         "scripts/check/check_elementwise_gpu.template",
-    //         "sqrtf((0[i] + 1[i] - 2[i]) * 3[i])", "build/bin/test.cpp");
-    // #endif
+#ifdef DEBUG_MODE
+    generator->generateTestScript(
+        "scripts/check/check_elementwise_npu.template",
+        "sqrtf((0[i] + 1[i] - 2[i]) * 3[i])", "build/bin/test.cpp");
+#endif
     delete a;
     delete b;
     delete c;

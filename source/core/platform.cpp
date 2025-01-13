@@ -22,7 +22,7 @@ const std::string Platform::globalFuncDecl(std::string name) const {
     switch (type) {
         CASE(CUDA, "__global__ void " + name);
         CASE(BANG, "__mlu_entry__ void " + name);
-        CASE(ASCEND, "__global__ __aicore__ void " + name);
+        CASE(ASCEND, "extern \"C\" __global__ __aicore__ void " + name);
     default:
         return "";
     }

@@ -1,0 +1,86 @@
+#include <acl/acl.h>
+#include <cstdlib>
+#include <math.h>
+#include <random>
+#include <iostream>
+#include <stdio.h>
+
+#define EPS 1e-5
+
+#define CHECK_ACL(x)                                                                        \
+    do {                                                                                    \
+        aclError __ret = x;                                                                 \
+        if (__ret != ACL_ERROR_NONE) {                                                      \
+            std::cerr << __FILE__ << ":" << __LINE__ << " aclError:" << __ret << std::endl; \
+        }                                                                                   \
+    } while (0);
+
+// 1. Definition of generated function
+{}
+int main(void) {
+    CHECK_ACL(aclInit(nullptr));
+    int32_t deviceId = 0;
+    CHECK_ACL(aclrtSetDevice(deviceId));
+    aclrtStream queue = nullptr;
+    CHECK_ACL(aclrtCreateStream(&queue));
+
+    aclrtEvent start, end;
+    CHECK_ACL(aclrtCreateEvent(&start));
+    CHECK_ACL(aclrtCreateEvent(&end));
+
+    std::random_device seed;
+    std::ranlux48 engine(seed());
+    std::uniform_real_distribution<> distrib(0, 100);
+
+    // 2. Host memory allocation
+{}
+    // 3. Maximum tensor length
+    for (int i = 0; i < {}; i++) {
+        // 4. Host memory initialization
+{}
+    }
+
+    // 5. Device memory allocation
+{}
+    // 6. Device memory initialization
+{}
+    int warmupRounds = 100;
+    int timingRounds = 200;
+
+    for (int i = 0; i < warmupRounds; i++) {
+        // 7. Warmup
+        {}
+    }
+    CHECK_ACL(aclrtRecordEvent(start, queue));
+    for (int i = 0; i < timingRounds; i++) {
+        // 8. Execute
+        {}
+    }
+    CHECK_ACL(aclrtSynchronizeStream(queue));
+    CHECK_ACL(aclrtRecordEvent(end, queue));
+    CHECK_ACL(aclrtSynchronizeStream(queue));
+
+    // 9. Copy result to host
+    {}
+
+    // 10. Output tensor length
+    for (int i = 0; i < {}; i++) {
+        // 11. Calculate baseline result
+        {}
+        if (fabsf(host_dest[i] - res) > EPS) {
+            printf("Pos %d: %f expected, but %f got!\n", i, res, host_dest[i]);
+        }
+    }
+
+    float timeTotal;
+    CHECK_ACL(aclrtEventElapsedTime(&timeTotal, start, end));
+    printf("Total Time: %.8f ms\n", timeTotal / timingRounds);
+
+    CHECK_ACL(aclrtDestroyStream(queue));
+    CHECK_ACL(aclrtDestroyEvent(start));
+    CHECK_ACL(aclrtDestroyEvent(end));
+
+    // 12. Free pointers
+{}
+    return 0;
+}
