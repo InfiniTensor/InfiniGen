@@ -126,6 +126,20 @@ BINARY_DEF(And, Ascend, Platform::ASCEND);
 BINARY_DEF(Or, Ascend, Platform::ASCEND);
 BINARY_DEF(Xor, Ascend, Platform::ASCEND);
 
+BINARY_DEF(Add, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Sub, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Mul, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Div, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Eq, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Ge, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Gt, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Le, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Lt, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Ne, Kunlun, Platform::KUNLUN);
+BINARY_DEF(And, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Or, Kunlun, Platform::KUNLUN);
+BINARY_DEF(Xor, Kunlun, Platform::KUNLUN);
+
 #undef MAKEOBJ
 #undef BINARY_DEF
 } // namespace infini

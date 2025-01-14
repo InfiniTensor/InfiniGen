@@ -78,6 +78,18 @@ MEMORY_DEF(Allocate, Ascend, Platform::ASCEND);
 MEMORY_DEF(Store, Ascend, Platform::ASCEND);
 MEMORY_DEF(Free, Ascend, Platform::ASCEND);
 
+/**
+ * Kunlun memory micro implementation, including
+ *  1. LoadKunlun
+ *  2. AllocateKunlun
+ *  3. StoreKunlun
+ *  4. FreeKunlun
+ */
+MEMORY_DEF(Load, Kunlun, Platform::KUNLUN);
+MEMORY_DEF(Allocate, Kunlun, Platform::KUNLUN);
+MEMORY_DEF(Store, Kunlun, Platform::KUNLUN);
+MEMORY_DEF(Free, Kunlun, Platform::KUNLUN);
+
 #undef MAKEOBJ
 #undef MEMORY_DEF
 } // namespace infini

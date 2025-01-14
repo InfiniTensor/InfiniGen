@@ -319,4 +319,6 @@ bool Platform::isBANG() const { return type == Platform::BANG; }
 
 bool Platform::isASCEND() const { return type == Platform::ASCEND; }
 
+bool Platform::isKUNLUN() const { return type == Platform::KUNLUN; }
+
 } // namespace infini
