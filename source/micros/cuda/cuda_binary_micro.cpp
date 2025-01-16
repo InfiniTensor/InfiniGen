@@ -16,9 +16,8 @@ namespace infini {
         code += INDENTATION(indent) + outputCache + " = ";                     \
         if (CAST) {                                                            \
             code += "static_cast<" + dataTypeStr(dataType) + ">(";             \
-        } else {                                                               \
-            code += leftCache + " " + OP_STR + " " + rightCache;               \
         }                                                                      \
+        code += leftCache + " " + OP_STR + " " + rightCache;                   \
         if (CAST) {                                                            \
             code += ")";                                                       \
         }                                                                      \

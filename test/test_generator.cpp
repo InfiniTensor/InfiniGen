@@ -28,10 +28,10 @@ int main() {
     Graph *graph = new Graph({add, sub, mul, sqrt}, {a, b, c, d}, {output});
     graph->info();
 
-    Generator *generator = new Generator(Platform::ASCEND, graph, {1024});
+    Generator *generator = new Generator(Platform::KUNLUN, graph, {1024});
     LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
     LOG(INFO) << generator->generateSourceFile("build/code/test.cpp");
-    COMPILE("build/code/test.cpp", "build/bin/", Platform::ASCEND);
+    COMPILE("build/code/test.cpp", "build/bin/", Platform::KUNLUN);
 
 #ifdef DEBUG_MODE
     generator->generateTestScript(
