@@ -13,6 +13,7 @@ const std::string Platform::deviceFuncDecl(std::string name) const {
         CASE(CUDA, "__device__ void " + name);
         CASE(BANG, "__mlu_func__ void " + name);
         CASE(ASCEND, "__aicore__ inline void " + name);
+        CASE(KUNLUN, "__device__ void " + name);
     default:
         return "";
     }
@@ -23,6 +24,7 @@ const std::string Platform::globalFuncDecl(std::string name) const {
         CASE(CUDA, "__global__ void " + name);
         CASE(BANG, "__mlu_entry__ void " + name);
         CASE(ASCEND, "extern \"C\" __global__ __aicore__ void " + name);
+        CASE(KUNLUN, "__global__ void " + name);
     default:
         return "";
     }
@@ -43,6 +45,7 @@ const std::string Platform::threadId() const {
     switch (type) {
         CASE(CUDA, "(threadIdx.x + threadIdx.y * blockDim.x + threadIdx.z * "
                    "blockDim.x * blockDim.y)");
+        CASE(KUNLUN, "(core_num() * cluster_id() + core_id())");
     default:
         return "";
     }
@@ -68,6 +71,7 @@ const std::string Platform::taskId() const {
              "gridDim.y)");
         CASE(BANG, "taskId");
         CASE(ASCEND, "GetBlockIdx()");
+        CASE(KUNLUN, "(core_num() * cluster_id() + core_id())");
     default:
         return "";
     }
@@ -101,6 +105,7 @@ const std::string Platform::regDecl(std::string datatype,
         CASE(CUDA, datatype + " " + name);
         CASE(BANG, "__nram__ " + datatype + " " + name);
         CASE(ASCEND, "LocalTensor<" + datatype + "> " + name);
+        CASE(KUNLUN, "__local__ " + datatype + " " + name);
     default:
         return "";
     }
@@ -112,6 +117,7 @@ const std::string Platform::ldramDecl(std::string datatype,
         CASE(CUDA, datatype + " " + name); // 不确定是不是这个
         CASE(BANG, "__ldram__ " + datatype + " " + name);
         CASE(ASCEND, "");
+        CASE(KUNLUN, "");
     default:
 
         return "";
@@ -124,6 +130,7 @@ const std::string Platform::shmemDecl(std::string datatype,
         CASE(CUDA, "__shared__ " + datatype + " " + name);
         CASE(BANG, "__mlu_shared__ " + datatype + " " + name);
         CASE(ASCEND, "");
+        CASE(KUNLUN, "__shared__ " + datatype + " " + name);
     default:
         return "";
     }
@@ -135,6 +142,7 @@ const std::string Platform::glmemDecl(std::string datatype,
         CASE(CUDA, "__device__ " + datatype + " " + name);
         CASE(BANG, "__mlu_device__ " + datatype + " " + name);
         CASE(ASCEND, "GlobalTensor<" + datatype + "> " + name);
+        CASE(KUNLUN, "__global_ptr__ " + datatype + " " + name);
     default:
         return "";
     }
@@ -145,6 +153,7 @@ const std::string Platform::queue() const {
         CASE(CUDA, "cudaStream_t");
         CASE(BANG, "cnrtQueue_t");
         CASE(ASCEND, "void*");
+        CASE(KUNLUN, "XPUStream");
     default:
         return "";
     }
@@ -156,6 +165,9 @@ const std::string Platform::head() const {
         CASE(BANG, "#include <bang.h>");
         CASE(ASCEND,
              "#include \"kernel_operator.h\"\nusing namespace AscendC;");
+        CASE(KUNLUN, "#include <xpu/kernel/cluster_header.h>\n#include "
+                     "<xpu/kernel/debug.h>\n#include "
+                     "<xpu/kernel/math.h>\n#include <xpu/runtime.h>");
     default:
         return "";
     }
@@ -166,6 +178,7 @@ const char *Platform::toString() const {
         CASE(CUDA, "CUDA");
         CASE(BANG, "BANG");
         CASE(ASCEND, "ASCEND");
+        CASE(KUNLUN, "KUNLUN");
     default:
         return "Unknown";
     }
@@ -182,6 +195,9 @@ const std::string Platform::taskScaleDecl(Tiles tiles) const {
         CASE(BANG, "cnrtDim3_t dim = {" + std::to_string(PAD_UP(num_cores, 4)) +
                        ", 1, 1};");
         CASE(ASCEND, "int numBlocks = " + std::to_string(num_cores) + ";");
+        CASE(KUNLUN, "int numBlocks = " + std::to_string(num_cores) +
+                         ", threadsPerBlock = " +
+                         std::to_string(tiles[0]->getElementNum()) + ";");
     default:
         return "";
     }
@@ -213,6 +229,7 @@ const std::string Platform::syntacticSugar() const {
         CASE(CUDA, "<<<numBlocks, threadsPerBlock, 0, queue>>>");
         CASE(BANG, "<<<dim, CNRT_FUNC_TYPE_UNION1, queue>>>");
         CASE(ASCEND, "<<<numBlocks, nullptr, queue>>>");
+        CASE(KUNLUN, "<<<numBlocks, threadsPerBlock, queue>>>");
     default:
         return "";
     }
@@ -297,6 +314,7 @@ const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
                          std::to_string(cache_size) + "); LocalTensor<" +
                          datatype + "> " + name + " = tbuf.Get<" + datatype +
                          ">();");
+        CASE(KUNLUN, "char " + name + "[" + std::to_string(cache_size) + "];");
     default:
         return "";
     }
@@ -308,6 +326,8 @@ const std::string Platform::ldramDecl(std::string name,
         CASE(CUDA, "");
         CASE(BANG, "__ldram__ char " + name + "_ldram[" +
                        std::to_string(ldram_size) + "];");
+        CASE(ASCEND, "");
+        CASE(KUNLUN, "");
     default:
         return "";
     }
