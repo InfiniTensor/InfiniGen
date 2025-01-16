@@ -45,7 +45,6 @@ const std::string Platform::threadId() const {
     switch (type) {
         CASE(CUDA, "(threadIdx.x + threadIdx.y * blockDim.x + threadIdx.z * "
                    "blockDim.x * blockDim.y)");
-        CASE(KUNLUN, "(core_num() * cluster_id() + core_id())");
     default:
         return "";
     }
@@ -165,9 +164,9 @@ const std::string Platform::head() const {
         CASE(BANG, "#include <bang.h>");
         CASE(ASCEND,
              "#include \"kernel_operator.h\"\nusing namespace AscendC;");
-        CASE(KUNLUN, "#include <xpu/kernel/cluster_header.h>\n#include "
-                     "<xpu/kernel/debug.h>\n#include "
-                     "<xpu/kernel/math.h>\n#include <xpu/runtime.h>");
+        CASE(KUNLUN, "#include \"xpu/runtime.h\"\n#include "
+                     "\"xpu/kernel/cluster_header.h\"\n#include "
+                     "\"xpu/kernel/debug.h\"\n#include \"xpu/kernel/math.h\"");
     default:
         return "";
     }
@@ -314,7 +313,8 @@ const std::string Platform::cacheDecl(std::string name, int64_t cache_size,
                          std::to_string(cache_size) + "); LocalTensor<" +
                          datatype + "> " + name + " = tbuf.Get<" + datatype +
                          ">();");
-        CASE(KUNLUN, "char " + name + "[" + std::to_string(cache_size) + "];");
+        CASE(KUNLUN, "__local__ char " + name + "[" +
+                         std::to_string(cache_size) + "];");
     default:
         return "";
     }

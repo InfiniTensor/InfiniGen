@@ -11,9 +11,9 @@ std::string LoadKunlun::code(Cache &cache, std::string &code, int64_t indent) {
 
     bool cached = (cache.find(operand) != nullptr);
     Block *block = cache.load(operand);
-    std::string cachePosStr = "(" + dataTypeStr(dataType) + "*)(" +
+    std::string cachePosStr = "((" + dataTypeStr(dataType) + "*)(" +
                               cache.cacheName + " + " +
-                              std::to_string(block->blockStart) + ")";
+                              std::to_string(block->blockStart) + "))";
     if (cached) {
         return cachePosStr;
     }
@@ -35,9 +35,9 @@ std::string StoreKunlun::code(Cache &cache, std::string &code, int64_t indent) {
     std::string lengthStr = std::to_string(length * SIZE_OF(dataType));
 
     Block *block = cache.load(operand);
-    std::string cachePosStr = "(" + dataTypeStr(dataType) + "*)(" +
+    std::string cachePosStr = "((" + dataTypeStr(dataType) + "*)(" +
                               cache.cacheName + " + " +
-                              std::to_string(block->blockStart) + ")";
+                              std::to_string(block->blockStart) + "))";
     std::string tileOffsetStr =
         operand->tensor->tensorName + " + " +
         operand->getOffsetInTensor(operand->tileCoordsExpr);
@@ -59,9 +59,9 @@ std::string FreeKunlun::code(Cache &cache, std::string &code, int64_t indent) {
 std::string AllocateKunlun::code(Cache &cache, std::string &code,
                                  int64_t indent) {
     Block *block = cache.allocate(operand);
-    std::string cachePosStr = "(" + dataTypeStr(dataType) + "*)(" +
+    std::string cachePosStr = "((" + dataTypeStr(dataType) + "*)(" +
                               cache.cacheName + " + " +
-                              std::to_string(block->blockStart) + ")";
+                              std::to_string(block->blockStart) + "))";
     return cachePosStr;
 }
 

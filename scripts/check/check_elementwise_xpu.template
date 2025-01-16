@@ -11,6 +11,7 @@
 // 1. Definition of generated function
 {}
 int main(void) {
+    XPUStream queue;
     std::random_device seed;
     std::ranlux48 engine(seed());
     std::uniform_real_distribution<> distrib(0, 100);
@@ -34,7 +35,6 @@ int main(void) {
         // 7. Warmup
         {}
     }
-    CHECK_ACL(aclrtRecordEvent(start, queue));
     for (int i = 0; i < timingRounds; i++) {
         // 8. Execute
         {}

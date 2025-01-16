@@ -30,12 +30,12 @@ int main() {
 
     Generator *generator = new Generator(Platform::KUNLUN, graph, {1024});
     LOG(INFO) << generator->generateHeaderFile("build/code/test.h");
-    LOG(INFO) << generator->generateSourceFile("build/code/test.cpp");
-    COMPILE("build/code/test.cpp", "build/bin/", Platform::KUNLUN);
+    LOG(INFO) << generator->generateSourceFile("build/code/test.xpu");
+    COMPILE("build/code/test.xpu", "build/bin/", Platform::KUNLUN);
 
 #ifdef DEBUG_MODE
     generator->generateTestScript(
-        "scripts/check/check_elementwise_npu.template",
+        "scripts/check/check_elementwise_xpu.template",
         "sqrtf((0[i] + 1[i] - 2[i]) * 3[i])", "build/bin/test.cpp");
 #endif
     delete a;

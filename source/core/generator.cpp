@@ -519,7 +519,7 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
         for (auto i = 0; i < devicePointers.size() - 1; i++) {
             deviceMemInit +=
                 fmt::format("{0}xpu_memcpy({1}, {2}, {3} * "
-                            "sizeof({4}), XPU_HOST_TO_DEVICE));\n",
+                            "sizeof({4}), XPU_HOST_TO_DEVICE);\n",
                             INDENTATION(2), devicePointers[i], hostPointers[i],
                             tensorLengths[i], code.dataType);
         }
@@ -532,7 +532,7 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
         // 9. Copy result to host
         std::string resD2H =
             fmt::format("xpu_memcpy({0}, {1}, {2} * sizeof({3}), "
-                        "XPU_DEVICE_TO_HOST));",
+                        "XPU_DEVICE_TO_HOST);",
                         hostPointers.back(), devicePointers.back(),
                         tensorLengths.back(), code.dataType);
         args.push_back(resD2H);
