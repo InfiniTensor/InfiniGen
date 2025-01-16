@@ -36,6 +36,16 @@ void COMPILE(std::string input_file_path, std::string output_binary_directory,
         shell += "cp " + code_path + "/build/lib/lib" + file_name + ".so " +
                  output_binary_directory;
         system(shell.c_str());
+    } else if (platform == Platform::KUNLUN) {
+        shell += "/usr/local/xpu/XTDK/bin/clang++ -std=c++11 " +
+                 input_file_path + " -shared -o" + output_binary_directory +
+                 "lib" + file_name + ".so " +
+                 " --sysroot=/usr/local/gcc-11.3 -O2 "
+                 "-fno-builtin -g --xpu-arch=xpu2 --target=aarch64-linux-gnu "
+                 "-fPIC -I/usr/local/xpu/include -L/usr/local/xpu/lib64 "
+                 "-L/usr/local/xpu/XTDK/lib "
+                 "-lxpurt -lpthread -lm -lstdc++";
+        system(shell.c_str());
     }
     return;
 }

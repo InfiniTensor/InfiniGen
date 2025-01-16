@@ -1,0 +1,66 @@
+#include <xpu/runtime.h>
+#include <cstdlib>
+#include <math.h>
+#include <time.h>
+#include <random>
+#include <iostream>
+#include <stdio.h>
+
+#define EPS 1e-5
+
+// 1. Definition of generated function
+{}
+int main(void) {
+    std::random_device seed;
+    std::ranlux48 engine(seed());
+    std::uniform_real_distribution<> distrib(0, 100);
+
+    // 2. Host memory allocation
+{}
+    // 3. Maximum tensor length
+    for (int i = 0; i < {}; i++) {
+        // 4. Host memory initialization
+{}
+    }
+
+    // 5. Device memory allocation
+{}
+    // 6. Device memory initialization
+{}
+    int warmupRounds = 100;
+    int timingRounds = 200;
+
+    for (int i = 0; i < warmupRounds; i++) {
+        // 7. Warmup
+        {}
+    }
+    CHECK_ACL(aclrtRecordEvent(start, queue));
+    for (int i = 0; i < timingRounds; i++) {
+        // 8. Execute
+        {}
+    }
+    struct timespec start_time, stop_time;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    xpu_wait();
+    clock_gettime(CLOCK_MONOTONIC, &stop_time);
+
+    // 9. Copy result to host
+    {}
+
+    // 10. Output tensor length
+    for (int i = 0; i < {}; i++) {
+        // 11. Calculate baseline result
+        {}
+        if (fabsf(host_dest[i] - res) > EPS) {
+            printf("Pos %d: %f expected, but %f got!\n", i, res, host_dest[i]);
+        }
+    }
+
+    float timeTotal = (stop_time.tv_sec - start_time.tv_sec) * 1000.0 +
+                      (stop_time.tv_nsec - start_time.tv_nsec) / 1e6;
+    printf("Total Time: %.8f ms\n", timeTotal / timingRounds);
+
+    // 12. Free pointers
+{}
+    return 0;
+}
