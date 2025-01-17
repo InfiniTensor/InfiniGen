@@ -1,7 +1,7 @@
 #include "core/cache.h"
 #include "core/utils.h"
-#include "micros/unary_micro.h"
 #include "micros/memory_micro.h"
+#include "micros/unary_micro.h"
 namespace infini {
 
 #define UNARY_LAMBDA(OP_STR, DTYPE, LAMBDA)                                    \
@@ -25,12 +25,14 @@ std::string kunlun_unary_kernel(std::string kernelName, TensorDataType dtype) {
     std::string CAT(OP, Kunlun)::code(Cache &cache, std::string &code,         \
                                       int64_t indent) {                        \
         cache.lock();                                                          \
-        code += INDENTATION(indent) + kunlun_unary_kernel(OP_STR, dataType) + ";\n";  \
-        std::string inputCache = LoadKunlun({input}).code(cache, code, indent); \
+        code += INDENTATION(indent) + kunlun_unary_kernel(OP_STR, dataType) +  \
+                ";\n";                                                         \
+        std::string inputCache =                                               \
+            LoadKunlun({input}).code(cache, code, indent);                     \
         std::string outputCache =                                              \
             AllocateKunlun({output}).code(cache, code, indent);                \
         code += INDENTATION(indent) + "for (int i = 0; i < " +                 \
-                std::to_string(length) + "; i++) {\n";                           \
+                std::to_string(length) + "; i++) {\n";                         \
         code += INDENTATION(indent + 1) + outputCache +                        \
                 "[i] = " + std::string(OP_STR) + "(" + inputCache + "[i]);\n"; \
         code += INDENTATION(indent) + "}\n";                                   \

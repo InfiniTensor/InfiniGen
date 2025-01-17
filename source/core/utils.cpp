@@ -40,15 +40,15 @@ void COMPILE(std::string input_file_path, std::string output_binary_directory,
         file_path_split.pop_back();
         std::string code_path = STRING_GATHER(file_path_split, "/");
         shell += "cd " + code_path + ";";
-        shell += "/usr/local/xpu-4.31.0/XTDK/bin/clang++ -std=c++11 " +
-                 file_name + ".xpu -shared -o lib" + file_name + ".so " +
-                 "--sysroot=/usr/local/gcc-11.3 -O2 "
-                 "-fno-builtin -g --xpu-arch=xpu2 --target=aarch64-linux-gnu "
-                 "-fPIC -I/usr/include -I/usr/local/xpu-4.31.0/include "
-                 "-L/usr/local/xpu-4.31.0/lib64 "
-                 "-L/usr/local/xpu-4.31.0/XTDK/lib "
-                 "-Wl,--library-path=/usr/lib64 "
-                 "-lxpurt -lpthread -lm -lstdc++;";
+        shell += "/usr/local/xpu/XTDK/bin/clang++ -std=c++11 " + file_name +
+                 ".xpu -shared -o lib" + file_name + ".so " +
+                 "-O2 -lstdc++ --sysroot=/ "
+                 "--xpu-arch=xpu2 "
+                 "-fPIC "
+                 "-I/usr/local/xpu/XTDK/include "
+                 "-I/usr/local/xpu/include "
+                 "-L/usr/local/xpu/lib64 "
+                 "-lxpurt;";
         shell += "cd -;";
         shell += "cp " + code_path + "/lib" + file_name + ".so " +
                  output_binary_directory;

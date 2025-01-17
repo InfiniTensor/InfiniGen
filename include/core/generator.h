@@ -13,8 +13,9 @@ struct Code {
     std::string dataType;
     std::string params;
     std::string args;
-    // For AscendC kernel
-    std::string paramsOnChip;
+    // For AscendC/Kunlun kernel
+    std::string paramsDevice;
+    std::string paramsGlobal;
 };
 
 class Generator {

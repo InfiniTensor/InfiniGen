@@ -14,7 +14,7 @@ namespace infini {
         std::string outputCache =                                              \
             AllocateKunlun({output}).code(cache, code, indent);                \
         code += INDENTATION(indent) + "for (int i = 0; i < " +                 \
-                std::to_string(length) + "; i++) {\n";                           \
+                std::to_string(length) + "; i++) {\n";                         \
         code += INDENTATION(indent + 1) + outputCache + "[i]" + " = ";         \
         code += leftCache + "[i] " + OP_STR + " " + rightCache + "[i];\n";     \
         code += INDENTATION(indent) + "}\n";                                   \

@@ -59,15 +59,18 @@ Generator::Generator(Platform platform_, Graph *graph_, Shape pattern_,
         std::transform(params.begin(), params.end(),
                        std::back_inserter(paramsOnChip),
                        [](const std::string &s) { return "__gm__ " + s; });
-        code.paramsOnChip = STRING_GATHER(paramsOnChip);
+        code.paramsDevice = STRING_GATHER(paramsOnChip);
+        code.paramsGlobal = STRING_GATHER(paramsOnChip);
     } else if (platform == Platform::KUNLUN) {
         std::vector<std::string> paramsOnChip;
-        std::transform(params.begin(), params.end(),
-                        std::back_inserter(paramsOnChip),
-                        [](const std::string &s) { return "_global_ptr_ " + s; });
-        code.paramsOnChip = STRING_GATHER(paramsOnChip);
+        std::transform(
+            params.begin(), params.end(), std::back_inserter(paramsOnChip),
+            [](const std::string &s) { return "_global_ptr_ " + s; });
+        code.paramsDevice = STRING_GATHER(paramsOnChip);
+        code.paramsGlobal = code.params;
     } else {
-        code.paramsOnChip = code.params;
+        code.paramsDevice = code.params;
+        code.paramsGlobal = code.params;
     }
 
     // TODO
@@ -175,7 +178,7 @@ std::string Generator::generateSourceFile(const std::string &filepath,
     // TODO: multiple tasks
     result += INDENTATION(indent) +
               platform.deviceFuncDecl(graph->graphName + "_device") + "(" +
-              code.paramsOnChip + ") {\n";
+              code.paramsDevice + ") {\n";
     result +=
         INDENTATION(indent + 1) +
         platform.cacheDecl(cache.cacheName, cache.cacheSize, code.dataType) +
@@ -189,7 +192,7 @@ std::string Generator::generateSourceFile(const std::string &filepath,
     // Global Function
     result += INDENTATION(indent) +
               platform.globalFuncDecl(graph->graphName + "_global") + "(" +
-              code.paramsOnChip + ") {\n";
+              code.paramsGlobal + ") {\n";
     result += INDENTATION(indent + 1) + graph->graphName + "_device(" +
               code.args + ");\n";
     result += INDENTATION(indent) + "}\n";
@@ -544,8 +547,7 @@ std::string Generator::generateTestScript(const std::string &templateFilepath,
         // 12. Free pointers
         std::string freePtrs;
         for (auto ptr : devicePointers) {
-            freePtrs +=
-                fmt::format("{0}xpu_free({1});\n", INDENTATION(2), ptr);
+            freePtrs += fmt::format("{0}xpu_free({1});\n", INDENTATION(2), ptr);
         }
         for (auto ptr : hostPointers) {
             freePtrs += fmt::format("{0}free({1});\n", INDENTATION(2), ptr);
