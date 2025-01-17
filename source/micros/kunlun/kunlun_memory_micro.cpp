@@ -42,6 +42,7 @@ std::string StoreKunlun::code(Cache &cache, std::string &code, int64_t indent) {
         operand->tensor->tensorName + " + " +
         operand->getOffsetInTensor(operand->tileCoordsExpr);
 
+    code += INDENTATION(indent) + "mfence();\n";
     if (operand->tileShape.size() == 1) {
         code += INDENTATION(indent) + "LM2GM(" + cachePosStr + ", " +
                 tileOffsetStr + ", " + lengthStr + ");\n";
@@ -66,8 +67,8 @@ std::string AllocateKunlun::code(Cache &cache, std::string &code,
 }
 
 REGISTER_MICRO(OperatorType::LOAD, Platform::KUNLUN, LoadKunlun::makeObj)
-REGISTER_MICRO(OperatorType::ALLOCATE, Platform::KUNLUN, LoadKunlun::makeObj)
-REGISTER_MICRO(OperatorType::STORE, Platform::KUNLUN, LoadKunlun::makeObj)
-REGISTER_MICRO(OperatorType::FREE, Platform::KUNLUN, LoadKunlun::makeObj)
+REGISTER_MICRO(OperatorType::ALLOCATE, Platform::KUNLUN, AllocateKunlun::makeObj)
+REGISTER_MICRO(OperatorType::STORE, Platform::KUNLUN, StoreKunlun::makeObj)
+REGISTER_MICRO(OperatorType::FREE, Platform::KUNLUN, FreeKunlun::makeObj)
 
 } // namespace infini

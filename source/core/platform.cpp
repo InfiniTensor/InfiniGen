@@ -195,8 +195,7 @@ const std::string Platform::taskScaleDecl(Tiles tiles) const {
                        ", 1, 1};");
         CASE(ASCEND, "int numBlocks = " + std::to_string(num_cores) + ";");
         CASE(KUNLUN, "int numBlocks = " + std::to_string(num_cores) +
-                         ", threadsPerBlock = " +
-                         std::to_string(tiles[0]->getElementNum()) + ";");
+                         ", threadsPerBlock = 1;");
     default:
         return "";
     }
